@@ -16,6 +16,14 @@ public interface WildyQoLConfig extends Config
 	)
 	String MISCLICK_PREVENTION_SECTION = "misclickPreventionSection";
 
+	@ConfigSection(
+		name = "Items Kept on Death",
+		description = "Settings for the Items Kept on Death widget",
+		position = 1,
+		closedByDefault = false
+	)
+	String ITEMS_KEPT_ON_DEATH_SECTION = "itemsKeptOnDeathSection";
+
 	@ConfigItem(
 		keyName = "petSpellBlocker",
 		name = "Pet Spell Blocker",
@@ -41,13 +49,25 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "updateMessageShown110",
-		name = "Update Message Shown v1.1.0",
-		description = "Internal flag to track if the v1.1.0 update message has been shown",
+		keyName = "showIkodTrouverOverlay",
+		name = "Trouver Cost Overlay",
+		description = "Show Trouver parchment cost + 500k gp in the Items Kept on Death interface",
+		position = 0,
+		section = ITEMS_KEPT_ON_DEATH_SECTION
+	)
+	default boolean showIkodTrouverOverlay()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "updateMessageShown111",
+		name = "Update Message Shown v1.1.1",
+		description = "Internal flag to track if the v1.1.1 update message has been shown",
 		hidden = true,
         position = 3
 	)
-	default boolean updateMessageShown110()
+	default boolean updateMessageShown111()
 	{
 		return false;
 	}
