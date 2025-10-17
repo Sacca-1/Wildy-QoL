@@ -4,11 +4,14 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 
 ## Features
 
-### Pet Spell Blocker
-* Removes "Cast" menu entries on any follower pet (all pets supported)
+### Misclick prevention
 
-### Empty Vial Blocker
-* Prevents left-clicking "Use" on empty vials while in dangerous areas (wilderness, PvP worlds, Deadman worlds)
+- Pet Spell Blocker
+- Empty Vial Blocker
+
+### Items Kept on Death
+
+- Adds Trouver parchment costs to risk. Thank you to 1 Option for the suggestion!
 
 ## Future Features
 
