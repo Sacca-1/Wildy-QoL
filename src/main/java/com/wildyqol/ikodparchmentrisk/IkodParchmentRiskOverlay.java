@@ -17,6 +17,7 @@ import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.util.QuantityFormatter;
+import net.runelite.client.util.Text;
 import com.wildyqol.WildyQoLConfig;
 
 @Singleton
@@ -70,6 +71,10 @@ public class IkodParchmentRiskOverlay extends Overlay
         }
 
         Rectangle bounds = riskWidget.getBounds();
+        Widget messageWidget = client.getWidget(InterfaceID.Deathkeep.TOPAREA);
+        Rectangle messageBounds = messageWidget != null ? messageWidget.getBounds() : null;
+        boolean condensed = hasAdditionalMessage(messageWidget);
+
         if (bounds == null)
         {
             return null;
@@ -82,35 +87,102 @@ public class IkodParchmentRiskOverlay extends Overlay
         long totalRisk = baseRisk + surcharge;
         String totalRiskText = QuantityFormatter.formatNumber(totalRisk);
 
-        String[] lines = {
-            "Trouver cost:",
-            surchargeText,
-            "Total risk:",
-            totalRiskText
-        };
+        String[] lines = condensed
+            ? new String[] { "Total risk:", totalRiskText }
+            : new String[] { "Trouver cost:", surchargeText, "Total risk:", totalRiskText };
 
-        Color[] colors = {
-            labelColor,
-            Color.WHITE,
-            labelColor,
-            Color.WHITE
-        };
+        Color[] colors = condensed
+            ? new Color[] { labelColor, Color.WHITE }
+            : new Color[] { labelColor, Color.WHITE, labelColor, Color.WHITE };
 
         int centerX = bounds.x + bounds.width / 2;
-        int y = bounds.y - BASELINE_MARGIN;
         int lineHeight = graphics.getFontMetrics().getHeight();
-        int step = lineHeight + LINE_SPACING;
+        int spacing = condensed ? 1 : LINE_SPACING;
+        int step = lineHeight + spacing;
+        int bottomY = bounds.y - BASELINE_MARGIN;
+
+        if (condensed && messageBounds != null)
+        {
+            int requiredBottom = messageBounds.y + messageBounds.height + BASELINE_MARGIN + (lines.length - 1) * step;
+            bottomY = Math.max(bottomY, requiredBottom);
+            bottomY += 4;
+        }
+
+        int y = bottomY;
 
         for (int i = lines.length - 1; i >= 0; i--)
         {
             String line = lines[i];
             int textWidth = graphics.getFontMetrics().stringWidth(line);
             int textX = centerX - textWidth / 2;
-            Point location = new Point(textX, y);
+            int textY = y;
+            if (condensed)
+            {
+                if (i == 0)
+                {
+                    textY += 5;
+                }
+                else
+                {
+                    textY += 2;
+                }
+            }
+            Point location = new Point(textX, textY);
             OverlayUtil.renderTextLocation(graphics, location, lines[i], colors[i]);
             y -= step;
         }
 
         return null;
+    }
+
+    private boolean hasAdditionalMessage(Widget messageWidget)
+    {
+        if (messageWidget == null)
+        {
+            return false;
+        }
+
+        StringBuilder textBuilder = new StringBuilder();
+        appendWidgetText(textBuilder, messageWidget);
+
+        Widget[] dynamicChildren = messageWidget.getDynamicChildren();
+        if (dynamicChildren != null)
+        {
+            for (Widget child : dynamicChildren)
+            {
+                appendWidgetText(textBuilder, child);
+            }
+        }
+
+        if (textBuilder.length() == 0)
+        {
+            return false;
+        }
+
+        String sanitized = Text.removeTags(textBuilder.toString()).toLowerCase();
+        return sanitized.contains("player-owned house")
+            || sanitized.contains("gravestone")
+            || sanitized.contains("safe area");
+    }
+
+    private void appendWidgetText(StringBuilder builder, Widget widget)
+    {
+        if (widget == null)
+        {
+            return;
+        }
+
+        String text = widget.getText();
+        if (text == null || text.isEmpty())
+        {
+            return;
+        }
+
+        if (builder.length() > 0)
+        {
+            builder.append('\n');
+        }
+
+        builder.append(text);
     }
 }
