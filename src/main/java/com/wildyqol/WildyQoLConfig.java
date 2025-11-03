@@ -39,7 +39,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "emptyVialBlocker",
 		name = "Empty Vial Blocker",
-		description = "Prevents left-clicking 'Use' on empty vials in dangerous areas",
+		description = "Prevents left-clicking 'Use' on empty vials",
 		position = 2,
 		section = MISCLICK_PREVENTION_SECTION
 	)

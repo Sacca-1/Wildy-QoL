@@ -17,7 +17,6 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
-import net.runelite.api.WorldType;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuEntryAdded;
@@ -129,12 +128,6 @@ public class WildyQoLPlugin extends Plugin
             return;
         }
 
-        // Only on dangerous areas
-        if (!inDangerousArea())
-        {
-            return;
-        }
-
         // Check if the clicked option is "Use" on a vial item
         if ("Use".equals(event.getMenuEntry().getOption()))
         {
@@ -215,31 +208,6 @@ public class WildyQoLPlugin extends Plugin
             client.getMenu().removeMenuEntry(event.getMenuEntry());
             log.debug("Removed spell cast menu entry for pet: {}", npc.getName());
         }
-    }
-
-    private boolean inDangerousArea()
-    {
-        // Check if in wilderness
-        int wildernessVarbit = client.getVarbitValue(5963); // IN_WILDERNESS varbit ID
-        boolean inWilderness = wildernessVarbit == 1;
-        
-        if (inWilderness)
-        {
-            return true;
-        }
-
-        // Check world types
-        for (WorldType worldType : client.getWorldType())
-        {
-            if (worldType == WorldType.PVP || 
-                worldType == WorldType.DEADMAN ||
-                worldType == WorldType.HIGH_RISK)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void showUpdateMessage()
