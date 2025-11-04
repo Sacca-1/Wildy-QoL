@@ -2,7 +2,11 @@ package com.wildyqol;
 
 import com.google.inject.Provides;
 import com.wildyqol.ikodparchmentrisk.IkodParchmentRiskOverlay;
+import com.wildyqol.menaphite.MenaphiteProcInfoBox;
+import com.wildyqol.menaphite.MenaphiteProcStatusBarOverlay;
+import com.wildyqol.menaphite.MenaphiteProcTimerService;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
@@ -25,15 +29,19 @@ import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
+import net.runelite.client.ui.overlay.infobox.InfoBoxPriority;
 import net.runelite.client.util.Text;
 
 @Slf4j
@@ -66,7 +74,19 @@ public class WildyQoLPlugin extends Plugin
     @Inject
     private IkodParchmentRiskOverlay ikodParchmentRiskOverlay;
 
+    @Inject
+    private MenaphiteProcTimerService menaphiteProcTimerService;
+
+    @Inject
+    private InfoBoxManager infoBoxManager;
+
+    @Inject
+    private MenaphiteProcStatusBarOverlay menaphiteProcStatusBarOverlay;
+
     private static final long TROUVER_REPARCH_COST = 500_000L;
+    private MenaphiteProcInfoBox menaphiteProcInfoBox;
+    private BufferedImage menaphiteImage;
+    private boolean menaphiteStatusBarOverlayAdded;
 
     @Override
     protected void startUp()
@@ -76,6 +96,12 @@ public class WildyQoLPlugin extends Plugin
 
         overlayManager.add(ikodParchmentRiskOverlay);
         updateTrouverSurcharge();
+        removeMenaphiteProcInfoBox();
+        removeMenaphiteStatusBarOverlay();
+        menaphiteImage = loadMenaphiteImage();
+        menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
+        menaphiteProcTimerService.reset();
+        updateMenaphiteStatusBarOverlay();
 
         // Check if we should show update message (but don't show it yet)
         if (!config.updateMessageShown111())
@@ -90,6 +116,11 @@ public class WildyQoLPlugin extends Plugin
         log.debug("Wildy QoL stopped");
         overlayManager.remove(ikodParchmentRiskOverlay);
         ikodParchmentRiskOverlay.reset();
+        menaphiteProcTimerService.reset();
+        removeMenaphiteProcInfoBox();
+        removeMenaphiteStatusBarOverlay();
+        menaphiteProcStatusBarOverlay.clearMenaphiteImage();
+        menaphiteImage = null;
     }
 
     @Subscribe
@@ -97,6 +128,9 @@ public class WildyQoLPlugin extends Plugin
     {
         if (gameStateChanged.getGameState() != GameState.LOGGED_IN)
         {
+            menaphiteProcTimerService.reset();
+            removeMenaphiteProcInfoBox();
+            removeMenaphiteStatusBarOverlay();
             return;
         }
 
@@ -172,6 +206,41 @@ public class WildyQoLPlugin extends Plugin
         if (isIkodOpen())
         {
             updateTrouverSurcharge();
+        }
+
+        if (event.getVarbitId() == VarbitID.STATRENEWAL_POTION_TIMER)
+        {
+            handleMenaphiteVarbit(event.getValue());
+        }
+    }
+
+    @Subscribe
+    public void onConfigChanged(ConfigChanged event)
+    {
+        if (!"wildyqol".equals(event.getGroup()))
+        {
+            return;
+        }
+
+        if ("menaphiteProcTimerShowInfoBox".equals(event.getKey()))
+        {
+            if (!config.menaphiteProcTimerShowInfoBox())
+            {
+                removeMenaphiteProcInfoBox();
+            }
+            else if (menaphiteProcTimerService.isActive())
+            {
+                ensureMenaphiteProcInfoBox();
+            }
+
+            int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
+            handleMenaphiteVarbit(varbitValue);
+        }
+
+        if ("menaphiteProcTimerStatusBarMode".equals(event.getKey()))
+        {
+            int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
+            handleMenaphiteVarbit(varbitValue);
         }
     }
 
@@ -379,9 +448,133 @@ public class WildyQoLPlugin extends Plugin
         return new Color(color | 0xFF000000, true);
     }
 
+    private void handleMenaphiteVarbit(int varbitValue)
+    {
+        if (!isMenaphiteTimerEnabled())
+        {
+            menaphiteProcTimerService.reset();
+            removeMenaphiteProcInfoBox();
+            removeMenaphiteStatusBarOverlay();
+            return;
+        }
+
+        menaphiteProcTimerService.handleVarbitUpdate(varbitValue, client.getTickCount());
+
+        if (menaphiteProcTimerService.isActive() && config.menaphiteProcTimerShowInfoBox())
+        {
+            ensureMenaphiteProcInfoBox();
+        }
+        else
+        {
+            removeMenaphiteProcInfoBox();
+        }
+
+        updateMenaphiteStatusBarOverlay();
+    }
+
+    private void ensureMenaphiteProcInfoBox()
+    {
+        if (!config.menaphiteProcTimerShowInfoBox())
+        {
+            removeMenaphiteProcInfoBox();
+            return;
+        }
+
+        if (menaphiteProcInfoBox != null)
+        {
+            return;
+        }
+
+        if (menaphiteImage == null)
+        {
+            menaphiteImage = loadMenaphiteImage();
+        }
+
+        menaphiteProcInfoBox = new MenaphiteProcInfoBox(menaphiteImage, this, menaphiteProcTimerService, config, client);
+        menaphiteProcInfoBox.setTooltip("Time until next menaphite remedy proc");
+        menaphiteProcInfoBox.setPriority(InfoBoxPriority.MED);
+        infoBoxManager.addInfoBox(menaphiteProcInfoBox);
+        menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
+    }
+
+    private void removeMenaphiteProcInfoBox()
+    {
+        if (menaphiteProcInfoBox == null)
+        {
+            return;
+        }
+
+        infoBoxManager.removeInfoBox(menaphiteProcInfoBox);
+        menaphiteProcInfoBox = null;
+    }
+
+    private BufferedImage loadMenaphiteImage()
+    {
+        BufferedImage image = itemManager.getImage(ItemID._4DOSESTATRENEWAL);
+        if (image != null)
+        {
+            return image;
+        }
+
+        return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    private void ensureMenaphiteStatusBarOverlay()
+    {
+        if (menaphiteStatusBarOverlayAdded)
+        {
+            return;
+        }
+
+        overlayManager.add(menaphiteProcStatusBarOverlay);
+        menaphiteStatusBarOverlayAdded = true;
+    }
+
+    private void removeMenaphiteStatusBarOverlay()
+    {
+        if (!menaphiteStatusBarOverlayAdded)
+        {
+            return;
+        }
+
+        overlayManager.remove(menaphiteProcStatusBarOverlay);
+        menaphiteStatusBarOverlayAdded = false;
+    }
+
+    private void updateMenaphiteStatusBarOverlay()
+    {
+        WildyQoLConfig.MenaphiteProcStatusBarMode mode = config.menaphiteProcTimerStatusBarMode();
+        if (mode == null || mode == WildyQoLConfig.MenaphiteProcStatusBarMode.OFF)
+        {
+            removeMenaphiteStatusBarOverlay();
+            return;
+        }
+
+        MenaphiteProcStatusBarOverlay.MenaphiteStatusBarPosition position =
+            mode == WildyQoLConfig.MenaphiteProcStatusBarMode.LEFT
+                ? MenaphiteProcStatusBarOverlay.MenaphiteStatusBarPosition.LEFT
+                : MenaphiteProcStatusBarOverlay.MenaphiteStatusBarPosition.RIGHT;
+        menaphiteProcStatusBarOverlay.setPosition(position);
+        ensureMenaphiteStatusBarOverlay();
+        if (menaphiteImage == null)
+        {
+            menaphiteImage = loadMenaphiteImage();
+        }
+        menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
+    }
+
     @Provides
     WildyQoLConfig provideConfig(ConfigManager configManager)
     {
-        return configManager.getConfig(WildyQoLConfig.class);
+        WildyQoLConfig cfg = configManager.getConfig(WildyQoLConfig.class);
+        configManager.setDefaultConfiguration(cfg, false);
+        return cfg;
     }
-} 
+
+    private boolean isMenaphiteTimerEnabled()
+    {
+        WildyQoLConfig.MenaphiteProcStatusBarMode mode = config.menaphiteProcTimerStatusBarMode();
+        boolean statusBarEnabled = mode != null && mode != WildyQoLConfig.MenaphiteProcStatusBarMode.OFF;
+        return config.menaphiteProcTimerShowInfoBox() || statusBarEnabled;
+    }
+}

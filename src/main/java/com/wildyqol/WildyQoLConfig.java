@@ -24,6 +24,14 @@ public interface WildyQoLConfig extends Config
 	)
 	String ITEMS_KEPT_ON_DEATH_SECTION = "itemsKeptOnDeathSection";
 
+	@ConfigSection(
+		name = "Menaphite proc timer",
+		description = "Settings for tracking the next menaphite remedy proc",
+		position = 2,
+		closedByDefault = false
+	)
+	String MENAPHITE_PROC_TIMER_SECTION = "menaphiteProcTimerSection";
+
 	@ConfigItem(
 		keyName = "petSpellBlocker",
 		name = "Pet Spell Blocker",
@@ -71,4 +79,47 @@ public interface WildyQoLConfig extends Config
 	{
 		return false;
 	}
-} 
+
+	@ConfigItem(
+		keyName = "menaphiteProcTimerDisplayTicks",
+		name = "Show in ticks",
+		description = "Display the menaphite proc countdown using game ticks instead of seconds",
+		position = 1,
+		section = MENAPHITE_PROC_TIMER_SECTION
+	)
+	default boolean menaphiteProcTimerDisplayTicks()
+	{
+		return false;
+	}
+
+	enum MenaphiteProcStatusBarMode
+	{
+		OFF,
+		LEFT,
+		RIGHT
+	}
+
+	@ConfigItem(
+		keyName = "menaphiteProcTimerShowInfoBox",
+		name = "Show infobox",
+		description = "Display the menaphite proc timer as an info box",
+		position = 0,
+		section = MENAPHITE_PROC_TIMER_SECTION
+	)
+	default boolean menaphiteProcTimerShowInfoBox()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "menaphiteProcTimerStatusBarMode",
+		name = "Status bar position",
+		description = "Display the menaphite proc timer as a status bar next to the inventory",
+		position = 2,
+		section = MENAPHITE_PROC_TIMER_SECTION
+	)
+	default MenaphiteProcStatusBarMode menaphiteProcTimerStatusBarMode()
+	{
+		return MenaphiteProcStatusBarMode.OFF;
+	}
+}
