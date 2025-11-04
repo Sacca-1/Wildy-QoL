@@ -69,13 +69,13 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "updateMessageShown111",
-		name = "Update Message Shown v1.1.1",
-		description = "Internal flag to track if the v1.1.1 update message has been shown",
+		keyName = "updateMessageShown120",
+		name = "Update Message Shown v1.2.0",
+		description = "Internal flag to track if the v1.2.0 update message has been shown",
 		hidden = true,
         position = 3
 	)
-	default boolean updateMessageShown111()
+	default boolean updateMessageShown120()
 	{
 		return false;
 	}

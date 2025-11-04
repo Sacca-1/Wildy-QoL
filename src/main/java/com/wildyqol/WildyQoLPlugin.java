@@ -104,7 +104,7 @@ public class WildyQoLPlugin extends Plugin
         updateMenaphiteStatusBarOverlay();
 
         // Check if we should show update message (but don't show it yet)
-        if (!config.updateMessageShown111())
+        if (!config.updateMessageShown120())
         {
             shouldShowUpdateMessage = true;
         }
@@ -138,7 +138,7 @@ public class WildyQoLPlugin extends Plugin
         if (shouldShowUpdateMessage)
         {
             showUpdateMessage();
-            configManager.setConfiguration("wildyqol", "updateMessageShown111", true);
+            configManager.setConfiguration("wildyqol", "updateMessageShown120", true);
             shouldShowUpdateMessage = false;
         }
     }
@@ -283,7 +283,7 @@ public class WildyQoLPlugin extends Plugin
     {
         chatMessageManager.queue(QueuedMessage.builder()
             .type(ChatMessageType.GAMEMESSAGE)
-            .runeLiteFormattedMessage("<col=00ff00>Wildy QoL:</col> new feature: Trouver parchment cost on Items Kept on Death.")
+            .runeLiteFormattedMessage("<col=00ff00>Wildy QoL:</col> new feature: Menaphite proc countdown. Check the plugin settings to enable an optional status bar to see how close the next proc is at a glance.")
             .build());
     }
 
