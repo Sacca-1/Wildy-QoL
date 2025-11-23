@@ -31,6 +31,7 @@ import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
@@ -43,6 +44,9 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxPriority;
 import net.runelite.client.util.Text;
+import net.runelite.client.game.SpriteManager;
+import net.runelite.api.events.GameTick;
+
 
 @Slf4j
 @PluginDescriptor(
@@ -83,7 +87,20 @@ public class WildyQoLPlugin extends Plugin
     @Inject
     private MenaphiteProcStatusBarOverlay menaphiteProcStatusBarOverlay;
 
+    @Inject
+    private SpriteManager spriteManager;
+
+    @Inject
+    private ClientThread clientThread;
+
+    private ProtectItemInfoBox protectItemInfoBox;
+    private BufferedImage protectItemImage;
+
     private static final long TROUVER_REPARCH_COST = 500_000L;
+    private static final int VARBIT_IN_WILDERNESS = 5963;
+    private static final int VARBIT_PVP_AREA_CLIENT = 8121;
+    private static final int VARBIT_PRAYER_PROTECT_ITEM = 4112;
+
     private MenaphiteProcInfoBox menaphiteProcInfoBox;
     private BufferedImage menaphiteImage;
     private boolean menaphiteStatusBarOverlayAdded;
@@ -95,13 +112,19 @@ public class WildyQoLPlugin extends Plugin
         log.debug("Empty Vial Blocker enabled: {}", config.emptyVialBlocker());
 
         overlayManager.add(ikodParchmentRiskOverlay);
-        updateTrouverSurcharge();
         removeMenaphiteProcInfoBox();
         removeMenaphiteStatusBarOverlay();
         menaphiteImage = loadMenaphiteImage();
         menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
         menaphiteProcTimerService.reset();
         updateMenaphiteStatusBarOverlay();
+
+        clientThread.invokeLater(() ->
+        {
+            updateTrouverSurcharge();
+            protectItemImage = ProtectItemInfoBox.createImage(spriteManager);
+            updateProtectItemInfoBox();
+        });
 
         // Check if we should show update message (but don't show it yet)
         if (!config.updateMessageShown120())
@@ -121,6 +144,8 @@ public class WildyQoLPlugin extends Plugin
         removeMenaphiteStatusBarOverlay();
         menaphiteProcStatusBarOverlay.clearMenaphiteImage();
         menaphiteImage = null;
+        removeProtectItemInfoBox();
+        protectItemImage = null;
     }
 
     @Subscribe
@@ -237,15 +262,32 @@ public class WildyQoLPlugin extends Plugin
                 ensureMenaphiteProcInfoBox();
             }
 
-            int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
-            handleMenaphiteVarbit(varbitValue);
+            clientThread.invokeLater(() ->
+            {
+                int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
+                handleMenaphiteVarbit(varbitValue);
+            });
         }
 
         if ("menaphiteProcTimerStatusBarMode".equals(event.getKey()))
         {
-            int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
-            handleMenaphiteVarbit(varbitValue);
+            clientThread.invokeLater(() ->
+            {
+                int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
+                handleMenaphiteVarbit(varbitValue);
+            });
         }
+
+        if ("protectItemInfoBox".equals(event.getKey()))
+        {
+            clientThread.invokeLater(this::updateProtectItemInfoBox);
+        }
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick event)
+    {
+        updateProtectItemInfoBox();
     }
 
     private void handlePetSpellBlock(MenuEntryAdded event)
@@ -580,5 +622,57 @@ public class WildyQoLPlugin extends Plugin
         WildyQoLConfig.MenaphiteProcStatusBarMode mode = config.menaphiteProcTimerStatusBarMode();
         boolean statusBarEnabled = mode != null && mode != WildyQoLConfig.MenaphiteProcStatusBarMode.OFF;
         return config.menaphiteProcTimerShowInfoBox() || statusBarEnabled;
+    }
+
+    private void updateProtectItemInfoBox()
+    {
+        if (!config.protectItemInfoBox())
+        {
+            removeProtectItemInfoBox();
+            return;
+        }
+
+        if (shouldNotifyProtectItem())
+        {
+            if (protectItemInfoBox == null)
+            {
+                if (protectItemImage == null)
+                {
+                    protectItemImage = ProtectItemInfoBox.createImage(spriteManager);
+                }
+                protectItemInfoBox = new ProtectItemInfoBox(protectItemImage, this);
+                infoBoxManager.addInfoBox(protectItemInfoBox);
+            }
+        }
+        else
+        {
+            removeProtectItemInfoBox();
+        }
+    }
+
+    private void removeProtectItemInfoBox()
+    {
+        if (protectItemInfoBox != null)
+        {
+            infoBoxManager.removeInfoBox(protectItemInfoBox);
+            protectItemInfoBox = null;
+        }
+    }
+
+    private boolean shouldNotifyProtectItem()
+    {
+        // Check if in PvP area
+        boolean inPvp = client.getVarbitValue(VARBIT_IN_WILDERNESS) == 1
+            || client.getVarbitValue(VARBIT_PVP_AREA_CLIENT) == 1;
+
+        if (!inPvp)
+        {
+            return false;
+        }
+        
+        // Check if Protect Item is active
+        boolean protectItemActive = client.getVarbitValue(VARBIT_PRAYER_PROTECT_ITEM) == 1;
+        
+        return !protectItemActive;
     }
 }

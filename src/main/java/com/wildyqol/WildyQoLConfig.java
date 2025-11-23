@@ -32,6 +32,14 @@ public interface WildyQoLConfig extends Config
 	)
 	String MENAPHITE_PROC_TIMER_SECTION = "menaphiteProcTimerSection";
 
+	@ConfigSection(
+		name = "Misc",
+		description = "Miscellaneous settings",
+		position = 3,
+		closedByDefault = false
+	)
+	String MISC_SECTION = "miscSection";
+
 	@ConfigItem(
 		keyName = "petSpellBlocker",
 		name = "Pet Spell Blocker",
@@ -121,5 +129,16 @@ public interface WildyQoLConfig extends Config
 	default MenaphiteProcStatusBarMode menaphiteProcTimerStatusBarMode()
 	{
 		return MenaphiteProcStatusBarMode.OFF;
+	}
+
+	@ConfigItem(
+		keyName = "protectItemInfoBox",
+		name = "Protect Item Infobox",
+		description = "Show an infobox when in PvP area and Protect Item is not active",
+		section = MISC_SECTION
+	)
+	default boolean protectItemInfoBox()
+	{
+		return true;
 	}
 }
