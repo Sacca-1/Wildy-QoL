@@ -190,14 +190,10 @@ public class WildyQoLPlugin extends Plugin
         // Check if the clicked option is "Use" on a vial item
         if ("Use".equals(event.getMenuEntry().getOption()))
         {
-            String target = event.getMenuEntry().getTarget();
-            if (target != null)
+            boolean targetContainsVial = event.getMenuEntry().getTarget() != null && event.getMenuEntry().getTarget().contains("Vial");
+            if (targetContainsVial)
             {
-                String cleanTarget = Text.removeTags(target);
-                if ("Vial".equals(cleanTarget))
-                {
-                    event.consume(); // Cancels the action, effectively doing nothing
-                }
+                event.consume(); // Cancels the action, effectively doing nothing
             }
         }
     }
