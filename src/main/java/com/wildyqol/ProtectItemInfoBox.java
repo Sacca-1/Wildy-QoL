@@ -21,7 +21,7 @@ public class ProtectItemInfoBox extends InfoBox
 		BufferedImage prayerImage = spriteManager.getSprite(SPRITE_PRAYER_PROTECT_ITEM, 0);
 		if (prayerImage == null)
 		{
-			return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+			return null;
 		}
 
 		BufferedImage combined = new BufferedImage(prayerImage.getWidth(), prayerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);

@@ -636,8 +636,12 @@ public class WildyQoLPlugin extends Plugin
                 {
                     protectItemImage = ProtectItemInfoBox.createImage(spriteManager);
                 }
-                protectItemInfoBox = new ProtectItemInfoBox(protectItemImage, this);
-                infoBoxManager.addInfoBox(protectItemInfoBox);
+
+                if (protectItemImage != null)
+                {
+                    protectItemInfoBox = new ProtectItemInfoBox(protectItemImage, this);
+                    infoBoxManager.addInfoBox(protectItemInfoBox);
+                }
             }
         }
         else
