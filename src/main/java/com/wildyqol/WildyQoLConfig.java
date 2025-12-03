@@ -33,9 +33,17 @@ public interface WildyQoLConfig extends Config
 	String MENAPHITE_PROC_TIMER_SECTION = "menaphiteProcTimerSection";
 
 	@ConfigSection(
+		name = "Freeze timers",
+		description = "Extended freeze timer settings",
+		position = 3,
+		closedByDefault = false
+	)
+	String FREEZE_TIMERS_SECTION = "freezeTimersSection";
+
+	@ConfigSection(
 		name = "Misc",
 		description = "Miscellaneous settings",
-		position = 3,
+		position = 4,
 		closedByDefault = false
 	)
 	String MISC_SECTION = "miscSection";
@@ -138,6 +146,30 @@ public interface WildyQoLConfig extends Config
 		section = MISC_SECTION
 	)
 	default boolean protectItemInfoBox()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "enableExtendedFreezeTimers",
+		name = "Extended freeze timers",
+		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres and Swampbark)",
+		position = 0,
+		section = FREEZE_TIMERS_SECTION
+	)
+	default boolean enableExtendedFreezeTimers()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "warnDuplicateFreezeTimers",
+		name = "Warn about duplicates",
+		description = "Warn in chat if the core Timers & Buffs freeze timer stays enabled",
+		position = 1,
+		section = FREEZE_TIMERS_SECTION
+	)
+	default boolean warnDuplicateFreezeTimers()
 	{
 		return true;
 	}
