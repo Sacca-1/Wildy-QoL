@@ -1,6 +1,7 @@
 package com.wildyqol;
 
 import com.google.inject.Provides;
+import com.wildyqol.freezetimers.ExtendedFreezeTimersService;
 import com.wildyqol.ikodparchmentrisk.IkodParchmentRiskOverlay;
 import com.wildyqol.menaphite.MenaphiteProcInfoBox;
 import com.wildyqol.menaphite.MenaphiteProcStatusBarOverlay;
@@ -24,6 +25,8 @@ import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GraphicChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
@@ -95,6 +98,9 @@ public class WildyQoLPlugin extends Plugin
     @Inject
     private ClientThread clientThread;
 
+    @Inject
+    private ExtendedFreezeTimersService extendedFreezeTimersService;
+
     private ProtectItemInfoBox protectItemInfoBox;
 
     private static final Set<Integer> RUNE_POUCH_ITEM_IDS = Set.of(
@@ -132,6 +138,8 @@ public class WildyQoLPlugin extends Plugin
         protectItemInfoBox = new ProtectItemInfoBox(config, client, this, spriteManager);
         infoBoxManager.addInfoBox(protectItemInfoBox);
 
+        extendedFreezeTimersService.startUp(this);
+
         // Check if we should show update message (but don't show it yet)
         if (!config.updateMessageShown120())
         {
@@ -152,11 +160,14 @@ public class WildyQoLPlugin extends Plugin
         menaphiteImage = null;
         infoBoxManager.removeInfoBox(protectItemInfoBox);
         protectItemInfoBox = null;
+        extendedFreezeTimersService.shutDown();
     }
 
     @Subscribe
     public void onGameStateChanged(GameStateChanged gameStateChanged)
     {
+        extendedFreezeTimersService.onGameStateChanged(gameStateChanged);
+
         if (gameStateChanged.getGameState() != GameState.LOGGED_IN)
         {
             menaphiteProcTimerService.reset();
@@ -244,6 +255,11 @@ public class WildyQoLPlugin extends Plugin
             return;
         }
 
+        if ("enableExtendedFreezeTimers".equals(event.getKey()))
+        {
+            extendedFreezeTimersService.onConfigChanged();
+        }
+
         if ("menaphiteProcTimerShowInfoBox".equals(event.getKey()))
         {
             if (!config.menaphiteProcTimerShowInfoBox())
@@ -272,6 +288,18 @@ public class WildyQoLPlugin extends Plugin
         }
 
 
+    }
+
+    @Subscribe
+    public void onGraphicChanged(GraphicChanged event)
+    {
+        extendedFreezeTimersService.onGraphicChanged(event);
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick event)
+    {
+        extendedFreezeTimersService.onGameTick(event);
     }
 
 
