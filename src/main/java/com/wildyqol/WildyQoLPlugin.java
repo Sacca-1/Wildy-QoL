@@ -18,6 +18,8 @@ import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.ItemComposition;
+import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
@@ -95,6 +97,12 @@ public class WildyQoLPlugin extends Plugin
 
     private ProtectItemInfoBox protectItemInfoBox;
 
+    private static final Set<Integer> RUNE_POUCH_ITEM_IDS = Set.of(
+        ItemID.BH_RUNE_POUCH,
+        ItemID.BH_RUNE_POUCH_TROUVER,
+        ItemID.DIVINE_RUNE_POUCH,
+        ItemID.DIVINE_RUNE_POUCH_TROUVER
+    );
 
     private static final long TROUVER_REPARCH_COST = 500_000L;
 
@@ -179,21 +187,12 @@ public class WildyQoLPlugin extends Plugin
     @Subscribe
     public void onMenuOptionClicked(MenuOptionClicked event)
     {
-        // Intercept left-click "Use" on vial and cancel it (do nothing)
-        if (!config.emptyVialBlocker())
+        if (handleRunePouchLeftClick(event))
         {
             return;
         }
 
-        // Check if the clicked option is "Use" on a vial item
-        if ("Use".equals(event.getMenuEntry().getOption()))
-        {
-            boolean targetContainsVial = event.getMenuEntry().getTarget() != null && event.getMenuEntry().getItemId() == ItemID.VIAL_EMPTY;
-            if (targetContainsVial)
-            {
-                event.consume(); // Cancels the action, effectively doing nothing
-            }
-        }
+        handleEmptyVialBlocker(event);
     }
 
     @Subscribe
@@ -309,6 +308,58 @@ public class WildyQoLPlugin extends Plugin
             // Use the new Menu API to remove the entry
             client.getMenu().removeMenuEntry(event.getMenuEntry());
             log.debug("Removed spell cast menu entry for pet: {}", npc.getName());
+        }
+    }
+
+    private boolean handleRunePouchLeftClick(MenuOptionClicked event)
+    {
+        if (!config.runePouchBlocker() || client.isMenuOpen())
+        {
+            return false;
+        }
+
+        if (!isInPvpArea())
+        {
+            return false;
+        }
+
+        MenuEntry clicked = event.getMenuEntry();
+        if (!isRunePouch(clicked.getItemId()) || clicked.getType() == MenuAction.EXAMINE_ITEM)
+        {
+            return false;
+        }
+
+        event.consume();
+        return true;
+    }
+
+    private boolean isRunePouch(int itemId)
+    {
+        int canonicalId = itemManager.canonicalize(itemId);
+        return canonicalId > 0 && RUNE_POUCH_ITEM_IDS.contains(canonicalId);
+    }
+
+    private boolean isInPvpArea()
+    {
+        return client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1
+            || client.getVarbitValue(VarbitID.PVP_AREA_CLIENT) == 1;
+    }
+
+    private void handleEmptyVialBlocker(MenuOptionClicked event)
+    {
+        if (!config.emptyVialBlocker() || !isInPvpArea())
+        {
+            return;
+        }
+
+        if (!"Use".equals(event.getMenuEntry().getOption()))
+        {
+            return;
+        }
+
+        if (event.getMenuEntry().getItemId() == ItemID.VIAL_EMPTY)
+        {
+            event.consume();
         }
     }
 

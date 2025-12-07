@@ -41,6 +41,18 @@ public interface WildyQoLConfig extends Config
 	String MISC_SECTION = "miscSection";
 
 	@ConfigItem(
+		keyName = "runePouchBlocker",
+		name = "Rune Pouch Blocker",
+		description = "Block left-click on rune pouches (PvP areas only)",
+		position = 0,
+		section = MISCLICK_PREVENTION_SECTION
+	)
+	default boolean runePouchBlocker()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "petSpellBlocker",
 		name = "Pet Spell Blocker",
 		description = "Removes 'Cast' menu entries on pets",
