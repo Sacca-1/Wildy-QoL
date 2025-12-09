@@ -24,15 +24,20 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
+import net.runelite.api.events.AnimationChanged;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicChanged;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.events.InteractingChanged;
+import net.runelite.api.events.PlayerDespawned;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
@@ -300,6 +305,36 @@ public class WildyQoLPlugin extends Plugin
     public void onGameTick(GameTick event)
     {
         extendedFreezeTimersService.onGameTick(event);
+    }
+
+    @Subscribe
+    public void onInteractingChanged(InteractingChanged event)
+    {
+        extendedFreezeTimersService.onInteractingChanged(event);
+    }
+
+    @Subscribe
+    public void onAnimationChanged(AnimationChanged event)
+    {
+        extendedFreezeTimersService.onAnimationChanged(event);
+    }
+
+    @Subscribe
+    public void onHitsplatApplied(HitsplatApplied event)
+    {
+        extendedFreezeTimersService.onHitsplatApplied(event);
+    }
+
+    @Subscribe
+    public void onChatMessage(ChatMessage event)
+    {
+        extendedFreezeTimersService.onChatMessage(event);
+    }
+
+    @Subscribe
+    public void onPlayerDespawned(PlayerDespawned event)
+    {
+        extendedFreezeTimersService.onPlayerDespawned(event);
     }
 
 
