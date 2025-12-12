@@ -67,8 +67,6 @@ public class ExtendedFreezeTimersService
 	private int freezeAppliedTick = -1;
 	private int lastFrozenMessageTick = -1;
 	private WorldPoint lastPoint;
-	private Boolean previousTimersShowFreezes;
-	private boolean toggledCoreTimers;
 	private boolean warnedDuplicate;
 
 	@Inject
@@ -97,13 +95,12 @@ public class ExtendedFreezeTimersService
 			return;
 		}
 
-		disableCoreFreezeTimers();
+		warnDuplicateTimersIfNeeded();
 	}
 
 	public void shutDown()
 	{
 		removeActiveTimer();
-		restoreCoreFreezeSetting();
 		clearOpponent();
 		plugin = null;
 		warnedDuplicate = false;
@@ -114,12 +111,11 @@ public class ExtendedFreezeTimersService
 		if (config.enableExtendedFreezeTimers())
 		{
 			warnedDuplicate = false;
-			disableCoreFreezeTimers();
+			warnDuplicateTimersIfNeeded();
 		}
 		else
 		{
 			removeActiveTimer();
-			restoreCoreFreezeSetting();
 			clearOpponent();
 		}
 	}
@@ -339,11 +335,7 @@ public class ExtendedFreezeTimersService
 		freezeAppliedTick = client.getTickCount();
 
 		// If the core timer is still on, warn once.
-		Boolean coreFreeze = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		if (coreFreeze == null || Boolean.TRUE.equals(coreFreeze))
-		{
-			warnDuplicateTimersIfNeeded();
-		}
+		warnDuplicateTimersIfNeeded();
 	}
 
 	private Duration calculateDuration(FreezeType type)
@@ -463,49 +455,15 @@ public class ExtendedFreezeTimersService
 		return plugin != null && config.enableExtendedFreezeTimers();
 	}
 
-	private void disableCoreFreezeTimers()
-	{
-		if (toggledCoreTimers)
-		{
-			return;
-		}
-
-		previousTimersShowFreezes = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		toggledCoreTimers = true;
-		configManager.setConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, false);
-
-		Boolean after = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		if (Boolean.TRUE.equals(after))
-		{
-			warnDuplicateTimersIfNeeded();
-		}
-	}
-
-	private void restoreCoreFreezeSetting()
-	{
-		if (!toggledCoreTimers)
-		{
-			return;
-		}
-
-		Boolean current = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		// If the user changed the setting back while enabled, don't override it.
-		if (Boolean.TRUE.equals(current))
-		{
-			toggledCoreTimers = false;
-			previousTimersShowFreezes = null;
-			return;
-		}
-
-		boolean restoreValue = previousTimersShowFreezes == null ? true : previousTimersShowFreezes;
-		configManager.setConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, restoreValue);
-		toggledCoreTimers = false;
-		previousTimersShowFreezes = null;
-	}
-
 	private void warnDuplicateTimersIfNeeded()
 	{
 		if (warnedDuplicate || !config.warnDuplicateFreezeTimers())
+		{
+			return;
+		}
+
+		Boolean coreFreeze = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
+		if (coreFreeze != null && !coreFreeze)
 		{
 			return;
 		}
