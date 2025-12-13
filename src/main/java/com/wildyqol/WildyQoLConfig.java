@@ -171,7 +171,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default boolean enableExtendedFreezeTimers()
 	{
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
