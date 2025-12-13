@@ -236,6 +236,8 @@ public class WildyQoLPlugin extends Plugin
         {
             updateTrouverSurcharge();
         }
+
+        extendedFreezeTimersService.onItemContainerChanged(event);
     }
 
     @Subscribe

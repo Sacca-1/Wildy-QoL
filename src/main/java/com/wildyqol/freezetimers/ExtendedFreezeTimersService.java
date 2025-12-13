@@ -16,9 +16,12 @@ import net.runelite.api.Actor;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Item;
+import net.runelite.api.ItemContainer;
 import net.runelite.api.Player;
 import net.runelite.api.PlayerComposition;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameStateChanged;
@@ -27,6 +30,7 @@ import net.runelite.api.events.GraphicChanged;
 import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.events.PlayerDespawned;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.SpriteID;
 import net.runelite.api.gameval.SpotanimID;
@@ -51,6 +55,8 @@ public class ExtendedFreezeTimersService
 	private static final Set<Integer> ANCIENT_SCEPTRES = buildAncientSceptres();
 	private static final Set<Integer> SWAMPBARK_ITEMS = buildSwampbarkItems();
 	private static final Map<Integer, FreezeType> GRAPHIC_TO_TYPE = buildGraphicMap();
+	private static final Set<Integer> FORCED_MOVEMENT_SEEDS = buildForcedMovementSeeds();
+	private static final int SPEAR_GRAPHIC_ID = SpotanimID.STUNNED_SHOVE;
 
 	private final Client client;
 	private final ConfigManager configManager;
@@ -67,9 +73,10 @@ public class ExtendedFreezeTimersService
 	private int freezeAppliedTick = -1;
 	private int lastFrozenMessageTick = -1;
 	private WorldPoint lastPoint;
-	private Boolean previousTimersShowFreezes;
-	private boolean toggledCoreTimers;
 	private boolean warnedDuplicate;
+	private int lastSeedCount = -1;
+	private boolean pendingForcedMovement;
+	private int forcedMovementTick = -1;
 
 	@Inject
 	public ExtendedFreezeTimersService(
@@ -92,21 +99,26 @@ public class ExtendedFreezeTimersService
 	{
 		this.plugin = plugin;
 		warnedDuplicate = false;
+		lastSeedCount = -1;
+		pendingForcedMovement = false;
+		forcedMovementTick = -1;
 		if (!isEnabled())
 		{
 			return;
 		}
 
-		disableCoreFreezeTimers();
+		warnDuplicateTimersIfNeeded();
 	}
 
 	public void shutDown()
 	{
 		removeActiveTimer();
-		restoreCoreFreezeSetting();
 		clearOpponent();
 		plugin = null;
 		warnedDuplicate = false;
+		pendingForcedMovement = false;
+		forcedMovementTick = -1;
+		lastSeedCount = -1;
 	}
 
 	public void onConfigChanged()
@@ -114,28 +126,41 @@ public class ExtendedFreezeTimersService
 		if (config.enableExtendedFreezeTimers())
 		{
 			warnedDuplicate = false;
-			disableCoreFreezeTimers();
+			warnDuplicateTimersIfNeeded();
+			lastSeedCount = -1;
+			pendingForcedMovement = false;
+			forcedMovementTick = -1;
 		}
 		else
 		{
 			removeActiveTimer();
-			restoreCoreFreezeSetting();
 			clearOpponent();
+			pendingForcedMovement = false;
+			forcedMovementTick = -1;
 		}
 	}
 
 	public void onGameStateChanged(GameStateChanged event)
 	{
-		if (!isEnabled())
-		{
-			return;
-		}
-
 		GameState state = event.getGameState();
 		if (state == GameState.LOGGING_IN || state == GameState.HOPPING || state == GameState.CONNECTION_LOST || state == GameState.LOGIN_SCREEN)
 		{
 			removeActiveTimer();
 			clearOpponent();
+			pendingForcedMovement = false;
+			forcedMovementTick = -1;
+			lastSeedCount = -1;
+			return;
+		}
+
+		if (!isEnabled())
+		{
+			return;
+		}
+
+		if (state == GameState.LOGGED_IN)
+		{
+			lastSeedCount = -1;
 		}
 	}
 
@@ -232,6 +257,35 @@ public class ExtendedFreezeTimersService
 		}
 	}
 
+	public void onItemContainerChanged(ItemContainerChanged event)
+	{
+		if (event.getContainerId() != InventoryID.INV)
+		{
+			return;
+		}
+
+		ItemContainer container = event.getItemContainer();
+		int currentSeedCount = countSeeds(container);
+		if (lastSeedCount < 0)
+		{
+			lastSeedCount = currentSeedCount;
+			return;
+		}
+
+		int previousSeedCount = lastSeedCount;
+		lastSeedCount = currentSeedCount;
+
+		if (!isForcedMovementProtectionEnabled())
+		{
+			return;
+		}
+
+		if (activeTimer != null && previousSeedCount >= 0 && currentSeedCount < previousSeedCount)
+		{
+			registerForcedMovement();
+		}
+	}
+
 	public void onGraphicChanged(GraphicChanged event)
 	{
 		if (!isEnabled())
@@ -245,7 +299,14 @@ public class ExtendedFreezeTimersService
 			return;
 		}
 
-		FreezeType type = GRAPHIC_TO_TYPE.get(actor.getGraphic());
+		int graphicId = actor.getGraphic();
+
+		if (isForcedMovementProtectionEnabled() && activeTimer != null && actor.hasSpotAnim(SPEAR_GRAPHIC_ID))
+		{
+			registerForcedMovement();
+		}
+
+		FreezeType type = GRAPHIC_TO_TYPE.get(graphicId);
 		if (type == null)
 		{
 			return;
@@ -290,16 +351,25 @@ public class ExtendedFreezeTimersService
 			return;
 		}
 
-		if (activeTimer != null && freezeAppliedTick != client.getTickCount())
+		int tickCount = client.getTickCount();
+		if (isForcedMovementProtectionEnabled() && activeTimer != null && local.hasSpotAnim(SPEAR_GRAPHIC_ID))
+		{
+			registerForcedMovement();
+		}
+
+		if (activeTimer != null && freezeAppliedTick != tickCount)
 		{
 			WorldPoint current = local.getWorldLocation();
 			if (current != null && lastPoint != null && !current.equals(lastPoint))
 			{
-				removeActiveTimer();
+				if (!shouldIgnoreMovementClear(tickCount))
+				{
+					removeActiveTimer();
+				}
 			}
 		}
 
-		if (currentOpponent != null && lastActivityTick > -1 && client.getTickCount() - lastActivityTick > INACTIVITY_TIMEOUT_TICKS)
+		if (currentOpponent != null && lastActivityTick > -1 && tickCount - lastActivityTick > INACTIVITY_TIMEOUT_TICKS)
 		{
 			clearOpponent();
 		}
@@ -339,11 +409,7 @@ public class ExtendedFreezeTimersService
 		freezeAppliedTick = client.getTickCount();
 
 		// If the core timer is still on, warn once.
-		Boolean coreFreeze = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		if (coreFreeze == null || Boolean.TRUE.equals(coreFreeze))
-		{
-			warnDuplicateTimersIfNeeded();
-		}
+		warnDuplicateTimersIfNeeded();
 	}
 
 	private Duration calculateDuration(FreezeType type)
@@ -374,6 +440,8 @@ public class ExtendedFreezeTimersService
 		}
 
 		freezeAppliedTick = -1;
+		pendingForcedMovement = false;
+		forcedMovementTick = -1;
 	}
 
 	private void setOpponent(Player opponent)
@@ -398,6 +466,67 @@ public class ExtendedFreezeTimersService
 	private void refreshActivity()
 	{
 		lastActivityTick = client.getTickCount();
+	}
+
+	private boolean shouldIgnoreMovementClear(int tickCount)
+	{
+		if (!isForcedMovementProtectionEnabled() || !pendingForcedMovement)
+		{
+			return false;
+		}
+
+		if (forcedMovementTick != -1 && tickCount - forcedMovementTick > 1)
+		{
+			pendingForcedMovement = false;
+			forcedMovementTick = -1;
+			return false;
+		}
+
+		pendingForcedMovement = false;
+		forcedMovementTick = -1;
+		return true;
+	}
+
+	private void registerForcedMovement()
+	{
+		pendingForcedMovement = true;
+		forcedMovementTick = client.getTickCount();
+	}
+
+	private int countSeeds(ItemContainer container)
+	{
+		if (container == null)
+		{
+			return 0;
+		}
+
+		int count = 0;
+		Item[] items = container.getItems();
+		if (items == null)
+		{
+			return 0;
+		}
+
+		for (Item item : items)
+		{
+			if (item == null)
+			{
+				continue;
+			}
+
+			int itemId = item.getId();
+			if (itemId <= 0)
+			{
+				continue;
+			}
+
+			if (FORCED_MOVEMENT_SEEDS.contains(itemId))
+			{
+				count += item.getQuantity();
+			}
+		}
+
+		return count;
 	}
 
 	private boolean opponentHasAncientSceptre()
@@ -458,54 +587,25 @@ public class ExtendedFreezeTimersService
 		return fixed;
 	}
 
+	private boolean isForcedMovementProtectionEnabled()
+	{
+		return isEnabled() && config.preserveFreezeTimerOnForcedMovement();
+	}
+
 	private boolean isEnabled()
 	{
 		return plugin != null && config.enableExtendedFreezeTimers();
 	}
 
-	private void disableCoreFreezeTimers()
-	{
-		if (toggledCoreTimers)
-		{
-			return;
-		}
-
-		previousTimersShowFreezes = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		toggledCoreTimers = true;
-		configManager.setConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, false);
-
-		Boolean after = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		if (Boolean.TRUE.equals(after))
-		{
-			warnDuplicateTimersIfNeeded();
-		}
-	}
-
-	private void restoreCoreFreezeSetting()
-	{
-		if (!toggledCoreTimers)
-		{
-			return;
-		}
-
-		Boolean current = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
-		// If the user changed the setting back while enabled, don't override it.
-		if (Boolean.TRUE.equals(current))
-		{
-			toggledCoreTimers = false;
-			previousTimersShowFreezes = null;
-			return;
-		}
-
-		boolean restoreValue = previousTimersShowFreezes == null ? true : previousTimersShowFreezes;
-		configManager.setConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, restoreValue);
-		toggledCoreTimers = false;
-		previousTimersShowFreezes = null;
-	}
-
 	private void warnDuplicateTimersIfNeeded()
 	{
 		if (warnedDuplicate || !config.warnDuplicateFreezeTimers())
+		{
+			return;
+		}
+
+		Boolean coreFreeze = configManager.getConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, Boolean.class);
+		if (coreFreeze != null && !coreFreeze)
 		{
 			return;
 		}
@@ -540,6 +640,14 @@ public class ExtendedFreezeTimersService
 			ItemID.SWAMPBARK_BODY,
 			ItemID.SWAMPBARK_LEGS
 		);
+	}
+
+	private static Set<Integer> buildForcedMovementSeeds()
+	{
+		Set<Integer> seeds = new HashSet<>();
+		addVariations(seeds, ItemID.MITHRIL_SEED);
+		addVariations(seeds, ItemID.ADAMANT_SEED);
+		return seeds;
 	}
 
 	private static Map<Integer, FreezeType> buildGraphicMap()

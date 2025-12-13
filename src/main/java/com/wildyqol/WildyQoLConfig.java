@@ -185,4 +185,16 @@ public interface WildyQoLConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		keyName = "preserveFreezeTimerOnForcedMovement",
+		name = "Ignore forced movement",
+		description = "Keep the freeze timer running when you move because of mithril/adamant seeds or dragon spear/hasta special attacks",
+		position = 2,
+		section = FREEZE_TIMERS_SECTION
+	)
+	default boolean preserveFreezeTimerOnForcedMovement()
+	{
+		return true;
+	}
 }
