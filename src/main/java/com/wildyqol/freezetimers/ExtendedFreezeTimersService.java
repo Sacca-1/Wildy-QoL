@@ -102,6 +102,7 @@ public class ExtendedFreezeTimersService
 		lastSeedCount = -1;
 		pendingForcedMovement = false;
 		forcedMovementTick = -1;
+		ensureFreezeTimerInfoBox();
 		if (!isEnabled())
 		{
 			return;
@@ -113,6 +114,7 @@ public class ExtendedFreezeTimersService
 	public void shutDown()
 	{
 		removeActiveTimer();
+		removeFreezeTimerInfoBox();
 		clearOpponent();
 		plugin = null;
 		warnedDuplicate = false;
@@ -280,7 +282,7 @@ public class ExtendedFreezeTimersService
 			return;
 		}
 
-		if (activeTimer != null && previousSeedCount >= 0 && currentSeedCount < previousSeedCount)
+		if (isFreezeTimerActive() && previousSeedCount >= 0 && currentSeedCount < previousSeedCount)
 		{
 			registerForcedMovement();
 		}
@@ -301,7 +303,7 @@ public class ExtendedFreezeTimersService
 
 		int graphicId = actor.getGraphic();
 
-		if (isForcedMovementProtectionEnabled() && activeTimer != null && actor.hasSpotAnim(SPEAR_GRAPHIC_ID))
+		if (isForcedMovementProtectionEnabled() && isFreezeTimerActive() && actor.hasSpotAnim(SPEAR_GRAPHIC_ID))
 		{
 			registerForcedMovement();
 		}
@@ -323,14 +325,14 @@ public class ExtendedFreezeTimersService
 		refreshActivity();
 
 		// Replace with shorter freeze if a downgrade is detected on the same tick.
-		if (activeTimer != null && freezeAppliedTick == tickCount && type.getBaseTicks() < activeTimer.getFreezeType().getBaseTicks())
+		if (isFreezeTimerActive() && freezeAppliedTick == tickCount && type.getBaseTicks() < activeTimer.getFreezeType().getBaseTicks())
 		{
 			startTimer(type);
 			return;
 		}
 
 		// Reapply if we got frozen again.
-		if (activeTimer == null || type.getBaseTicks() >= activeTimer.getFreezeType().getBaseTicks() || freezeAppliedTick != tickCount)
+		if (!isFreezeTimerActive() || type.getBaseTicks() >= activeTimer.getFreezeType().getBaseTicks() || freezeAppliedTick != tickCount)
 		{
 			startTimer(type);
 		}
@@ -352,12 +354,12 @@ public class ExtendedFreezeTimersService
 		}
 
 		int tickCount = client.getTickCount();
-		if (isForcedMovementProtectionEnabled() && activeTimer != null && local.hasSpotAnim(SPEAR_GRAPHIC_ID))
+		if (isForcedMovementProtectionEnabled() && isFreezeTimerActive() && local.hasSpotAnim(SPEAR_GRAPHIC_ID))
 		{
 			registerForcedMovement();
 		}
 
-		if (activeTimer != null && freezeAppliedTick != tickCount)
+		if (isFreezeTimerActive() && freezeAppliedTick != tickCount)
 		{
 			WorldPoint current = local.getWorldLocation();
 			if (current != null && lastPoint != null && !current.equals(lastPoint))
@@ -399,13 +401,20 @@ public class ExtendedFreezeTimersService
 
 	private void startTimer(FreezeType type)
 	{
+		ensureFreezeTimerInfoBox();
+		if (activeTimer == null)
+		{
+			return;
+		}
+
 		removeActiveTimer();
 
 		Duration duration = calculateDuration(type);
-		activeTimer = new FreezeTimer(type, duration, plugin);
+		activeTimer.setFreezeType(type);
+		activeTimer.updateDuration(duration);
+		activeTimer.setActive(true);
 		spriteManager.getSpriteAsync(type.getSpriteId(), 0, activeTimer);
 		activeTimer.setTooltip(type.getDisplayName());
-		infoBoxManager.addInfoBox(activeTimer);
 		freezeAppliedTick = client.getTickCount();
 
 		// If the core timer is still on, warn once.
@@ -435,13 +444,39 @@ public class ExtendedFreezeTimersService
 	{
 		if (activeTimer != null)
 		{
-			infoBoxManager.removeInfoBox(activeTimer);
-			activeTimer = null;
+			activeTimer.setActive(false);
 		}
 
 		freezeAppliedTick = -1;
 		pendingForcedMovement = false;
 		forcedMovementTick = -1;
+	}
+
+	private boolean isFreezeTimerActive()
+	{
+		return activeTimer != null && activeTimer.isActive();
+	}
+
+	private void ensureFreezeTimerInfoBox()
+	{
+		if (activeTimer != null || plugin == null)
+		{
+			return;
+		}
+
+		activeTimer = new FreezeTimer(FreezeType.ICE_BARRAGE, Duration.of(1, RSTimeUnit.GAME_TICKS), plugin);
+		infoBoxManager.addInfoBox(activeTimer);
+	}
+
+	private void removeFreezeTimerInfoBox()
+	{
+		if (activeTimer == null)
+		{
+			return;
+		}
+
+		infoBoxManager.removeInfoBox(activeTimer);
+		activeTimer = null;
 	}
 
 	private void setOpponent(Player opponent)
@@ -717,9 +752,10 @@ public class ExtendedFreezeTimersService
 		}
 	}
 
-	private static class FreezeTimer extends Timer
+	private class FreezeTimer extends Timer
 	{
-		private final FreezeType freezeType;
+		private FreezeType freezeType;
+		private boolean active;
 
 		FreezeTimer(FreezeType freezeType, Duration duration, WildyQoLPlugin plugin)
 		{
@@ -728,9 +764,39 @@ public class ExtendedFreezeTimersService
 			setPriority(InfoBoxPriority.MED);
 		}
 
+		void setFreezeType(FreezeType freezeType)
+		{
+			this.freezeType = freezeType;
+		}
+
+		void setActive(boolean active)
+		{
+			this.active = active;
+		}
+
+		boolean isActive()
+		{
+			return active && super.render();
+		}
+
 		FreezeType getFreezeType()
 		{
 			return freezeType;
+		}
+
+		@Override
+		public boolean render()
+		{
+			return isEnabled()
+				&& active
+				&& client.getGameState() == GameState.LOGGED_IN
+				&& super.render();
+		}
+
+		@Override
+		public boolean cull()
+		{
+			return false;
 		}
 
 		@Override
