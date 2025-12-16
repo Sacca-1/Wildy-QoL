@@ -18,14 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Item;
+import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemComposition;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicChanged;
@@ -33,6 +37,7 @@ import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.api.events.PostClientTick;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
@@ -121,6 +126,9 @@ public class WildyQoLPlugin extends Plugin
     private BufferedImage menaphiteImage;
     private boolean menaphiteStatusBarOverlayAdded;
 
+    private boolean fishInventoryIconsOverridden;
+    private boolean replayingInventoryFishAction;
+
     @Override
     protected void startUp()
     {
@@ -166,6 +174,12 @@ public class WildyQoLPlugin extends Plugin
         infoBoxManager.removeInfoBox(protectItemInfoBox);
         protectItemInfoBox = null;
         extendedFreezeTimersService.shutDown();
+
+        clientThread.invokeLater(() ->
+        {
+            updateInventoryFishIcons(false);
+            fishInventoryIconsOverridden = false;
+        });
     }
 
     @Subscribe
@@ -178,6 +192,7 @@ public class WildyQoLPlugin extends Plugin
             menaphiteProcTimerService.reset();
             removeMenaphiteProcInfoBox();
             removeMenaphiteStatusBarOverlay();
+            fishInventoryIconsOverridden = false;
             return;
         }
 
@@ -203,6 +218,16 @@ public class WildyQoLPlugin extends Plugin
     @Subscribe
     public void onMenuOptionClicked(MenuOptionClicked event)
     {
+        if (replayingInventoryFishAction)
+        {
+            return;
+        }
+
+        if (maybeReplayInventoryFishAction(event))
+        {
+            return;
+        }
+
         if (handleRunePouchLeftClick(event))
         {
             return;
@@ -301,6 +326,42 @@ public class WildyQoLPlugin extends Plugin
     public void onGraphicChanged(GraphicChanged event)
     {
         extendedFreezeTimersService.onGraphicChanged(event);
+    }
+
+    @Subscribe
+    public void onClientTick(ClientTick event)
+    {
+        if (!fishInventoryIconsOverridden || client.getGameState() != GameState.LOGGED_IN)
+        {
+            return;
+        }
+
+        // Restore the real item ids before menu click detection and drag handling.
+        updateInventoryFishIcons(false);
+        fishInventoryIconsOverridden = false;
+    }
+
+    @Subscribe
+    public void onPostClientTick(PostClientTick event)
+    {
+        if (client.getGameState() != GameState.LOGGED_IN)
+        {
+            fishInventoryIconsOverridden = false;
+            return;
+        }
+
+        if (!isInPvpArea())
+        {
+            return;
+        }
+
+        if (!config.marlinEqualsAnglerfish() && !config.halibutEqualsKarambwan())
+        {
+            return;
+        }
+
+        updateInventoryFishIcons(true);
+        fishInventoryIconsOverridden = true;
     }
 
     @Subscribe
@@ -408,6 +469,176 @@ public class WildyQoLPlugin extends Plugin
     {
         return client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1
             || client.getVarbitValue(VarbitID.PVP_AREA_CLIENT) == 1;
+    }
+
+    private void updateInventoryFishIcons(boolean enableOverrides)
+    {
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+        if (inventory == null)
+        {
+            return;
+        }
+
+        Widget inventoryWidget = client.getWidget(InterfaceID.Inventory.ITEMS);
+        if (inventoryWidget == null || inventoryWidget.isHidden())
+        {
+            return;
+        }
+
+        Item[] items = inventory.getItems();
+
+        Widget[] slots = inventoryWidget.getDynamicChildren();
+        if (slots == null || slots.length == 0)
+        {
+            slots = inventoryWidget.getChildren();
+        }
+
+        if (slots == null || slots.length == 0)
+        {
+            return;
+        }
+
+        for (Widget slotWidget : slots)
+        {
+            if (slotWidget == null)
+            {
+                continue;
+            }
+
+            int slot = slotWidget.getIndex();
+            if (slot < 0 || slot >= items.length)
+            {
+                continue;
+            }
+
+            int actualId = items[slot].getId();
+            int displayId = actualId;
+
+            if (enableOverrides)
+            {
+                if (config.marlinEqualsAnglerfish() && actualId == ItemID.MARLIN)
+                {
+                    displayId = ItemID.ANGLERFISH;
+                }
+                else if (config.halibutEqualsKarambwan() && actualId == ItemID.HALIBUT)
+                {
+                    displayId = ItemID.TBWT_COOKED_KARAMBWAN;
+                }
+            }
+
+            if (slotWidget.getItemId() != displayId)
+            {
+                slotWidget.setItemId(displayId);
+            }
+        }
+    }
+
+    private boolean maybeReplayInventoryFishAction(MenuOptionClicked event)
+    {
+        MenuEntry menuEntry = event.getMenuEntry();
+        if (menuEntry == null || !isInPvpArea())
+        {
+            return false;
+        }
+
+        if (!config.marlinEqualsAnglerfish() && !config.halibutEqualsKarambwan())
+        {
+            return false;
+        }
+
+        int widgetGroup = menuEntry.getParam1() >>> 16;
+        if (widgetGroup != InterfaceID.INVENTORY)
+        {
+            return false;
+        }
+
+        int slot = menuEntry.getParam0();
+        if (slot < 0)
+        {
+            return false;
+        }
+
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+        if (inventory == null || slot >= inventory.size())
+        {
+            return false;
+        }
+
+        Item item = inventory.getItem(slot);
+        if (item == null)
+        {
+            return false;
+        }
+
+        int actualId = item.getId();
+        boolean shouldFix =
+            (actualId == ItemID.MARLIN && config.marlinEqualsAnglerfish())
+                || (actualId == ItemID.HALIBUT && config.halibutEqualsKarambwan());
+
+        if (!shouldFix)
+        {
+            return false;
+        }
+
+        // Only handle inventory item option clicks (e.g. Eat, Use, Drop). Other widget interactions are left alone.
+        if (menuEntry.getType() != MenuAction.CC_OP && menuEntry.getType() != MenuAction.CC_OP_LOW_PRIORITY)
+        {
+            return false;
+        }
+
+        restoreClickedInventorySlotItemId(menuEntry.getParam1(), slot, actualId);
+
+        event.consume();
+        final int param0 = menuEntry.getParam0();
+        final int param1 = menuEntry.getParam1();
+        final MenuAction type = menuEntry.getType();
+        final int identifierFinal = menuEntry.getIdentifier();
+        final int actualIdFinal = actualId;
+        final String option = menuEntry.getOption();
+        final String target = menuEntry.getTarget();
+
+        clientThread.invokeLater(() ->
+        {
+            replayingInventoryFishAction = true;
+            try
+            {
+                client.menuAction(param0, param1, type, identifierFinal, actualIdFinal, option, target);
+            }
+            finally
+            {
+                replayingInventoryFishAction = false;
+            }
+        });
+        return true;
+    }
+
+    private void restoreClickedInventorySlotItemId(int widgetId, int slot, int actualItemId)
+    {
+        Widget inventoryItems = client.getWidget(widgetId);
+        if (inventoryItems == null)
+        {
+            return;
+        }
+
+        Widget slotWidget = inventoryItems.getChild(slot);
+        if (slotWidget == null)
+        {
+            // Some menu actions may refer directly to the slot widget rather than the container.
+            if (inventoryItems.getIndex() == slot)
+            {
+                slotWidget = inventoryItems;
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        // If we swapped the slot's displayed item id for an icon override, change it back before the click is processed.
+        if (slotWidget.getItemId() != actualItemId)
+        {
+            slotWidget.setItemId(actualItemId);
+        }
     }
 
     private void handleEmptyVialBlocker(MenuOptionClicked event)

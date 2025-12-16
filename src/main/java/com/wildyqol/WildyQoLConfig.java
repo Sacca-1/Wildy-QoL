@@ -85,6 +85,30 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "marlinEqualsAnglerfish",
+		name = "Marlin = Anglerfish",
+		description = "Replace marlin inventory icon with anglerfish (PvP areas only)",
+		position = 3,
+		section = MISCLICK_PREVENTION_SECTION
+	)
+	default boolean marlinEqualsAnglerfish()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "halibutEqualsKarambwan",
+		name = "Halibut = Karambwan",
+		description = "Replace halibut inventory icon with karambwan (PvP areas only)",
+		position = 4,
+		section = MISCLICK_PREVENTION_SECTION
+	)
+	default boolean halibutEqualsKarambwan()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "showIkodTrouverOverlay",
 		name = "Trouver Cost Overlay",
 		description = "Show Trouver parchment cost + 500k gp in the Items Kept on Death interface",
