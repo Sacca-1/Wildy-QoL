@@ -127,7 +127,6 @@ public class WildyQoLPlugin extends Plugin
     private boolean menaphiteStatusBarOverlayAdded;
 
     private boolean fishInventoryIconsOverridden;
-    private boolean replayingInventoryFishAction;
 
     @Override
     protected void startUp()
@@ -213,6 +212,8 @@ public class WildyQoLPlugin extends Plugin
         {
             handlePetSpellBlock(event);
         }
+
+        maybeFixInventoryFishMenuEntry(event);
     }
 
     @Subscribe
@@ -533,41 +534,41 @@ public class WildyQoLPlugin extends Plugin
         }
     }
 
-    private boolean maybeReplayInventoryFishAction(MenuOptionClicked event)
+    private void maybeFixInventoryFishMenuEntry(MenuEntryAdded event)
     {
         MenuEntry menuEntry = event.getMenuEntry();
         if (menuEntry == null || !isInPvpArea())
         {
-            return false;
+            return;
         }
 
         if (!config.marlinEqualsAnglerfish() && !config.halibutEqualsKarambwan())
         {
-            return false;
+            return;
         }
 
         int widgetGroup = menuEntry.getParam1() >>> 16;
         if (widgetGroup != InterfaceID.INVENTORY)
         {
-            return false;
+            return;
         }
 
         int slot = menuEntry.getParam0();
         if (slot < 0)
         {
-            return false;
+            return;
         }
 
         ItemContainer inventory = client.getItemContainer(InventoryID.INV);
         if (inventory == null || slot >= inventory.size())
         {
-            return false;
+            return;
         }
 
         Item item = inventory.getItem(slot);
         if (item == null)
         {
-            return false;
+            return;
         }
 
         int actualId = item.getId();
@@ -577,67 +578,12 @@ public class WildyQoLPlugin extends Plugin
 
         if (!shouldFix)
         {
-            return false;
-        }
-
-        // Only handle inventory item option clicks (e.g. Eat, Use, Drop). Other widget interactions are left alone.
-        if (menuEntry.getType() != MenuAction.CC_OP && menuEntry.getType() != MenuAction.CC_OP_LOW_PRIORITY)
-        {
-            return false;
-        }
-
-        restoreClickedInventorySlotItemId(menuEntry.getParam1(), slot, actualId);
-
-        event.consume();
-        final int param0 = menuEntry.getParam0();
-        final int param1 = menuEntry.getParam1();
-        final MenuAction type = menuEntry.getType();
-        final int identifierFinal = menuEntry.getIdentifier();
-        final int actualIdFinal = actualId;
-        final String option = menuEntry.getOption();
-        final String target = menuEntry.getTarget();
-
-        clientThread.invokeLater(() ->
-        {
-            replayingInventoryFishAction = true;
-            try
-            {
-                client.menuAction(param0, param1, type, identifierFinal, actualIdFinal, option, target);
-            }
-            finally
-            {
-                replayingInventoryFishAction = false;
-            }
-        });
-        return true;
-    }
-
-    private void restoreClickedInventorySlotItemId(int widgetId, int slot, int actualItemId)
-    {
-        Widget inventoryItems = client.getWidget(widgetId);
-        if (inventoryItems == null)
-        {
             return;
         }
 
-        Widget slotWidget = inventoryItems.getChild(slot);
-        if (slotWidget == null)
+        if (menuEntry.getItemId() != actualId)
         {
-            // Some menu actions may refer directly to the slot widget rather than the container.
-            if (inventoryItems.getIndex() == slot)
-            {
-                slotWidget = inventoryItems;
-            }
-            else
-            {
-                return;
-            }
-        }
-
-        // If we swapped the slot's displayed item id for an icon override, change it back before the click is processed.
-        if (slotWidget.getItemId() != actualItemId)
-        {
-            slotWidget.setItemId(actualItemId);
+            menuEntry.setItemId(actualId);
         }
     }
 
