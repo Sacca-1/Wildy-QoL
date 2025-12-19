@@ -219,16 +219,6 @@ public class WildyQoLPlugin extends Plugin
     @Subscribe
     public void onMenuOptionClicked(MenuOptionClicked event)
     {
-        if (replayingInventoryFishAction)
-        {
-            return;
-        }
-
-        if (maybeReplayInventoryFishAction(event))
-        {
-            return;
-        }
-
         if (handleRunePouchLeftClick(event))
         {
             return;
