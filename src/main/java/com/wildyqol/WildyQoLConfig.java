@@ -121,13 +121,13 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "updateMessageShown120",
-		name = "Update Message Shown v1.2.0",
-		description = "Internal flag to track if the v1.2.0 update message has been shown",
+		keyName = "updateMessageShown130",
+		name = "Update Message Shown v1.3.0",
+		description = "Internal flag to track if the v1.3.0 update message has been shown",
 		hidden = true,
         position = 3
 	)
-	default boolean updateMessageShown120()
+	default boolean updateMessageShown130()
 	{
 		return false;
 	}
@@ -187,7 +187,7 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "enableExtendedFreezeTimers",
+		keyName = "enableExtendedFreezeTimersV2",
 		name = "Extended freeze timers",
 		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres and Swampbark)",
 		position = 0,
@@ -195,7 +195,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default boolean enableExtendedFreezeTimers()
 	{
-		return false;
+		return true;
 	}
 
 	@ConfigItem(

@@ -6,12 +6,22 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 
 ### Misclick prevention
 
+- Rune Pouch Blocker
 - Pet Spell Blocker
 - Empty Vial Blocker
+
+### Fish icon remapping
+
+- Remap the inventory icons of marlin to anglerfish and halibut to karambwan in PvP areas.
 
 ### Items Kept on Death
 
 - Adds Trouver parchment costs to risk. Thank you to 1 Option for the suggestion!
+
+### Freeze timers
+
+- Extended freeze timers that account for Ancient sceptres and Swampbark.
+- Freeze timers persist on forced movement (spearing, seeding)
 
 ### Menaphite proc timer
 

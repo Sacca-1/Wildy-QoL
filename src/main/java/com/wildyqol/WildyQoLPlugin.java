@@ -153,7 +153,7 @@ public class WildyQoLPlugin extends Plugin
         extendedFreezeTimersService.startUp(this);
 
         // Check if we should show update message (but don't show it yet)
-        if (!config.updateMessageShown120())
+        if (!config.updateMessageShown130())
         {
             shouldShowUpdateMessage = true;
         }
@@ -199,7 +199,7 @@ public class WildyQoLPlugin extends Plugin
         if (shouldShowUpdateMessage)
         {
             showUpdateMessage();
-            configManager.setConfiguration("wildyqol", "updateMessageShown120", true);
+            configManager.setConfiguration("wildyqol", "updateMessageShown130", true);
             shouldShowUpdateMessage = false;
         }
     }
@@ -278,7 +278,7 @@ public class WildyQoLPlugin extends Plugin
             return;
         }
 
-        if ("enableExtendedFreezeTimers".equals(event.getKey()))
+        if ("enableExtendedFreezeTimersV2".equals(event.getKey()))
         {
             extendedFreezeTimersService.onConfigChanged();
         }
@@ -599,7 +599,7 @@ public class WildyQoLPlugin extends Plugin
     {
         chatMessageManager.queue(QueuedMessage.builder()
             .type(ChatMessageType.GAMEMESSAGE)
-            .runeLiteFormattedMessage("<col=00ff00>Wildy QoL:</col> new feature: Menaphite proc countdown. Check the plugin settings to enable an optional status bar to see how close the next proc is at a glance.")
+            .runeLiteFormattedMessage("<col=00ff00>Wildy QoL:</col> v1.3.0: added remapping for new fish icons, extended freeze timers (ancient sceptres, swampbark), and rune pouch misclick prevention. Check plugin settings for details.")
             .build());
     }
 
