@@ -102,7 +102,6 @@ public class ExtendedFreezeTimersService
 		lastSeedCount = -1;
 		pendingForcedMovement = false;
 		forcedMovementTick = -1;
-		ensureFreezeTimerInfoBox();
 		if (!isEnabled())
 		{
 			return;
@@ -401,17 +400,11 @@ public class ExtendedFreezeTimersService
 
 	private void startTimer(FreezeType type)
 	{
-		ensureFreezeTimerInfoBox();
-		if (activeTimer == null)
-		{
-			return;
-		}
-
 		removeActiveTimer();
 
 		Duration duration = calculateDuration(type);
-		activeTimer.setFreezeType(type);
-		activeTimer.updateDuration(duration);
+		activeTimer = new FreezeTimer(type, duration, plugin);
+		infoBoxManager.addInfoBox(activeTimer);
 		activeTimer.setActive(true);
 		spriteManager.getSpriteAsync(type.getSpriteId(), 0, activeTimer);
 		activeTimer.setTooltip(type.getDisplayName());
@@ -445,6 +438,8 @@ public class ExtendedFreezeTimersService
 		if (activeTimer != null)
 		{
 			activeTimer.setActive(false);
+			infoBoxManager.removeInfoBox(activeTimer);
+			activeTimer = null;
 		}
 
 		freezeAppliedTick = -1;
@@ -455,17 +450,6 @@ public class ExtendedFreezeTimersService
 	private boolean isFreezeTimerActive()
 	{
 		return activeTimer != null && activeTimer.isActive();
-	}
-
-	private void ensureFreezeTimerInfoBox()
-	{
-		if (activeTimer != null || plugin == null)
-		{
-			return;
-		}
-
-		activeTimer = new FreezeTimer(FreezeType.ICE_BARRAGE, Duration.of(1, RSTimeUnit.GAME_TICKS), plugin);
-		infoBoxManager.addInfoBox(activeTimer);
 	}
 
 	private void removeFreezeTimerInfoBox()
@@ -707,8 +691,8 @@ public class ExtendedFreezeTimersService
 		SNARE("Snare", SpriteID.Magicon2.SNARE, SpotanimID.SNARE_IMPACT, 16, false),
 		ENTANGLE("Entangle", SpriteID.Magicon2.ENTANGLE, SpotanimID.ENTANGLE_IMPACT, 24, false),
 		ICE_RUSH("Ice rush", SpriteID.Magicon2.ICE_RUSH, SpotanimID.ICE_RUSH_IMPACT, 8, true),
-		ICE_BURST("Ice burst", SpriteID.Magicon2.ICE_BURST, SpotanimID.ICE_BURST_IMPACT, 16, true),
-		ICE_BLITZ("Ice blitz", SpriteID.Magicon2.ICE_BLITZ, SpotanimID.ICE_BLITZ_IMPACT, 24, true),
+		ICE_BURST("Ice burst", SpriteID.Magicon2.ICE_BURST, SpotanimID.ICE_BLITZ_IMPACT, 16, true),
+		ICE_BLITZ("Ice blitz", SpriteID.Magicon2.ICE_BLITZ, SpotanimID.ICE_BURST_IMPACT, 24, true),
 		ICE_BARRAGE("Ice barrage", SpriteID.Magicon2.ICE_BARRAGE, SpotanimID.ICE_BARRAGE_IMPACT, 32, true);
 
 		private final String displayName;
