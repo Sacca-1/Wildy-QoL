@@ -77,6 +77,7 @@ public class ExtendedFreezeTimersService
 	private int lastSeedCount = -1;
 	private boolean pendingForcedMovement;
 	private int forcedMovementTick = -1;
+	private final Set<Integer> lastStandardSpotAnims = new HashSet<>();
 
 	@Inject
 	public ExtendedFreezeTimersService(
@@ -102,6 +103,7 @@ public class ExtendedFreezeTimersService
 		lastSeedCount = -1;
 		pendingForcedMovement = false;
 		forcedMovementTick = -1;
+		resetStandardSpotAnimTracking();
 		if (!isEnabled())
 		{
 			return;
@@ -115,6 +117,7 @@ public class ExtendedFreezeTimersService
 		removeActiveTimer();
 		removeFreezeTimerInfoBox();
 		clearOpponent();
+		resetStandardSpotAnimTracking();
 		plugin = null;
 		warnedDuplicate = false;
 		pendingForcedMovement = false;
@@ -131,6 +134,7 @@ public class ExtendedFreezeTimersService
 			lastSeedCount = -1;
 			pendingForcedMovement = false;
 			forcedMovementTick = -1;
+			resetStandardSpotAnimTracking();
 		}
 		else
 		{
@@ -138,6 +142,7 @@ public class ExtendedFreezeTimersService
 			clearOpponent();
 			pendingForcedMovement = false;
 			forcedMovementTick = -1;
+			resetStandardSpotAnimTracking();
 		}
 	}
 
@@ -151,6 +156,7 @@ public class ExtendedFreezeTimersService
 			pendingForcedMovement = false;
 			forcedMovementTick = -1;
 			lastSeedCount = -1;
+			resetStandardSpotAnimTracking();
 			return;
 		}
 
@@ -315,6 +321,11 @@ public class ExtendedFreezeTimersService
 
 		int tickCount = client.getTickCount();
 
+		if (!type.isAncient())
+		{
+			return;
+		}
+
 		// For ancient freezes, only allow processing on the same tick as the freeze chat message.
 		if (type.isAncient() && lastFrozenMessageTick != tickCount)
 		{
@@ -349,10 +360,12 @@ public class ExtendedFreezeTimersService
 		{
 			removeActiveTimer();
 			clearOpponent();
+			resetStandardSpotAnimTracking();
 			return;
 		}
 
 		int tickCount = client.getTickCount();
+		checkStandardFreezeSpotAnims(local);
 		if (isForcedMovementProtectionEnabled() && isFreezeTimerActive() && local.hasSpotAnim(SPEAR_GRAPHIC_ID))
 		{
 			registerForcedMovement();
@@ -485,6 +498,49 @@ public class ExtendedFreezeTimersService
 	private void refreshActivity()
 	{
 		lastActivityTick = client.getTickCount();
+	}
+
+	private void checkStandardFreezeSpotAnims(Player local)
+	{
+		Set<Integer> current = new HashSet<>();
+		FreezeType newType = null;
+
+		for (FreezeType type : FreezeType.values())
+		{
+			if (type.isAncient())
+			{
+				continue;
+			}
+
+			int graphicId = type.getGraphicId();
+			if (!local.hasSpotAnim(graphicId))
+			{
+				continue;
+			}
+
+			current.add(graphicId);
+			if (!lastStandardSpotAnims.contains(graphicId))
+			{
+				if (newType == null || type.getBaseTicks() > newType.getBaseTicks())
+				{
+					newType = type;
+				}
+			}
+		}
+
+		if (newType != null)
+		{
+			refreshActivity();
+			startTimer(newType);
+		}
+
+		lastStandardSpotAnims.clear();
+		lastStandardSpotAnims.addAll(current);
+	}
+
+	private void resetStandardSpotAnimTracking()
+	{
+		lastStandardSpotAnims.clear();
 	}
 
 	private boolean shouldIgnoreMovementClear(int tickCount)
