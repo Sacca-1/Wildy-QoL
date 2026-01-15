@@ -63,7 +63,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "petSpellBlocker",
 		name = "Pet Spell Blocker",
-		description = "Removes 'Cast' menu entries on pets",
+		description = "Removes spell-cast menu entries on pets and suppresses pet examine while a spell is selected",
 		position = 1,
 		section = MISCLICK_PREVENTION_SECTION
 	)

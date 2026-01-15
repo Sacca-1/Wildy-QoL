@@ -54,6 +54,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxPriority;
 import net.runelite.client.util.Text;
+import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.game.SpriteManager;
 
 
@@ -348,9 +349,12 @@ public class WildyQoLPlugin extends Plugin
 
     private void handlePetSpellBlock(MenuEntryAdded event)
     {
-        
-        // Check if this is a spell cast action
-        if (!"Cast".equals(event.getOption()))
+        boolean isCastOption = "Cast".equals(event.getOption());
+        boolean isExamineNpc = event.getMenuEntry().getType() == MenuAction.EXAMINE_NPC;
+        boolean isSpellSelected = isSpellSelected();
+
+        // Block spell casts and suppress pet examine while a spell is selected.
+        if (!isCastOption && (!isSpellSelected || !isExamineNpc))
         {
             return;
         }
@@ -379,6 +383,18 @@ public class WildyQoLPlugin extends Plugin
             client.getMenu().removeMenuEntry(event.getMenuEntry());
             log.debug("Removed spell cast menu entry for pet: {}", npc.getName());
         }
+    }
+
+    private boolean isSpellSelected()
+    {
+        if (!client.isWidgetSelected())
+        {
+            return false;
+        }
+
+        Widget selectedWidget = client.getSelectedWidget();
+        return selectedWidget != null
+            && WidgetUtil.componentToInterface(selectedWidget.getId()) == InterfaceID.MAGIC_SPELLBOOK;
     }
 
     private boolean handleRunePouchLeftClick(MenuOptionClicked event)
