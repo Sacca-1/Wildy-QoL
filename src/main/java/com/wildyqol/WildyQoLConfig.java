@@ -33,9 +33,17 @@ public interface WildyQoLConfig extends Config
 	String MENAPHITE_PROC_TIMER_SECTION = "menaphiteProcTimerSection";
 
 	@ConfigSection(
+		name = "DMM overload proc timer",
+		description = "Settings for tracking the next DMM overload proc",
+		position = 3,
+		closedByDefault = false
+	)
+	String DMM_OVERLOAD_PROC_TIMER_SECTION = "dmmOverloadProcTimerSection";
+
+	@ConfigSection(
 		name = "Freeze timers",
 		description = "Extended freeze timer settings",
-		position = 3,
+		position = 4,
 		closedByDefault = false
 	)
 	String FREEZE_TIMERS_SECTION = "freezeTimersSection";
@@ -43,7 +51,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigSection(
 		name = "Misc",
 		description = "Miscellaneous settings",
-		position = 4,
+		position = 5,
 		closedByDefault = false
 	)
 	String MISC_SECTION = "miscSection";
@@ -173,6 +181,49 @@ public interface WildyQoLConfig extends Config
 	default MenaphiteProcStatusBarMode menaphiteProcTimerStatusBarMode()
 	{
 		return MenaphiteProcStatusBarMode.OFF;
+	}
+
+	@ConfigItem(
+		keyName = "dmmOverloadProcTimerShowInfoBox",
+		name = "Show infobox",
+		description = "Display the DMM overload proc timer as an info box",
+		position = 0,
+		section = DMM_OVERLOAD_PROC_TIMER_SECTION
+	)
+	default boolean dmmOverloadProcTimerShowInfoBox()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "dmmOverloadProcTimerDisplayTicks",
+		name = "Show in ticks",
+		description = "Display the DMM overload proc countdown using game ticks instead of seconds",
+		position = 1,
+		section = DMM_OVERLOAD_PROC_TIMER_SECTION
+	)
+	default boolean dmmOverloadProcTimerDisplayTicks()
+	{
+		return false;
+	}
+
+	enum DmmOverloadProcStatusBarMode
+	{
+		OFF,
+		LEFT,
+		RIGHT
+	}
+
+	@ConfigItem(
+		keyName = "dmmOverloadProcTimerStatusBarMode",
+		name = "Status bar position",
+		description = "Display the DMM overload proc timer as a status bar next to the inventory",
+		position = 2,
+		section = DMM_OVERLOAD_PROC_TIMER_SECTION
+	)
+	default DmmOverloadProcStatusBarMode dmmOverloadProcTimerStatusBarMode()
+	{
+		return DmmOverloadProcStatusBarMode.OFF;
 	}
 
 	@ConfigItem(

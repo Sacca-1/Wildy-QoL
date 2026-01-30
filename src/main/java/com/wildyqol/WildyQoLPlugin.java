@@ -1,6 +1,9 @@
 package com.wildyqol;
 
 import com.google.inject.Provides;
+import com.wildyqol.dmmoverload.DmmOverloadProcInfoBox;
+import com.wildyqol.dmmoverload.DmmOverloadProcStatusBarOverlay;
+import com.wildyqol.dmmoverload.DmmOverloadProcTimerService;
 import com.wildyqol.freezetimers.ExtendedFreezeTimersService;
 import com.wildyqol.ikodparchmentrisk.IkodParchmentRiskOverlay;
 import com.wildyqol.menaphite.MenaphiteProcInfoBox;
@@ -93,10 +96,16 @@ public class WildyQoLPlugin extends Plugin
     private MenaphiteProcTimerService menaphiteProcTimerService;
 
     @Inject
+    private DmmOverloadProcTimerService dmmOverloadProcTimerService;
+
+    @Inject
     private InfoBoxManager infoBoxManager;
 
     @Inject
     private MenaphiteProcStatusBarOverlay menaphiteProcStatusBarOverlay;
+
+    @Inject
+    private DmmOverloadProcStatusBarOverlay dmmOverloadProcStatusBarOverlay;
 
     @Inject
     private FishInventoryIconOverlay fishInventoryIconOverlay;
@@ -125,6 +134,10 @@ public class WildyQoLPlugin extends Plugin
     private BufferedImage menaphiteImage;
     private boolean menaphiteStatusBarOverlayAdded;
 
+    private DmmOverloadProcInfoBox dmmOverloadProcInfoBox;
+    private BufferedImage dmmOverloadImage;
+    private boolean dmmOverloadStatusBarOverlayAdded;
+
     @Override
     protected void startUp()
     {
@@ -139,6 +152,12 @@ public class WildyQoLPlugin extends Plugin
         menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
         menaphiteProcTimerService.reset();
         updateMenaphiteStatusBarOverlay();
+        removeDmmOverloadProcInfoBox();
+        removeDmmOverloadStatusBarOverlay();
+        dmmOverloadImage = loadDmmOverloadImage();
+        dmmOverloadProcStatusBarOverlay.setOverloadImage(dmmOverloadImage);
+        dmmOverloadProcTimerService.reset();
+        updateDmmOverloadStatusBarOverlay();
 
         clientThread.invokeLater(() ->
         {
@@ -169,6 +188,11 @@ public class WildyQoLPlugin extends Plugin
         removeMenaphiteStatusBarOverlay();
         menaphiteProcStatusBarOverlay.clearMenaphiteImage();
         menaphiteImage = null;
+        dmmOverloadProcTimerService.reset();
+        removeDmmOverloadProcInfoBox();
+        removeDmmOverloadStatusBarOverlay();
+        dmmOverloadProcStatusBarOverlay.clearOverloadImage();
+        dmmOverloadImage = null;
         infoBoxManager.removeInfoBox(protectItemInfoBox);
         protectItemInfoBox = null;
         extendedFreezeTimersService.shutDown();
@@ -179,11 +203,20 @@ public class WildyQoLPlugin extends Plugin
     {
         extendedFreezeTimersService.onGameStateChanged(gameStateChanged);
 
-        if (gameStateChanged.getGameState() != GameState.LOGGED_IN)
+        GameState state = gameStateChanged.getGameState();
+        if (state == GameState.LOADING)
+        {
+            return;
+        }
+
+        if (state != GameState.LOGGED_IN)
         {
             menaphiteProcTimerService.reset();
             removeMenaphiteProcInfoBox();
             removeMenaphiteStatusBarOverlay();
+            dmmOverloadProcTimerService.reset();
+            removeDmmOverloadProcInfoBox();
+            removeDmmOverloadStatusBarOverlay();
             return;
         }
 
@@ -258,6 +291,11 @@ public class WildyQoLPlugin extends Plugin
         {
             handleMenaphiteVarbit(event.getValue());
         }
+
+        if (event.getVarbitId() == VarbitID.DEADMAN_OVERLOAD_POTION_EFFECTS)
+        {
+            handleDmmOverloadVarbit(event.getValue());
+        }
     }
 
     @Subscribe
@@ -297,6 +335,33 @@ public class WildyQoLPlugin extends Plugin
             {
                 int varbitValue = client.getVarbitValue(VarbitID.STATRENEWAL_POTION_TIMER);
                 handleMenaphiteVarbit(varbitValue);
+            });
+        }
+
+        if ("dmmOverloadProcTimerShowInfoBox".equals(event.getKey()))
+        {
+            if (!config.dmmOverloadProcTimerShowInfoBox())
+            {
+                removeDmmOverloadProcInfoBox();
+            }
+            else if (dmmOverloadProcTimerService.isActive())
+            {
+                ensureDmmOverloadProcInfoBox();
+            }
+
+            clientThread.invokeLater(() ->
+            {
+                int varbitValue = client.getVarbitValue(VarbitID.DEADMAN_OVERLOAD_POTION_EFFECTS);
+                handleDmmOverloadVarbit(varbitValue);
+            });
+        }
+
+        if ("dmmOverloadProcTimerStatusBarMode".equals(event.getKey()))
+        {
+            clientThread.invokeLater(() ->
+            {
+                int varbitValue = client.getVarbitValue(VarbitID.DEADMAN_OVERLOAD_POTION_EFFECTS);
+                handleDmmOverloadVarbit(varbitValue);
             });
         }
 
@@ -643,6 +708,30 @@ public class WildyQoLPlugin extends Plugin
         updateMenaphiteStatusBarOverlay();
     }
 
+    private void handleDmmOverloadVarbit(int varbitValue)
+    {
+        if (!isDmmOverloadTimerEnabled())
+        {
+            dmmOverloadProcTimerService.reset();
+            removeDmmOverloadProcInfoBox();
+            removeDmmOverloadStatusBarOverlay();
+            return;
+        }
+
+        dmmOverloadProcTimerService.handleVarbitUpdate(varbitValue, client.getTickCount());
+
+        if (dmmOverloadProcTimerService.isActive() && config.dmmOverloadProcTimerShowInfoBox())
+        {
+            ensureDmmOverloadProcInfoBox();
+        }
+        else
+        {
+            removeDmmOverloadProcInfoBox();
+        }
+
+        updateDmmOverloadStatusBarOverlay();
+    }
+
     private void ensureMenaphiteProcInfoBox()
     {
         if (!config.menaphiteProcTimerShowInfoBox())
@@ -668,6 +757,31 @@ public class WildyQoLPlugin extends Plugin
         menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
     }
 
+    private void ensureDmmOverloadProcInfoBox()
+    {
+        if (!config.dmmOverloadProcTimerShowInfoBox())
+        {
+            removeDmmOverloadProcInfoBox();
+            return;
+        }
+
+        if (dmmOverloadProcInfoBox != null)
+        {
+            return;
+        }
+
+        if (dmmOverloadImage == null)
+        {
+            dmmOverloadImage = loadDmmOverloadImage();
+        }
+
+        dmmOverloadProcInfoBox = new DmmOverloadProcInfoBox(dmmOverloadImage, this, dmmOverloadProcTimerService, config, client);
+        dmmOverloadProcInfoBox.setTooltip("Time until next DMM overload proc");
+        dmmOverloadProcInfoBox.setPriority(InfoBoxPriority.MED);
+        infoBoxManager.addInfoBox(dmmOverloadProcInfoBox);
+        dmmOverloadProcStatusBarOverlay.setOverloadImage(dmmOverloadImage);
+    }
+
     private void removeMenaphiteProcInfoBox()
     {
         if (menaphiteProcInfoBox == null)
@@ -679,9 +793,31 @@ public class WildyQoLPlugin extends Plugin
         menaphiteProcInfoBox = null;
     }
 
+    private void removeDmmOverloadProcInfoBox()
+    {
+        if (dmmOverloadProcInfoBox == null)
+        {
+            return;
+        }
+
+        infoBoxManager.removeInfoBox(dmmOverloadProcInfoBox);
+        dmmOverloadProcInfoBox = null;
+    }
+
     private BufferedImage loadMenaphiteImage()
     {
         BufferedImage image = itemManager.getImage(ItemID._4DOSESTATRENEWAL);
+        if (image != null)
+        {
+            return image;
+        }
+
+        return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    private BufferedImage loadDmmOverloadImage()
+    {
+        BufferedImage image = itemManager.getImage(ItemID.DEADMAN4DOSEOVERLOAD);
         if (image != null)
         {
             return image;
@@ -701,6 +837,17 @@ public class WildyQoLPlugin extends Plugin
         menaphiteStatusBarOverlayAdded = true;
     }
 
+    private void ensureDmmOverloadStatusBarOverlay()
+    {
+        if (dmmOverloadStatusBarOverlayAdded)
+        {
+            return;
+        }
+
+        overlayManager.add(dmmOverloadProcStatusBarOverlay);
+        dmmOverloadStatusBarOverlayAdded = true;
+    }
+
     private void removeMenaphiteStatusBarOverlay()
     {
         if (!menaphiteStatusBarOverlayAdded)
@@ -710,6 +857,17 @@ public class WildyQoLPlugin extends Plugin
 
         overlayManager.remove(menaphiteProcStatusBarOverlay);
         menaphiteStatusBarOverlayAdded = false;
+    }
+
+    private void removeDmmOverloadStatusBarOverlay()
+    {
+        if (!dmmOverloadStatusBarOverlayAdded)
+        {
+            return;
+        }
+
+        overlayManager.remove(dmmOverloadProcStatusBarOverlay);
+        dmmOverloadStatusBarOverlayAdded = false;
     }
 
     private void updateMenaphiteStatusBarOverlay()
@@ -734,6 +892,28 @@ public class WildyQoLPlugin extends Plugin
         menaphiteProcStatusBarOverlay.setMenaphiteImage(menaphiteImage);
     }
 
+    private void updateDmmOverloadStatusBarOverlay()
+    {
+        WildyQoLConfig.DmmOverloadProcStatusBarMode mode = config.dmmOverloadProcTimerStatusBarMode();
+        if (mode == null || mode == WildyQoLConfig.DmmOverloadProcStatusBarMode.OFF)
+        {
+            removeDmmOverloadStatusBarOverlay();
+            return;
+        }
+
+        DmmOverloadProcStatusBarOverlay.DmmOverloadStatusBarPosition position =
+            mode == WildyQoLConfig.DmmOverloadProcStatusBarMode.LEFT
+                ? DmmOverloadProcStatusBarOverlay.DmmOverloadStatusBarPosition.LEFT
+                : DmmOverloadProcStatusBarOverlay.DmmOverloadStatusBarPosition.RIGHT;
+        dmmOverloadProcStatusBarOverlay.setPosition(position);
+        ensureDmmOverloadStatusBarOverlay();
+        if (dmmOverloadImage == null)
+        {
+            dmmOverloadImage = loadDmmOverloadImage();
+        }
+        dmmOverloadProcStatusBarOverlay.setOverloadImage(dmmOverloadImage);
+    }
+
     @Provides
     WildyQoLConfig provideConfig(ConfigManager configManager)
     {
@@ -747,6 +927,13 @@ public class WildyQoLPlugin extends Plugin
         WildyQoLConfig.MenaphiteProcStatusBarMode mode = config.menaphiteProcTimerStatusBarMode();
         boolean statusBarEnabled = mode != null && mode != WildyQoLConfig.MenaphiteProcStatusBarMode.OFF;
         return config.menaphiteProcTimerShowInfoBox() || statusBarEnabled;
+    }
+
+    private boolean isDmmOverloadTimerEnabled()
+    {
+        WildyQoLConfig.DmmOverloadProcStatusBarMode mode = config.dmmOverloadProcTimerStatusBarMode();
+        boolean statusBarEnabled = mode != null && mode != WildyQoLConfig.DmmOverloadProcStatusBarMode.OFF;
+        return config.dmmOverloadProcTimerShowInfoBox() || statusBarEnabled;
     }
 
 
