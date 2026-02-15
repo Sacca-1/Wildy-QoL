@@ -705,6 +705,10 @@ public class ExtendedFreezeTimersService
 		addVariations(ids, ItemID.ANCIENT_SCEPTRE_ICE_TROUVER);
 		addVariations(ids, ItemID.ANCIENT_SCEPTRE_SMOKE_TROUVER);
 		addVariations(ids, ItemID.ANCIENT_SCEPTRE_SHADOW_TROUVER);
+		addVariations(ids, ItemID.ZURIELS_STAFF);
+		addVariations(ids, ItemID.BR_ZURIELS_STAFF);
+		addVariations(ids, ItemID.ZURIELS_STAFF_BH);
+		addVariations(ids, ItemID.ZURIELS_STAFF_BH_INACTIVE);
 		return ids;
 	}
 
