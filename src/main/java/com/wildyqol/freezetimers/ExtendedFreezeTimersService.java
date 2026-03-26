@@ -51,6 +51,7 @@ public class ExtendedFreezeTimersService
 	private static final String CORE_TIMERS_GROUP = "timers";
 	private static final String CORE_SHOW_FREEZES_KEY = "showFreezes";
 	private static final int INACTIVITY_TIMEOUT_TICKS = 50;
+	private static final int SWAMPBARK_TICKS_PER_RELEVANT_PIECE = 2;
 
 	private static final Set<Integer> ANCIENT_SCEPTRES = buildAncientSceptres();
 	private static final Set<Integer> SWAMPBARK_ITEMS = buildSwampbarkItems();
@@ -439,11 +440,16 @@ public class ExtendedFreezeTimersService
 		}
 		else
 		{
-			ticks += countSwampbarkPieces();
+			ticks = calculateSwampbarkAdjustedTicks(ticks, countSwampbarkPieces());
 		}
 
 		ticks = Math.max(1L, ticks);
 		return Duration.of(ticks, RSTimeUnit.GAME_TICKS);
+	}
+
+	static long calculateSwampbarkAdjustedTicks(long baseTicks, int pieceCount)
+	{
+		return baseTicks + (long) Math.max(0, pieceCount) * SWAMPBARK_TICKS_PER_RELEVANT_PIECE;
 	}
 
 	private void removeActiveTimer()
@@ -714,11 +720,11 @@ public class ExtendedFreezeTimersService
 
 	private static Set<Integer> buildSwampbarkItems()
 	{
-		return ImmutableSet.of(
-			ItemID.SWAMPBARK_HELM,
-			ItemID.SWAMPBARK_BODY,
-			ItemID.SWAMPBARK_LEGS
-		);
+		Set<Integer> ids = new HashSet<>();
+		addVariations(ids, ItemID.SWAMPBARK_HELM);
+		addVariations(ids, ItemID.SWAMPBARK_BODY);
+		addVariations(ids, ItemID.SWAMPBARK_LEGS);
+		return ImmutableSet.copyOf(ids);
 	}
 
 	private static Set<Integer> buildForcedMovementSeeds()
