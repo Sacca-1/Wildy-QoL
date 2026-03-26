@@ -20,7 +20,7 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 
 ### Freeze timers
 
-- Extended freeze timers that account for Ancient sceptres and Swampbark.
+- Extended freeze timers that account for Ancient sceptres, Zuriel's staves, and Swampbark.
 - Freeze timers persist on forced movement (spearing, seeding)
 
 ### Menaphite proc timer

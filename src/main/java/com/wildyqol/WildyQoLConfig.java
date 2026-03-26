@@ -240,7 +240,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "enableExtendedFreezeTimersV2",
 		name = "Extended freeze timers",
-		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres and Swampbark)",
+		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres, Zuriel's staves, and Swampbark)",
 		position = 0,
 		section = FREEZE_TIMERS_SECTION
 	)
