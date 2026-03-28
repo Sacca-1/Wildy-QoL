@@ -18,6 +18,8 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Actor;
+import net.runelite.api.ActorSpotAnim;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
@@ -27,6 +29,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
+import net.runelite.api.Player;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
@@ -42,6 +45,7 @@ import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.events.PlayerDespawned;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.SpotanimID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
@@ -372,12 +376,19 @@ public class WildyQoLPlugin extends Plugin
     public void onGraphicChanged(GraphicChanged event)
     {
         extendedFreezeTimersService.onGraphicChanged(event);
+        handleIceBarrageSpotAnim(event.getActor());
     }
 
     @Subscribe
     public void onGameTick(GameTick event)
     {
         extendedFreezeTimersService.onGameTick(event);
+
+        Player local = client.getLocalPlayer();
+        if (local != null)
+        {
+            handleIceBarrageSpotAnim(local);
+        }
     }
 
     @Subscribe
@@ -912,6 +923,28 @@ public class WildyQoLPlugin extends Plugin
             dmmOverloadImage = loadDmmOverloadImage();
         }
         dmmOverloadProcStatusBarOverlay.setOverloadImage(dmmOverloadImage);
+    }
+
+    private void handleIceBarrageSpotAnim(Actor actor)
+    {
+        if (!config.hideIceBarrageAnimation())
+        {
+            return;
+        }
+
+        if (!actor.hasSpotAnim(SpotanimID.ICE_BARRAGE_IMPACT))
+        {
+            return;
+        }
+
+        for (ActorSpotAnim spotAnim : actor.getSpotAnims())
+        {
+            if (spotAnim.getId() == SpotanimID.ICE_BARRAGE_IMPACT)
+            {
+                actor.removeSpotAnim((int) spotAnim.getHash());
+                break;
+            }
+        }
     }
 
     @Provides

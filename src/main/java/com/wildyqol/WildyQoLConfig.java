@@ -272,4 +272,16 @@ public interface WildyQoLConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		keyName = "hideIceBarrageAnimation",
+		name = "Hide Ice Barrage animation",
+		description = "Hide the Ice Barrage graphic that obscures players, making it easier to see gear switches",
+		position = 3,
+		section = FREEZE_TIMERS_SECTION
+	)
+	default boolean hideIceBarrageAnimation()
+	{
+		return false;
+	}
 }
