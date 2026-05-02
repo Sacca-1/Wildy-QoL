@@ -1,4 +1,4 @@
-package com.wildyqol.ikodparchmentrisk;
+package com.wildyqol.itemskeptondeath;
 
 import java.awt.Color;
 import java.awt.Dimension;

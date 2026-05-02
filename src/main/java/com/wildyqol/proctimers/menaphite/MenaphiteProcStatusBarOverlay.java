@@ -1,4 +1,4 @@
-package com.wildyqol.menaphite;
+package com.wildyqol.proctimers.menaphite;
 
 import com.wildyqol.WildyQoLConfig;
 import java.awt.Color;

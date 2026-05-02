@@ -9,10 +9,7 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 - Rune Pouch Blocker
 - Pet Spell Blocker
 - Empty Vial Blocker
-
-### Fish icon remapping
-
-- Remap the inventory icons of marlin to anglerfish and halibut to karambwan in PvP areas.
+- Fish icon remapping for marlin to anglerfish and halibut to karambwan in PvP areas.
 
 ### Items Kept on Death
 
@@ -28,7 +25,12 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 - Tracks the menaphite remedy proc cooldown with an infobox option.
 - Supports status bar overlays next to the inventory (left or right) for at-a-glance timing.
 
-### Misc
+### DMM overload proc timer
+
+- Tracks the DMM overload proc cooldown with an infobox option.
+- Supports status bar overlays next to the inventory (left or right) for at-a-glance timing.
+
+### Warnings
 
 - Protect Item Infobox in PvP areas.
 

@@ -1,5 +1,6 @@
-package com.wildyqol;
+package com.wildyqol.warnings;
 
+import com.wildyqol.WildyQoLConfig;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;

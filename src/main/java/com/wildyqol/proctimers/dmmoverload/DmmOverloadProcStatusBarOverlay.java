@@ -1,4 +1,4 @@
-package com.wildyqol.dmmoverload;
+package com.wildyqol.proctimers.dmmoverload;
 
 import com.wildyqol.WildyQoLConfig;
 import java.awt.Color;

@@ -1,24 +1,29 @@
-package com.wildyqol.dmmoverload;
+package com.wildyqol.proctimers;
 
-import com.wildyqol.WildyQoLConfig;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.function.BooleanSupplier;
 import net.runelite.api.Client;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.infobox.InfoBox;
 
-public class DmmOverloadProcInfoBox extends InfoBox
+public class ProcTimerInfoBox extends InfoBox
 {
-	private final DmmOverloadProcTimerService timerService;
-	private final WildyQoLConfig config;
+	private final ProcTimerService timerService;
 	private final Client client;
+	private final BooleanSupplier displayTicks;
 
-	public DmmOverloadProcInfoBox(BufferedImage image, Plugin plugin, DmmOverloadProcTimerService timerService, WildyQoLConfig config, Client client)
+	public ProcTimerInfoBox(
+		BufferedImage image,
+		Plugin plugin,
+		ProcTimerService timerService,
+		Client client,
+		BooleanSupplier displayTicks)
 	{
 		super(image, plugin);
 		this.timerService = timerService;
-		this.config = config;
 		this.client = client;
+		this.displayTicks = displayTicks;
 	}
 
 	@Override
@@ -30,7 +35,7 @@ public class DmmOverloadProcInfoBox extends InfoBox
 			return "";
 		}
 
-		if (config.dmmOverloadProcTimerDisplayTicks())
+		if (displayTicks.getAsBoolean())
 		{
 			return Integer.toString(ticksRemaining);
 		}
@@ -41,21 +46,15 @@ public class DmmOverloadProcInfoBox extends InfoBox
 			return "";
 		}
 
-		int seconds = (int) secondsRemaining;
-		if (seconds < 0)
-		{
-			seconds = 0;
-		}
-
-		return Integer.toString(seconds);
+		return Integer.toString(Math.max(0, (int) secondsRemaining));
 	}
 
 	@Override
 	public Color getTextColor()
 	{
-		int ticksRemaining = timerService.getTicksUntilNextProc(client.getTickCount());
-		if (config.dmmOverloadProcTimerDisplayTicks())
+		if (displayTicks.getAsBoolean())
 		{
+			int ticksRemaining = timerService.getTicksUntilNextProc(client.getTickCount());
 			if (ticksRemaining >= 0 && ticksRemaining <= 5)
 			{
 				return Color.RED;

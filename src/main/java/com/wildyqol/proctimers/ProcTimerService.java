@@ -1,15 +1,13 @@
-package com.wildyqol.dmmoverload;
+package com.wildyqol.proctimers;
 
 import java.time.Duration;
 import java.time.Instant;
-import javax.inject.Singleton;
 
-@Singleton
-public class DmmOverloadProcTimerService
+public abstract class ProcTimerService
 {
-	private static final int OVERLOAD_PROC_INTERVAL_TICKS = 25;
+	private static final int PROC_INTERVAL_TICKS = 25;
 	private static final double TICK_LENGTH_SECONDS = 0.6d;
-	private static final Duration OVERLOAD_PROC_INTERVAL_DURATION = Duration.ofMillis((long) (OVERLOAD_PROC_INTERVAL_TICKS * TICK_LENGTH_SECONDS * 1000));
+	private static final Duration PROC_INTERVAL_DURATION = Duration.ofMillis((long) (PROC_INTERVAL_TICKS * TICK_LENGTH_SECONDS * 1000));
 
 	private boolean active;
 	private int nextProcTick = -1;
@@ -43,8 +41,8 @@ public class DmmOverloadProcTimerService
 
 		if (!active || varbitValue != lastVarbitValue)
 		{
-			nextProcTick = currentTick + OVERLOAD_PROC_INTERVAL_TICKS;
-			nextProcInstant = Instant.now().plus(OVERLOAD_PROC_INTERVAL_DURATION);
+			nextProcTick = currentTick + PROC_INTERVAL_TICKS;
+			nextProcInstant = Instant.now().plus(PROC_INTERVAL_DURATION);
 			active = true;
 		}
 
@@ -84,12 +82,12 @@ public class DmmOverloadProcTimerService
 
 	public double getProcIntervalSeconds()
 	{
-		return OVERLOAD_PROC_INTERVAL_DURATION.toMillis() / 1000.0;
+		return PROC_INTERVAL_DURATION.toMillis() / 1000.0;
 	}
 
 	public int getProcIntervalTicks()
 	{
-		return OVERLOAD_PROC_INTERVAL_TICKS;
+		return PROC_INTERVAL_TICKS;
 	}
 
 	public double getFractionRemaining()
@@ -99,7 +97,7 @@ public class DmmOverloadProcTimerService
 			return -1;
 		}
 
-		final double totalMillis = OVERLOAD_PROC_INTERVAL_DURATION.toMillis();
+		final double totalMillis = PROC_INTERVAL_DURATION.toMillis();
 		if (totalMillis <= 0)
 		{
 			return -1;
@@ -135,8 +133,7 @@ public class DmmOverloadProcTimerService
 			return -1;
 		}
 
-		final int intervalTicks = OVERLOAD_PROC_INTERVAL_TICKS;
-		if (intervalTicks <= 0)
+		if (PROC_INTERVAL_TICKS <= 0)
 		{
 			return -1;
 		}
@@ -147,7 +144,7 @@ public class DmmOverloadProcTimerService
 			return 0.0;
 		}
 
-		double fraction = (double) ticksRemaining / intervalTicks;
+		double fraction = (double) ticksRemaining / PROC_INTERVAL_TICKS;
 		if (fraction <= 0)
 		{
 			return 0.0;

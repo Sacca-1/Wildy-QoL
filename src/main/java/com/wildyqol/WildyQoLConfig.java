@@ -49,12 +49,12 @@ public interface WildyQoLConfig extends Config
 	String FREEZE_TIMERS_SECTION = "freezeTimersSection";
 
 	@ConfigSection(
-		name = "Misc",
-		description = "Miscellaneous settings",
+		name = "Warnings",
+		description = "Warnings for risky PvP states",
 		position = 5,
 		closedByDefault = false
 	)
-	String MISC_SECTION = "miscSection";
+	String WARNINGS_SECTION = "warningsSection";
 
 	@ConfigItem(
 		keyName = "runePouchBlocker",
@@ -133,7 +133,7 @@ public interface WildyQoLConfig extends Config
 		name = "Update Message Shown v1.3.0",
 		description = "Internal flag to track if the v1.3.0 update message has been shown",
 		hidden = true,
-        position = 3
+		position = 3
 	)
 	default boolean updateMessageShown130()
 	{
@@ -230,7 +230,8 @@ public interface WildyQoLConfig extends Config
 		keyName = "protectItemInfoBox",
 		name = "Protect Item Infobox",
 		description = "Show an infobox when in PvP area and Protect Item is not active",
-		section = MISC_SECTION
+		position = 0,
+		section = WARNINGS_SECTION
 	)
 	default boolean protectItemInfoBox()
 	{
