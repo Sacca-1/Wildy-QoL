@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import net.runelite.api.Client;
-import net.runelite.api.WorldType;
 import net.runelite.client.game.SpriteManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.infobox.InfoBox;
@@ -13,8 +12,6 @@ import net.runelite.client.ui.overlay.infobox.InfoBox;
 public class ProtectItemInfoBox extends InfoBox
 {
 	private static final int SPRITE_PRAYER_PROTECT_ITEM = 123;
-	private static final int VARBIT_IN_WILDERNESS = 5963;
-	private static final int VARBIT_PVP_AREA_CLIENT = 8121;
 	private static final int VARBIT_PRAYER_PROTECT_ITEM = 4112;
 
 	private final Client client;
@@ -90,16 +87,7 @@ public class ProtectItemInfoBox extends InfoBox
 
 	private boolean shouldNotifyProtectItem()
 	{
-		if (client.getWorldType().contains(WorldType.DEADMAN))
-		{
-			return false;
-		}
-
-		// Check if in PvP area
-		boolean inPvp = client.getVarbitValue(VARBIT_IN_WILDERNESS) == 1
-			|| client.getVarbitValue(VARBIT_PVP_AREA_CLIENT) == 1;
-
-		if (!inPvp)
+		if (!PvpArea.isPvpArea(client))
 		{
 			return false;
 		}

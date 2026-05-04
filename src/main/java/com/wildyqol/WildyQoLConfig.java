@@ -4,6 +4,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Range;
 
 @ConfigGroup("wildyqol")
 public interface WildyQoLConfig extends Config
@@ -55,6 +56,14 @@ public interface WildyQoLConfig extends Config
 		closedByDefault = false
 	)
 	String WARNINGS_SECTION = "warningsSection";
+
+	@ConfigSection(
+		name = "Warnings (advanced)",
+		description = "Advanced warning thresholds",
+		position = 6,
+		closedByDefault = true
+	)
+	String WARNINGS_ADVANCED_SECTION = "warningsAdvancedSection";
 
 	@ConfigItem(
 		keyName = "runePouchBlocker",
@@ -236,6 +245,83 @@ public interface WildyQoLConfig extends Config
 	default boolean protectItemInfoBox()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "rangedAmmoWarnings",
+		name = "Ranged ammo warnings",
+		description = "Show a text overlay when recognized ranged weapons are missing compatible ammo or charges",
+		position = 1,
+		section = WARNINGS_SECTION
+	)
+	default boolean rangedAmmoWarnings()
+	{
+		return true;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "atlatlDartMinimum",
+		name = "Atlatl dart minimum",
+		description = "Minimum atlatl darts required before warning",
+		position = 0,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int atlatlDartMinimum()
+	{
+		return 250;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "boltMinimum",
+		name = "Bolt minimum",
+		description = "Minimum bolts required before warning",
+		position = 1,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int boltMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "javelinMinimum",
+		name = "Javelin minimum",
+		description = "Minimum javelins required before warning",
+		position = 2,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int javelinMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "arrowMinimum",
+		name = "Arrow minimum",
+		description = "Minimum arrows required before warning",
+		position = 3,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int arrowMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "bowfaChargeMinimum",
+		name = "Bowfa charges minimum",
+		description = "Minimum Bow of faerdhinen charges required before warning",
+		position = 4,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int bowfaChargeMinimum()
+	{
+		return 250;
 	}
 
 	@ConfigItem(
