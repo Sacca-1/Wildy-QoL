@@ -39,12 +39,6 @@ public class RangedAmmoEvaluatorTest
 		{
 			return 100;
 		}
-
-		@Override
-		public int bowfaCharges()
-		{
-			return 250;
-		}
 	};
 
 	@Test
@@ -52,10 +46,7 @@ public class RangedAmmoEvaluatorTest
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.ATLATL_DARTS),
-			ImmutableMap.of(ItemID.ATLATL_DART, 250),
-			false,
-			false,
-			0);
+			ImmutableMap.of(ItemID.ATLATL_DART, 250));
 
 		assertFalse(warning.isPresent());
 	}
@@ -65,16 +56,10 @@ public class RangedAmmoEvaluatorTest
 	{
 		assertFalse(evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
-			ImmutableMap.of(ItemID.RUNITE_BOLTS, 100),
-			false,
-			false,
-			0).isPresent());
+			ImmutableMap.of(ItemID.RUNITE_BOLTS, 100)).isPresent());
 		assertFalse(evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
-			ImmutableMap.of(ItemID.ONYX_BOLTS_E, 100),
-			false,
-			false,
-			0).isPresent());
+			ImmutableMap.of(ItemID.ONYX_BOLTS_E, 100)).isPresent());
 	}
 
 	@Test
@@ -82,16 +67,10 @@ public class RangedAmmoEvaluatorTest
 	{
 		assertFalse(evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
-			ImmutableMap.of(ItemID.ONYX_DRAGON_BOLTS_E, 100),
-			false,
-			false,
-			0).isPresent());
+			ImmutableMap.of(ItemID.ONYX_DRAGON_BOLTS_E, 100)).isPresent());
 		assertFalse(evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
-			ImmutableMap.of(ItemID.ONYX_BOLTS_E, 100),
-			false,
-			false,
-			0).isPresent());
+			ImmutableMap.of(ItemID.ONYX_BOLTS_E, 100)).isPresent());
 	}
 
 	@Test
@@ -99,10 +78,7 @@ public class RangedAmmoEvaluatorTest
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
-			ImmutableMap.of(),
-			false,
-			false,
-			0);
+			ImmutableMap.of());
 
 		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing ammo: dragon arrows");
 	}
@@ -112,10 +88,7 @@ public class RangedAmmoEvaluatorTest
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
-			ImmutableMap.of(ItemID.DRAGON_ARROW, 100),
-			false,
-			false,
-			0);
+			ImmutableMap.of(ItemID.DRAGON_ARROW, 100));
 
 		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong ammo: dragon crossbow bolts required");
 	}
@@ -125,10 +98,7 @@ public class RangedAmmoEvaluatorTest
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
-			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42),
-			false,
-			false,
-			0);
+			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
 		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low bolts: 42/100");
 	}
@@ -138,10 +108,7 @@ public class RangedAmmoEvaluatorTest
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS, RangedAmmoRequirement.DRAGON_ARROWS),
-			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 100),
-			false,
-			false,
-			0);
+			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 100));
 
 		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing ammo: dragon arrows");
 	}
@@ -151,10 +118,7 @@ public class RangedAmmoEvaluatorTest
 	{
 		List<RangedAmmoWarning> warnings = evaluateAll(
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS, RangedAmmoRequirement.DRAGON_ARROWS),
-			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42),
-			false,
-			false,
-			0);
+			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
 		assertEquals(2, warnings.size());
 		assertEquals("Missing ammo: dragon arrows", warnings.get(0).getText());
@@ -162,53 +126,11 @@ public class RangedAmmoEvaluatorTest
 	}
 
 	@Test
-	public void acceptsBowfaWithEnoughCharges()
-	{
-		Optional<RangedAmmoWarning> warning = evaluate(
-			ImmutableSet.of(),
-			ImmutableMap.of(),
-			true,
-			false,
-			250);
-
-		assertFalse(warning.isPresent());
-	}
-
-	@Test
-	public void warnsLowBowfaCharges()
-	{
-		Optional<RangedAmmoWarning> warning = evaluate(
-			ImmutableSet.of(),
-			ImmutableMap.of(),
-			true,
-			false,
-			80);
-
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low Bowfa charges: 80/250");
-	}
-
-	@Test
-	public void warnsInactiveBowfa()
-	{
-		Optional<RangedAmmoWarning> warning = evaluate(
-			ImmutableSet.of(),
-			ImmutableMap.of(),
-			false,
-			true,
-			0);
-
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing Bowfa charges");
-	}
-
-	@Test
 	public void ignoresUnknownWeaponsByReceivingNoRequirements()
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
 			ImmutableSet.of(),
-			ImmutableMap.of(ItemID.DRAGON_ARROW, 10),
-			false,
-			false,
-			0);
+			ImmutableMap.of(ItemID.DRAGON_ARROW, 10));
 
 		assertFalse(warning.isPresent());
 	}
@@ -225,34 +147,25 @@ public class RangedAmmoEvaluatorTest
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_CHARGED));
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_INFINITE));
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.SKILLCAPE_MAX_DIZANAS));
-		assertTrue(RangedAmmoTables.isBowfaWithCharges(ItemID.BOW_OF_FAERDHINEN));
-		assertTrue(RangedAmmoTables.isInactiveBowfa(ItemID.BOW_OF_FAERDHINEN_INACTIVE));
-		assertTrue(RangedAmmoTables.isCorruptedBowfa(ItemID.BOW_OF_FAERDHINEN_C));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.DRAGON_ARROW));
 		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.ANGLERFISH));
 	}
 
 	private Optional<RangedAmmoWarning> evaluate(
 		ImmutableSet<RangedAmmoRequirement> requirements,
-		ImmutableMap<Integer, Integer> ammoCounts,
-		boolean chargedBowfa,
-		boolean inactiveBowfa,
-		int bowfaCharges)
+		ImmutableMap<Integer, Integer> ammoCounts)
 	{
 		return evaluator.evaluate(
-			RangedAmmoEvaluator.state(requirements, ammoCounts, chargedBowfa, inactiveBowfa, bowfaCharges),
+			RangedAmmoEvaluator.state(requirements, ammoCounts),
 			thresholds);
 	}
 
 	private List<RangedAmmoWarning> evaluateAll(
 		ImmutableSet<RangedAmmoRequirement> requirements,
-		ImmutableMap<Integer, Integer> ammoCounts,
-		boolean chargedBowfa,
-		boolean inactiveBowfa,
-		int bowfaCharges)
+		ImmutableMap<Integer, Integer> ammoCounts)
 	{
 		return evaluator.evaluateAll(
-			RangedAmmoEvaluator.state(requirements, ammoCounts, chargedBowfa, inactiveBowfa, bowfaCharges),
+			RangedAmmoEvaluator.state(requirements, ammoCounts),
 			thresholds);
 	}
 

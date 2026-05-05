@@ -9,6 +9,4 @@ public interface AmmoThresholds
 	int javelins();
 
 	int arrows();
-
-	int bowfaCharges();
 }

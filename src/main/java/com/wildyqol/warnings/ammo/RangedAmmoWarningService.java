@@ -54,7 +54,6 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 	{
 		if (event.getVarpId() == VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO
 			|| event.getVarpId() == VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO_AMOUNT
-			|| event.getVarbitId() == VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY
 			|| event.getVarbitId() == VarbitID.INSIDE_WILDERNESS
 			|| event.getVarbitId() == VarbitID.PVP_AREA_CLIENT)
 		{
@@ -80,10 +79,7 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 		Map<Integer, Integer> ammoCounts = collectAmmoCounts();
 		return RangedAmmoEvaluator.state(
 			requirements,
-			ammoCounts,
-			hasChargedBowfa(),
-			hasInactiveBowfa(),
-			client.getVarbitValue(VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY));
+			ammoCounts);
 	}
 
 	private Set<RangedAmmoRequirement> collectRequirements()
@@ -165,43 +161,6 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 		ammoCounts.merge(ItemVariationMapping.map(itemId), quantity, Integer::sum);
 	}
 
-	private boolean hasChargedBowfa()
-	{
-		return hasMatchingItem(RangedAmmoTables::isBowfaWithCharges);
-	}
-
-	private boolean hasInactiveBowfa()
-	{
-		return hasMatchingItem(RangedAmmoTables::isInactiveBowfa);
-	}
-
-	private boolean hasMatchingItem(ItemMatcher matcher)
-	{
-		ItemContainer equipment = client.getItemContainer(InventoryID.WORN);
-		if (equipment != null)
-		{
-			Item weapon = equipment.getItem(EquipmentInventorySlot.WEAPON.getSlotIdx());
-			if (weapon != null && matcher.matches(weapon.getId()))
-			{
-				return true;
-			}
-		}
-
-		ItemContainer inventory = client.getItemContainer(InventoryID.INV);
-		if (inventory != null)
-		{
-			for (Item item : inventory.getItems())
-			{
-				if (item != null && matcher.matches(item.getId()))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
 	private AmmoThresholds thresholds()
 	{
 		return new AmmoThresholds()
@@ -229,17 +188,6 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 			{
 				return config.arrowMinimum();
 			}
-
-			@Override
-			public int bowfaCharges()
-			{
-				return config.bowfaChargeMinimum();
-			}
 		};
-	}
-
-	private interface ItemMatcher
-	{
-		boolean matches(int itemId);
 	}
 }

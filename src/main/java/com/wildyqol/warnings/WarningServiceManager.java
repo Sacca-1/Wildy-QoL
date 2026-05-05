@@ -2,6 +2,7 @@ package com.wildyqol.warnings;
 
 import com.google.common.collect.ImmutableList;
 import com.wildyqol.warnings.ammo.RangedAmmoWarningService;
+import com.wildyqol.warnings.charges.ItemChargeWarningService;
 import com.wildyqol.warnings.magic.MagicSpellbookWarningService;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,12 @@ public class WarningServiceManager
 	@Inject
 	WarningServiceManager(
 		RangedAmmoWarningService rangedAmmoWarningService,
+		ItemChargeWarningService itemChargeWarningService,
 		MagicSpellbookWarningService magicSpellbookWarningService)
 	{
 		services = ImmutableList.of(
 			rangedAmmoWarningService,
+			itemChargeWarningService,
 			magicSpellbookWarningService);
 	}
 

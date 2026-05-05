@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 import net.runelite.client.game.ItemVariationMapping;
 
 public class RangedAmmoEvaluator
@@ -25,18 +24,12 @@ public class RangedAmmoEvaluator
 	public List<RangedAmmoWarning> evaluateAll(RangedAmmoState state, AmmoThresholds thresholds)
 	{
 		Set<RangedAmmoRequirement> requirements = state.getRequirements();
-		if (requirements.isEmpty() && !state.isInactiveBowfa() && !state.isChargedBowfa())
+		if (requirements.isEmpty())
 		{
 			return ImmutableList.of();
 		}
 
 		List<RangedAmmoWarning> warnings = new ArrayList<>();
-		RangedAmmoWarning bowfaWarning = evaluateBowfa(state, thresholds);
-		if (bowfaWarning != null)
-		{
-			warnings.add(bowfaWarning);
-		}
-
 		warnings.addAll(evaluateAmmo(requirements, state.getAmmoCounts(), thresholds));
 		warnings.sort((left, right) ->
 		{
@@ -44,30 +37,6 @@ public class RangedAmmoEvaluator
 			return priority != 0 ? priority : left.getText().compareTo(right.getText());
 		});
 		return ImmutableList.copyOf(warnings);
-	}
-
-	@Nullable
-	private RangedAmmoWarning evaluateBowfa(RangedAmmoState state, AmmoThresholds thresholds)
-	{
-		if (state.isInactiveBowfa())
-		{
-			return new RangedAmmoWarning(RangedAmmoWarning.WarningPriority.MISSING, "Missing Bowfa charges");
-		}
-
-		if (!state.isChargedBowfa())
-		{
-			return null;
-		}
-
-		int threshold = thresholds.bowfaCharges();
-		if (threshold > 0 && state.getBowfaCharges() < threshold)
-		{
-			return new RangedAmmoWarning(
-				RangedAmmoWarning.WarningPriority.LOW,
-				"Low Bowfa charges: " + state.getBowfaCharges() + "/" + threshold);
-		}
-
-		return null;
 	}
 
 	private List<RangedAmmoWarning> evaluateAmmo(
@@ -133,10 +102,7 @@ public class RangedAmmoEvaluator
 
 	public static RangedAmmoState state(
 		Set<RangedAmmoRequirement> requirements,
-		Map<Integer, Integer> ammoCounts,
-		boolean chargedBowfa,
-		boolean inactiveBowfa,
-		int bowfaCharges)
+		Map<Integer, Integer> ammoCounts)
 	{
 		EnumMap<RangedAmmoRequirement, RangedAmmoRequirement> orderedRequirements = new EnumMap<>(RangedAmmoRequirement.class);
 		for (RangedAmmoRequirement requirement : requirements)
@@ -155,9 +121,6 @@ public class RangedAmmoEvaluator
 
 		return new RangedAmmoState(
 			ImmutableSet.copyOf(orderedRequirements.keySet()),
-			ImmutableMap.copyOf(normalizedAmmoCounts),
-			chargedBowfa,
-			inactiveBowfa,
-			Math.max(0, bowfaCharges));
+			ImmutableMap.copyOf(normalizedAmmoCounts));
 	}
 }

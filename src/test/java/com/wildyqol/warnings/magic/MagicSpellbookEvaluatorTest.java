@@ -211,7 +211,7 @@ public class MagicSpellbookEvaluatorTest
 	}
 
 	@Test
-	public void warnsUnchargedAccursedWhenNoOtherDamageIsValid()
+	public void treatsUnchargedAccursedAsMissingDamageRunes()
 	{
 		List<MagicSpellbookWarning> warnings = evaluateAll(
 			MagicSpellbook.STANDARD,
@@ -226,7 +226,7 @@ public class MagicSpellbookEvaluatorTest
 			true);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing Accursed charges");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: damage");
 	}
 
 	@Test

@@ -250,7 +250,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "rangedAmmoWarnings",
 		name = "Ranged ammo warnings",
-		description = "Show a text overlay when recognized ranged weapons are missing compatible ammo or charges",
+		description = "Show a text overlay when recognized ranged weapons are missing compatible ammo",
 		position = 1,
 		section = WARNINGS_SECTION
 	)
@@ -260,10 +260,22 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "itemChargeWarnings",
+		name = "Item charges warnings",
+		description = "Show a text overlay when recognized charged items are empty or low",
+		position = 2,
+		section = WARNINGS_SECTION
+	)
+	default boolean itemChargeWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "spellbookRuneWarnings",
 		name = "Spellbook/rune warnings",
 		description = "Show a text overlay when recognized runes and spellbook do not match or are insufficient",
-		position = 2,
+		position = 3,
 		section = WARNINGS_SECTION
 	)
 	default boolean spellbookRuneWarnings()
@@ -338,10 +350,88 @@ public interface WildyQoLConfig extends Config
 
 	@Range(min = 0)
 	@ConfigItem(
+		keyName = "serpentineHelmChargeMinimum",
+		name = "Serp helm charges minimum",
+		description = "Minimum serpentine helm charges required before warning",
+		position = 5,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int serpentineHelmChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "toxicStaffChargeMinimum",
+		name = "Toxic SOTD charges minimum",
+		description = "Minimum Toxic staff of the dead charges required before warning",
+		position = 6,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int toxicStaffChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "accursedThammaronsChargeMinimum",
+		name = "Accursed/Thammaron's charges minimum",
+		description = "Minimum Accursed/Thammaron's sceptre usable charges required before warning",
+		position = 7,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int accursedThammaronsChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "crawsWebweaverChargeMinimum",
+		name = "Craw's/Webweaver charges minimum",
+		description = "Minimum Craw's/Webweaver bow usable charges required before warning",
+		position = 8,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int crawsWebweaverChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "ursineViggorasChargeMinimum",
+		name = "Ursine/Viggora's charges minimum",
+		description = "Minimum Ursine/Viggora's mace usable charges required before warning",
+		position = 9,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int ursineViggorasChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "tomeChargeMinimum",
+		name = "Tome charges minimum",
+		description = "Minimum tome charges required before warning",
+		position = 10,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int tomeChargeMinimum()
+	{
+		return 50;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
 		keyName = "teleBlockMinimum",
 		name = "TB minimum",
 		description = "Minimum Tele Block casts or sacks required before warning",
-		position = 5,
+		position = 11,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int teleBlockMinimum()
@@ -354,7 +444,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "entangleMinimum",
 		name = "Entangle minimum",
 		description = "Minimum freeze casts or sacks required before warning",
-		position = 6,
+		position = 12,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int entangleMinimum()
@@ -367,7 +457,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "surgeMinimum",
 		name = "Surge minimum",
 		description = "Minimum standard damage casts or sacks required before warning",
-		position = 7,
+		position = 13,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int surgeMinimum()
@@ -380,7 +470,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "iceSpellMinimum",
 		name = "Ice spell minimum",
 		description = "Minimum ancient ice casts or sacks required before warning",
-		position = 8,
+		position = 14,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int iceSpellMinimum()
@@ -393,7 +483,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "bloodSpellMinimum",
 		name = "Blood spell minimum",
 		description = "Minimum ancient blood casts required before warning when blood spell runes are present",
-		position = 9,
+		position = 15,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int bloodSpellMinimum()

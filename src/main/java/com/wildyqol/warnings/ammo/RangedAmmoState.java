@@ -9,7 +9,4 @@ public class RangedAmmoState
 {
 	Set<RangedAmmoRequirement> requirements;
 	Map<Integer, Integer> ammoCounts;
-	boolean chargedBowfa;
-	boolean inactiveBowfa;
-	int bowfaCharges;
 }

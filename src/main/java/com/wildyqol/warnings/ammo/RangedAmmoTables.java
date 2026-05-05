@@ -15,26 +15,6 @@ final class RangedAmmoTables
 		.addAll(ItemVariationMapping.getVariations(ItemVariationMapping.map(net.runelite.api.gameval.ItemID.SKILLCAPE_MAX_DIZANAS)))
 		.build();
 
-	private static final Set<Integer> BOWFA_CHARGED = ImmutableSet.of(
-		ItemID.BOW_OF_FAERDHINEN
-	);
-
-	private static final Set<Integer> BOWFA_INACTIVE = ImmutableSet.of(
-		ItemID.BOW_OF_FAERDHINEN_INACTIVE
-	);
-
-	private static final Set<Integer> BOWFA_CORRUPTED = ImmutableSet.of(
-		ItemID.BOW_OF_FAERDHINEN_C,
-		ItemID.BOW_OF_FAERDHINEN_C_25869,
-		ItemID.BOW_OF_FAERDHINEN_C_25884,
-		ItemID.BOW_OF_FAERDHINEN_C_25886,
-		ItemID.BOW_OF_FAERDHINEN_C_25888,
-		ItemID.BOW_OF_FAERDHINEN_C_25890,
-		ItemID.BOW_OF_FAERDHINEN_C_25892,
-		ItemID.BOW_OF_FAERDHINEN_C_25894,
-		ItemID.BOW_OF_FAERDHINEN_C_25896
-	);
-
 	private static final Map<Integer, RangedAmmoRequirement> WEAPON_REQUIREMENTS = ImmutableMap.<Integer, RangedAmmoRequirement>builder()
 		.put(ItemID.ECLIPSE_ATLATL, RangedAmmoRequirement.ATLATL_DARTS)
 		.put(ItemID.ECLIPSE_ATLATL_29851, RangedAmmoRequirement.ATLATL_DARTS)
@@ -101,20 +81,5 @@ final class RangedAmmoTables
 	static boolean isSupportedAmmo(int itemId)
 	{
 		return SUPPORTED_AMMO_IDS.contains(itemId) || SUPPORTED_AMMO_IDS.contains(ItemVariationMapping.map(itemId));
-	}
-
-	static boolean isBowfaWithCharges(int itemId)
-	{
-		return BOWFA_CHARGED.contains(itemId);
-	}
-
-	static boolean isInactiveBowfa(int itemId)
-	{
-		return BOWFA_INACTIVE.contains(itemId);
-	}
-
-	static boolean isCorruptedBowfa(int itemId)
-	{
-		return BOWFA_CORRUPTED.contains(itemId);
 	}
 }

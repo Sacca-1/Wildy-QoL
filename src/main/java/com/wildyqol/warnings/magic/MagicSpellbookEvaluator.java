@@ -113,11 +113,6 @@ public class MagicSpellbookEvaluator
 			return low("Low damage casts: " + bestRuneDamage + "/" + threshold);
 		}
 
-		if (state.isUnchargedWildySceptre())
-		{
-			return missing("Missing Accursed charges");
-		}
-
 		return missing("Missing runes: damage");
 	}
 
