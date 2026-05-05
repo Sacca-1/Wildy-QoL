@@ -259,6 +259,18 @@ public interface WildyQoLConfig extends Config
 		return true;
 	}
 
+	@ConfigItem(
+		keyName = "spellbookRuneWarnings",
+		name = "Spellbook/rune warnings",
+		description = "Show a text overlay when recognized runes and spellbook do not match or are insufficient",
+		position = 2,
+		section = WARNINGS_SECTION
+	)
+	default boolean spellbookRuneWarnings()
+	{
+		return true;
+	}
+
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "atlatlDartMinimum",
@@ -322,6 +334,71 @@ public interface WildyQoLConfig extends Config
 	default int bowfaChargeMinimum()
 	{
 		return 250;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "teleBlockMinimum",
+		name = "TB minimum",
+		description = "Minimum Tele Block casts or sacks required before warning",
+		position = 5,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int teleBlockMinimum()
+	{
+		return 10;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "entangleMinimum",
+		name = "Entangle minimum",
+		description = "Minimum freeze casts or sacks required before warning",
+		position = 6,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int entangleMinimum()
+	{
+		return 50;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "surgeMinimum",
+		name = "Surge minimum",
+		description = "Minimum standard damage casts or sacks required before warning",
+		position = 7,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int surgeMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "iceSpellMinimum",
+		name = "Ice spell minimum",
+		description = "Minimum ancient ice casts or sacks required before warning",
+		position = 8,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int iceSpellMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "bloodSpellMinimum",
+		name = "Blood spell minimum",
+		description = "Minimum ancient blood casts required before warning when blood spell runes are present",
+		position = 9,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int bloodSpellMinimum()
+	{
+		return 50;
 	}
 
 	@ConfigItem(

@@ -8,8 +8,8 @@ import com.wildyqol.misclick.MisclickPreventionService;
 import com.wildyqol.proctimers.ProcTimerFeatureService;
 import com.wildyqol.updates.UpdateMessageService;
 import com.wildyqol.warnings.ProtectItemInfoBoxService;
-import com.wildyqol.warnings.ammo.RangedAmmoWarningOverlay;
-import com.wildyqol.warnings.ammo.RangedAmmoWarningService;
+import com.wildyqol.warnings.WarningOverlay;
+import com.wildyqol.warnings.WarningServiceManager;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.events.AnimationChanged;
@@ -72,21 +72,21 @@ public class WildyQoLPlugin extends Plugin
 	private ExtendedFreezeTimersService extendedFreezeTimersService;
 
 	@Inject
-	private RangedAmmoWarningService rangedAmmoWarningService;
+	private WarningServiceManager warningServiceManager;
 
 	@Inject
-	private RangedAmmoWarningOverlay rangedAmmoWarningOverlay;
+	private WarningOverlay warningOverlay;
 
 	@Override
 	protected void startUp()
 	{
 		log.debug("Wildy QoL started");
 		overlayManager.add(fishInventoryIconOverlay);
-		overlayManager.add(rangedAmmoWarningOverlay);
+		overlayManager.add(warningOverlay);
 		ikodParchmentRiskService.startUp();
 		clientThread.invokeLater(() -> ikodParchmentRiskService.refresh());
 		protectItemInfoBoxService.startUp(this);
-		rangedAmmoWarningService.startUp();
+		warningServiceManager.startUp();
 		procTimerFeatureService.startUp(this);
 		extendedFreezeTimersService.startUp(this);
 		updateMessageService.startUp();
@@ -97,10 +97,10 @@ public class WildyQoLPlugin extends Plugin
 	{
 		log.debug("Wildy QoL stopped");
 		overlayManager.remove(fishInventoryIconOverlay);
-		overlayManager.remove(rangedAmmoWarningOverlay);
+		overlayManager.remove(warningOverlay);
 		ikodParchmentRiskService.shutDown();
 		protectItemInfoBoxService.shutDown();
-		rangedAmmoWarningService.shutDown();
+		warningServiceManager.shutDown();
 		procTimerFeatureService.shutDown();
 		extendedFreezeTimersService.shutDown();
 	}
@@ -142,7 +142,7 @@ public class WildyQoLPlugin extends Plugin
 	{
 		ikodParchmentRiskService.onItemContainerChanged(event);
 		extendedFreezeTimersService.onItemContainerChanged(event);
-		rangedAmmoWarningService.onItemContainerChanged(event);
+		warningServiceManager.onItemContainerChanged(event);
 	}
 
 	@Subscribe
@@ -150,7 +150,7 @@ public class WildyQoLPlugin extends Plugin
 	{
 		ikodParchmentRiskService.onVarbitChanged(event);
 		procTimerFeatureService.onVarbitChanged(event);
-		rangedAmmoWarningService.onVarbitChanged(event);
+		warningServiceManager.onVarbitChanged(event);
 	}
 
 	@Subscribe
@@ -167,7 +167,7 @@ public class WildyQoLPlugin extends Plugin
 		}
 
 		procTimerFeatureService.onConfigChanged(event);
-		rangedAmmoWarningService.refreshOnClientThread();
+		warningServiceManager.refreshOnClientThread();
 	}
 
 	@Subscribe
@@ -180,7 +180,7 @@ public class WildyQoLPlugin extends Plugin
 	public void onGameTick(GameTick event)
 	{
 		extendedFreezeTimersService.onGameTick(event);
-		rangedAmmoWarningService.onGameTick(event);
+		warningServiceManager.onGameTick(event);
 	}
 
 	@Subscribe

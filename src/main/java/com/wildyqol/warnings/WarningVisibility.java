@@ -1,20 +1,28 @@
-package com.wildyqol.warnings.ammo;
+package com.wildyqol.warnings;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
-class RangedAmmoWarningVisibility
+public class WarningVisibility<T>
 {
-	static final int PVP_GRACE_TICKS = 15;
+	public static final int PVP_GRACE_TICKS = 15;
+
+	private final Function<T, String> textProvider;
 
 	@Nullable
 	private String pvpGraceWarningText;
 	private boolean wasInPvp;
 	private int pvpGraceTicksRemaining;
 
-	List<RangedAmmoWarning> update(List<RangedAmmoWarning> warnings, boolean enabled, boolean inPvp, boolean gameTick)
+	public WarningVisibility(Function<T, String> textProvider)
+	{
+		this.textProvider = textProvider;
+	}
+
+	public List<T> update(List<T> warnings, boolean enabled, boolean inPvp, boolean gameTick)
 	{
 		if (inPvp && gameTick && pvpGraceTicksRemaining > 0)
 		{
@@ -50,16 +58,16 @@ class RangedAmmoWarningVisibility
 		return warnings;
 	}
 
-	Optional<RangedAmmoWarning> update(Optional<RangedAmmoWarning> warning, boolean enabled, boolean inPvp, boolean gameTick)
+	public Optional<T> update(Optional<T> warning, boolean enabled, boolean inPvp, boolean gameTick)
 	{
-		List<RangedAmmoWarning> warnings = warning
+		List<T> warnings = warning
 			.map(ImmutableList::of)
 			.orElseGet(ImmutableList::of);
-		List<RangedAmmoWarning> visibleWarnings = update(warnings, enabled, inPvp, gameTick);
+		List<T> visibleWarnings = update(warnings, enabled, inPvp, gameTick);
 		return visibleWarnings.isEmpty() ? Optional.empty() : Optional.of(visibleWarnings.get(0));
 	}
 
-	void reset()
+	public void reset()
 	{
 		reset(false);
 	}
@@ -71,16 +79,16 @@ class RangedAmmoWarningVisibility
 		wasInPvp = inPvp;
 	}
 
-	private String getWarningKey(List<RangedAmmoWarning> warnings)
+	private String getWarningKey(List<T> warnings)
 	{
 		StringBuilder key = new StringBuilder();
-		for (RangedAmmoWarning warning : warnings)
+		for (T warning : warnings)
 		{
 			if (key.length() > 0)
 			{
 				key.append('\n');
 			}
-			key.append(warning.getText());
+			key.append(textProvider.apply(warning));
 		}
 		return key.toString();
 	}

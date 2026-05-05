@@ -2,13 +2,11 @@ package com.wildyqol.warnings.ammo;
 
 import com.google.common.collect.ImmutableSet;
 import com.wildyqol.WildyQoLConfig;
-import com.wildyqol.warnings.PvpArea;
-import java.util.Collections;
+import com.wildyqol.warnings.WarningService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,7 +14,6 @@ import net.runelite.api.Client;
 import net.runelite.api.EquipmentInventorySlot;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
-import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.gameval.InventoryID;
@@ -26,15 +23,11 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemVariationMapping;
 
 @Singleton
-public class RangedAmmoWarningService
+public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 {
 	private final Client client;
-	private final ClientThread clientThread;
 	private final WildyQoLConfig config;
 	private final RangedAmmoEvaluator evaluator = new RangedAmmoEvaluator();
-	private final RangedAmmoWarningVisibility visibility = new RangedAmmoWarningVisibility();
-
-	private List<RangedAmmoWarning> visibleWarnings = Collections.emptyList();
 
 	@Inject
 	RangedAmmoWarningService(
@@ -42,22 +35,12 @@ public class RangedAmmoWarningService
 		ClientThread clientThread,
 		WildyQoLConfig config)
 	{
+		super(client, clientThread, RangedAmmoWarning::getText);
 		this.client = client;
-		this.clientThread = clientThread;
 		this.config = config;
 	}
 
-	public void startUp()
-	{
-		refreshOnClientThread();
-	}
-
-	public void shutDown()
-	{
-		visibleWarnings = Collections.emptyList();
-		visibility.reset();
-	}
-
+	@Override
 	public void onItemContainerChanged(ItemContainerChanged event)
 	{
 		if (event.getContainerId() == InventoryID.WORN || event.getContainerId() == InventoryID.INV)
@@ -66,6 +49,7 @@ public class RangedAmmoWarningService
 		}
 	}
 
+	@Override
 	public void onVarbitChanged(VarbitChanged event)
 	{
 		if (event.getVarpId() == VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO
@@ -78,34 +62,14 @@ public class RangedAmmoWarningService
 		}
 	}
 
-	public void onGameTick(GameTick event)
+	@Override
+	protected boolean isEnabled()
 	{
-		visibleWarnings = visibility.update(evaluateAll(), config.rangedAmmoWarnings(), PvpArea.isPvpArea(client), true);
+		return config.rangedAmmoWarnings();
 	}
 
-	List<String> getOverlayTexts()
-	{
-		if (!config.rangedAmmoWarnings() || visibleWarnings.isEmpty())
-		{
-			return Collections.emptyList();
-		}
-
-		return visibleWarnings.stream()
-			.map(RangedAmmoWarning::getText)
-			.collect(Collectors.toList());
-	}
-
-	public void refresh()
-	{
-		visibleWarnings = visibility.update(evaluateAll(), config.rangedAmmoWarnings(), PvpArea.isPvpArea(client), false);
-	}
-
-	public void refreshOnClientThread()
-	{
-		clientThread.invokeLater(this::refresh);
-	}
-
-	private List<RangedAmmoWarning> evaluateAll()
+	@Override
+	protected List<RangedAmmoWarning> evaluateAll()
 	{
 		return evaluator.evaluateAll(buildState(), thresholds());
 	}

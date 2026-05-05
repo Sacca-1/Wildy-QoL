@@ -1,15 +1,16 @@
-package com.wildyqol.warnings.ammo;
+package com.wildyqol.warnings;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
+import com.wildyqol.warnings.ammo.RangedAmmoWarning;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
 
-public class RangedAmmoWarningVisibilityTest
+public class WarningVisibilityTest
 {
 	private final RangedAmmoWarning warning = new RangedAmmoWarning(
 		RangedAmmoWarning.WarningPriority.MISSING,
@@ -18,7 +19,7 @@ public class RangedAmmoWarningVisibilityTest
 	@Test
 	public void showsOutsidePvp()
 	{
-		RangedAmmoWarningVisibility visibility = new RangedAmmoWarningVisibility();
+		WarningVisibility<RangedAmmoWarning> visibility = new WarningVisibility<>(RangedAmmoWarning::getText);
 
 		assertTrue(visibility.update(Optional.of(warning), true, false, false).isPresent());
 	}
@@ -26,7 +27,7 @@ public class RangedAmmoWarningVisibilityTest
 	@Test
 	public void suppressesWhenDisabled()
 	{
-		RangedAmmoWarningVisibility visibility = new RangedAmmoWarningVisibility();
+		WarningVisibility<RangedAmmoWarning> visibility = new WarningVisibility<>(RangedAmmoWarning::getText);
 
 		assertFalse(visibility.update(Optional.of(warning), false, false, false).isPresent());
 	}
@@ -34,11 +35,11 @@ public class RangedAmmoWarningVisibilityTest
 	@Test
 	public void showsForGraceTicksAfterEnteringPvp()
 	{
-		RangedAmmoWarningVisibility visibility = new RangedAmmoWarningVisibility();
+		WarningVisibility<RangedAmmoWarning> visibility = new WarningVisibility<>(RangedAmmoWarning::getText);
 		visibility.update(Optional.of(warning), true, false, false);
 
 		assertTrue(visibility.update(Optional.of(warning), true, true, false).isPresent());
-		for (int i = 0; i < RangedAmmoWarningVisibility.PVP_GRACE_TICKS; i++)
+		for (int i = 0; i < WarningVisibility.PVP_GRACE_TICKS; i++)
 		{
 			visibility.update(Optional.of(warning), true, true, true);
 		}
@@ -49,10 +50,10 @@ public class RangedAmmoWarningVisibilityTest
 	@Test
 	public void resumesWhenLeavingPvp()
 	{
-		RangedAmmoWarningVisibility visibility = new RangedAmmoWarningVisibility();
+		WarningVisibility<RangedAmmoWarning> visibility = new WarningVisibility<>(RangedAmmoWarning::getText);
 		visibility.update(Optional.of(warning), true, false, false);
 		visibility.update(Optional.of(warning), true, true, false);
-		for (int i = 0; i < RangedAmmoWarningVisibility.PVP_GRACE_TICKS; i++)
+		for (int i = 0; i < WarningVisibility.PVP_GRACE_TICKS; i++)
 		{
 			visibility.update(Optional.of(warning), true, true, true);
 		}
@@ -64,7 +65,7 @@ public class RangedAmmoWarningVisibilityTest
 	@Test
 	public void keepsMultipleWarningsVisible()
 	{
-		RangedAmmoWarningVisibility visibility = new RangedAmmoWarningVisibility();
+		WarningVisibility<RangedAmmoWarning> visibility = new WarningVisibility<>(RangedAmmoWarning::getText);
 		List<RangedAmmoWarning> warnings = ImmutableList.of(
 			warning,
 			new RangedAmmoWarning(RangedAmmoWarning.WarningPriority.LOW, "Low bolts: 42/100"));

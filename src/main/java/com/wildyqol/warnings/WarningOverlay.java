@@ -1,4 +1,4 @@
-package com.wildyqol.warnings.ammo;
+package com.wildyqol.warnings;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,21 +11,21 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
 
 @Singleton
-public class RangedAmmoWarningOverlay extends OverlayPanel
+public class WarningOverlay extends OverlayPanel
 {
-	private final RangedAmmoWarningService service;
+	private final WarningServiceManager warningServiceManager;
 
 	@Inject
-	RangedAmmoWarningOverlay(RangedAmmoWarningService service)
+	WarningOverlay(WarningServiceManager warningServiceManager)
 	{
-		this.service = service;
+		this.warningServiceManager = warningServiceManager;
 		setPosition(OverlayPosition.TOP_LEFT);
 	}
 
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		List<String> texts = service.getOverlayTexts();
+		List<String> texts = warningServiceManager.getOverlayTexts();
 		if (texts.isEmpty())
 		{
 			return null;

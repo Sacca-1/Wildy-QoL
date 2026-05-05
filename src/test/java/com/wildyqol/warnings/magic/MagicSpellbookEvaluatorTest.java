@@ -1,0 +1,298 @@
+package com.wildyqol.warnings.magic;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import net.runelite.api.ItemID;
+import org.junit.Test;
+
+public class MagicSpellbookEvaluatorTest
+{
+	private final MagicSpellbookEvaluator evaluator = new MagicSpellbookEvaluator();
+	private final MagicThresholds thresholds = new MagicThresholds()
+	{
+		@Override
+		public int teleBlock()
+		{
+			return 10;
+		}
+
+		@Override
+		public int entangle()
+		{
+			return 50;
+		}
+
+		@Override
+		public int surge()
+		{
+			return 100;
+		}
+
+		@Override
+		public int ice()
+		{
+			return 100;
+		}
+
+		@Override
+		public int blood()
+		{
+			return 50;
+		}
+	};
+
+	@Test
+	public void acceptsStandardSackSetup()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(
+				ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10,
+				ItemID.BLIGHTED_ENTANGLE_SACK, 50,
+				ItemID.BLIGHTED_SURGE_SACK, 100),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void warnsMismatchWhenResourcesDoNotMatchSpellbook()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+	}
+
+	@Test
+	public void warnsMissingStandardCategoriesWithOnlyTeleportSacks()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(2, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: damage");
+		assertWarning(warnings.get(1), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: freeze");
+	}
+
+	@Test
+	public void warnsMissingStandardCategoriesWithNoRunes()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(3, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: Tele Block");
+		assertWarning(warnings.get(1), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: damage");
+		assertWarning(warnings.get(2), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: freeze");
+	}
+
+	@Test
+	public void ancientIceUsesIceThreshold()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_ANCIENT_ICE_SACK, 50),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low ice casts: 50/100");
+	}
+
+	@Test
+	public void ancientBloodUsesSeparateBloodThreshold()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(
+				MagicRune.CHAOS, 100,
+				MagicRune.DEATH, 100,
+				MagicRune.BLOOD, 25),
+			ImmutableMap.of(ItemID.BLIGHTED_ANCIENT_ICE_SACK, 100),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low blood casts: 25/50");
+	}
+
+	@Test
+	public void doesNotRequireAncientBloodSpells()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_ANCIENT_ICE_SACK, 100),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void standardWithBloodOnlyResourcesEvaluatesStandardMissing()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(MagicRune.BLOOD, 100),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(3, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: Tele Block");
+	}
+
+	@Test
+	public void ignoresUnchargedAccursedWhenOtherDamageIsValid()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(
+				ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10,
+				ItemID.BLIGHTED_ENTANGLE_SACK, 50,
+				ItemID.BLIGHTED_SURGE_SACK, 100),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			true);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void warnsUnchargedAccursedWhenNoOtherDamageIsValid()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(
+				ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10,
+				ItemID.BLIGHTED_ENTANGLE_SACK, 50),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			true);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing Accursed charges");
+	}
+
+	@Test
+	public void magicCapeSuppressesIncompleteLookingSetup()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			true,
+			false,
+			false,
+			false);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void sunfireRunesCountAsFireRunes()
+	{
+		assertEquals(ImmutableSet.of(MagicRune.FIRE), MagicItemTables.getRuneTypes(ItemID.SUNFIRE_RUNE));
+	}
+
+	@Test
+	public void onlyMagicCapeAndPlainMaxCapeSuppressWarnings()
+	{
+		assertTrue(MagicItemTables.isMagicCape(ItemID.MAGIC_CAPE));
+		assertTrue(MagicItemTables.isMagicCape(ItemID.MAGIC_CAPET));
+		assertTrue(MagicItemTables.isMagicCape(ItemID.MAX_CAPE));
+		assertTrue(MagicItemTables.isMagicCape(ItemID.MAX_CAPE_13342));
+		assertFalse(MagicItemTables.isMagicCape(ItemID.IMBUED_SARADOMIN_MAX_CAPE));
+		assertFalse(MagicItemTables.isMagicCape(ItemID.INFERNAL_MAX_CAPE));
+		assertFalse(MagicItemTables.isMagicCape(ItemID.ASSEMBLER_MAX_CAPE));
+		assertFalse(MagicItemTables.isMagicCape(ItemID.DIZANAS_MAX_CAPE));
+	}
+
+	private List<MagicSpellbookWarning> evaluateAll(
+		MagicSpellbook spellbook,
+		Map<MagicRune, Integer> runeCounts,
+		Map<Integer, Integer> itemCounts,
+		Set<MagicRune> providedRunes,
+		boolean magicCape,
+		boolean validGodStaff,
+		boolean chargedWildySceptre,
+		boolean unchargedWildySceptre)
+	{
+		return evaluator.evaluateAll(
+			MagicSpellbookEvaluator.state(
+				spellbook,
+				runeCounts,
+				itemCounts,
+				providedRunes,
+				magicCape,
+				validGodStaff,
+				chargedWildySceptre,
+				unchargedWildySceptre),
+			thresholds);
+	}
+
+	private void assertWarning(
+		MagicSpellbookWarning warning,
+		MagicSpellbookWarning.WarningPriority priority,
+		String text)
+	{
+		assertEquals(priority, warning.getPriority());
+		assertEquals(text, warning.getText());
+	}
+}
