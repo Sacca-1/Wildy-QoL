@@ -23,6 +23,8 @@ public class MagicSpellbookEvaluator
 		MagicRune.EARTH, 5, MagicRune.WATER, 5, MagicRune.NATURE, 4);
 	private static final MagicSpellRequirement FIRE_SURGE = MagicSpellRequirement.of(
 		MagicRune.AIR, 7, MagicRune.FIRE, 10, MagicRune.WRATH, 1);
+	private static final MagicSpellRequirement VENGEANCE = MagicSpellRequirement.of(
+		MagicRune.ASTRAL, 4, MagicRune.DEATH, 2, MagicRune.EARTH, 10);
 
 	private static final List<MagicSpellRequirement> GOD_SPELLS = ImmutableList.of(
 		MagicSpellRequirement.of(MagicRune.AIR, 4, MagicRune.FIRE, 2, MagicRune.BLOOD, 2),
@@ -73,6 +75,15 @@ public class MagicSpellbookEvaluator
 				return mismatch();
 			}
 			return evaluateAncient(state, thresholds);
+		}
+
+		if (state.getSpellbook() == MagicSpellbook.LUNAR)
+		{
+			if (standardResources || ancientResources)
+			{
+				return mismatch();
+			}
+			return evaluateLunar(state, thresholds);
 		}
 
 		return mismatch();
@@ -128,6 +139,15 @@ public class MagicSpellbookEvaluator
 		{
 			warnings.add(low("Low blood casts: " + bloodCasts + "/" + thresholds.blood()));
 		}
+		return sort(warnings);
+	}
+
+	private List<MagicSpellbookWarning> evaluateLunar(MagicSpellbookState state, MagicThresholds thresholds)
+	{
+		List<MagicSpellbookWarning> warnings = new ArrayList<>();
+		addCategoryWarning(warnings, "Vengeance", "vengeance casts", max(
+			countItem(state, ItemID.BLIGHTED_VENGEANCE_SACK),
+			casts(VENGEANCE, state)), thresholds.vengeance());
 		return sort(warnings);
 	}
 

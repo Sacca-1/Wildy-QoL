@@ -11,4 +11,6 @@ public interface MagicThresholds
 	int ice();
 
 	int blood();
+
+	int vengeance();
 }

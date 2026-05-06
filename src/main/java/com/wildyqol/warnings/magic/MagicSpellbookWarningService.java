@@ -95,6 +95,12 @@ public class MagicSpellbookWarningService extends WarningService<MagicSpellbookW
 			{
 				return config.bloodSpellMinimum();
 			}
+
+			@Override
+			public int vengeance()
+			{
+				return config.vengeanceMinimum();
+			}
 		};
 	}
 }

@@ -46,6 +46,12 @@ public class MagicSpellbookEvaluatorTest
 		{
 			return 50;
 		}
+
+		@Override
+		public int vengeance()
+		{
+			return 10;
+		}
 	};
 
 	@Test
@@ -72,6 +78,23 @@ public class MagicSpellbookEvaluatorTest
 	{
 		List<MagicSpellbookWarning> warnings = evaluateAll(
 			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+	}
+
+	@Test
+	public void lunarWarnsMismatchWhenResourcesDoNotMatchSpellbook()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.LUNAR,
 			ImmutableMap.of(),
 			ImmutableMap.of(ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10),
 			ImmutableSet.of(),
@@ -172,6 +195,78 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void lunarAcceptsVengeanceSacks()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.LUNAR,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_VENGEANCE_SACK, 10),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void lunarChecksVengeanceRunes()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.LUNAR,
+			ImmutableMap.of(
+				MagicRune.ASTRAL, 40,
+				MagicRune.DEATH, 20,
+				MagicRune.EARTH, 100),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void lunarWarnsLowVengeanceCasts()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.LUNAR,
+			ImmutableMap.of(
+				MagicRune.ASTRAL, 20,
+				MagicRune.DEATH, 10,
+				MagicRune.EARTH, 50),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low vengeance casts: 5/10");
+	}
+
+	@Test
+	public void lunarWarnsMissingVengeanceRunes()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.LUNAR,
+			ImmutableMap.of(),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: Vengeance");
 	}
 
 	@Test

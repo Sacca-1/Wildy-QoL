@@ -530,11 +530,24 @@ public interface WildyQoLConfig extends Config
 		return 50;
 	}
 
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "vengeanceMinimum",
+		name = "Vengeance minimum",
+		description = "Minimum vengeance casts or sacks required before warning",
+		position = 16,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int vengeanceMinimum()
+	{
+		return 10;
+	}
+
 	@ConfigItem(
 		keyName = "suboptimalRangedAmmoWarnings",
 		name = "Suboptimal ammo warning",
 		description = "Warn when recognized ranged weapons have only lower-tier compatible ammo",
-		position = 16,
+		position = 17,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default boolean suboptimalRangedAmmoWarnings()
