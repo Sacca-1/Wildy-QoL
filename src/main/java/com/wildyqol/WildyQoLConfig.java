@@ -531,6 +531,18 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "suboptimalRangedAmmoWarnings",
+		name = "Suboptimal ammo warning",
+		description = "Warn when recognized ranged weapons have only lower-tier compatible ammo",
+		position = 16,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default boolean suboptimalRangedAmmoWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "enableExtendedFreezeTimersV2",
 		name = "Extended freeze timers",
 		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres, Zuriel's staves, and Swampbark)",

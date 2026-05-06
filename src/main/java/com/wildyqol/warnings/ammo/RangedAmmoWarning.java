@@ -12,6 +12,7 @@ public class RangedAmmoWarning
 	{
 		MISSING,
 		WRONG,
-		LOW
+		LOW,
+		SUBOPTIMAL
 	}
 }

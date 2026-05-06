@@ -20,7 +20,6 @@ import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.game.ItemVariationMapping;
 
 @Singleton
 public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
@@ -70,7 +69,10 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 	@Override
 	protected List<RangedAmmoWarning> evaluateAll()
 	{
-		return evaluator.evaluateAll(buildState(), thresholds());
+		return evaluator.evaluateAll(
+			buildState(),
+			thresholds(),
+			config.suboptimalRangedAmmoWarnings());
 	}
 
 	private RangedAmmoState buildState()
@@ -158,7 +160,7 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 			return;
 		}
 
-		ammoCounts.merge(ItemVariationMapping.map(itemId), quantity, Integer::sum);
+		ammoCounts.merge(itemId, quantity, Integer::sum);
 	}
 
 	private AmmoThresholds thresholds()

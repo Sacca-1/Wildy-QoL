@@ -63,6 +63,39 @@ public class RangedAmmoEvaluatorTest
 	}
 
 	@Test
+	public void warnsForUnenchantedOptimalGemBolts()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
+			ImmutableMap.of(ItemID.ONYX_BOLTS, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.SUBOPTIMAL,
+			"Suboptimal ammo: Onyx bolts");
+	}
+
+	@Test
+	public void acceptsSuboptimalRuneCrossbowBolts()
+	{
+		List<RangedAmmoWarning> warnings = evaluateAll(
+			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
+			ImmutableMap.of(ItemID.BRONZE_BOLTS, 100),
+			false);
+
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void warnsSuboptimalRuneCrossbowBolts()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
+			ImmutableMap.of(ItemID.BRONZE_BOLTS_P_6061, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.SUBOPTIMAL,
+			"Suboptimal ammo: Bronze bolts");
+	}
+
+	@Test
 	public void acceptsDragonCrossbowPvpBoltSet()
 	{
 		assertFalse(evaluate(
@@ -71,6 +104,57 @@ public class RangedAmmoEvaluatorTest
 		assertFalse(evaluate(
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
 			ImmutableMap.of(ItemID.ONYX_BOLTS_E, 100)).isPresent());
+	}
+
+	@Test
+	public void warnsForUnenchantedOptimalDragonGemBolts()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
+			ImmutableMap.of(ItemID.OPAL_DRAGON_BOLTS, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.SUBOPTIMAL,
+			"Suboptimal ammo: Opal dragon bolts");
+	}
+
+	@Test
+	public void warnsSuboptimalDragonCrossbowBolts()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
+			ImmutableMap.of(ItemID.RUBY_DRAGON_BOLTS_E, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.SUBOPTIMAL,
+			"Suboptimal ammo: Ruby dragon bolts");
+	}
+
+	@Test
+	public void warnsWhenRuneCrossbowHasDragonOnlyBolts()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
+			ImmutableMap.of(ItemID.DRAGON_BOLTS, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong ammo: rune crossbow bolts required");
+	}
+
+	@Test
+	public void warnsSuboptimalDragonArrowBowAmmo()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
+			ImmutableMap.of(ItemID.RUNE_ARROW, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.SUBOPTIMAL,
+			"Suboptimal ammo: Rune arrows");
+	}
+
+	@Test
+	public void acceptsDragonArrowVariantsAsOptimal()
+	{
+		assertFalse(evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
+			ImmutableMap.of(ItemID.DRAGON_ARROWP_11228, 100)).isPresent());
 	}
 
 	@Test
@@ -148,6 +232,16 @@ public class RangedAmmoEvaluatorTest
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_INFINITE));
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.SKILLCAPE_MAX_DIZANAS));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.DRAGON_ARROW));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BRONZE_BOLTS));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BRONZE_BOLTS_P_6061));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.RUNE_ARROW));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.RUNE_ARROWP_5621));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BROAD_BOLTS));
+		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.ICE_ARROWS));
+		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.OGRE_ARROW));
+		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.KEBBIT_BOLTS));
+		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.BARBED_BOLTS));
+		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.BARBED_ARROW));
 		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.ANGLERFISH));
 	}
 
@@ -164,9 +258,18 @@ public class RangedAmmoEvaluatorTest
 		ImmutableSet<RangedAmmoRequirement> requirements,
 		ImmutableMap<Integer, Integer> ammoCounts)
 	{
+		return evaluateAll(requirements, ammoCounts, true);
+	}
+
+	private List<RangedAmmoWarning> evaluateAll(
+		ImmutableSet<RangedAmmoRequirement> requirements,
+		ImmutableMap<Integer, Integer> ammoCounts,
+		boolean warnSuboptimalAmmo)
+	{
 		return evaluator.evaluateAll(
 			RangedAmmoEvaluator.state(requirements, ammoCounts),
-			thresholds);
+			thresholds,
+			warnSuboptimalAmmo);
 	}
 
 	private void assertWarning(
