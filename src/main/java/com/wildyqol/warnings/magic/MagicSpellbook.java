@@ -1,8 +1,10 @@
 package com.wildyqol.warnings.magic;
 
-enum MagicSpellbook
+public enum MagicSpellbook
 {
 	STANDARD,
 	ANCIENT,
+	LUNAR,
+	ARCEUUS,
 	OTHER
 }

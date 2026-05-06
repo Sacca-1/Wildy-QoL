@@ -9,6 +9,33 @@ import net.runelite.client.config.Range;
 @ConfigGroup("wildyqol")
 public interface WildyQoLConfig extends Config
 {
+	enum TeleportOutWarningMode
+	{
+		NEVER("Never", 0),
+		LEVEL_20("20", 20),
+		LEVEL_30("30", 30);
+
+		private final String label;
+		private final int wildernessLevel;
+
+		TeleportOutWarningMode(String label, int wildernessLevel)
+		{
+			this.label = label;
+			this.wildernessLevel = wildernessLevel;
+		}
+
+		public int getWildernessLevel()
+		{
+			return wildernessLevel;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
+	}
+
 	@ConfigSection(
 		name = "Misclick prevention",
 		description = "Settings to help avoid dangerous misclicks",
@@ -281,6 +308,18 @@ public interface WildyQoLConfig extends Config
 	default boolean spellbookRuneWarnings()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "teleportOutWarningMode",
+		name = "Teleport out warning",
+		description = "Show a text overlay when no recognized teleport out of the wilderness is carried or worn for the selected Wilderness level",
+		position = 4,
+		section = WARNINGS_SECTION
+	)
+	default TeleportOutWarningMode teleportOutWarningMode()
+	{
+		return TeleportOutWarningMode.LEVEL_20;
 	}
 
 	@Range(min = 0)

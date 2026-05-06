@@ -252,6 +252,20 @@ public class MagicSpellbookEvaluator
 	}
 
 	static MagicSpellbookState state(
+		MagicInventoryState inventoryState)
+	{
+		return state(
+			inventoryState.getSpellbook(),
+			inventoryState.getRuneCounts(),
+			inventoryState.getItemCounts(),
+			inventoryState.getProvidedRunes(),
+			inventoryState.isMagicCape(),
+			inventoryState.isValidGodStaff(),
+			inventoryState.isChargedWildySceptre(),
+			inventoryState.isUnchargedWildySceptre());
+	}
+
+	static MagicSpellbookState state(
 		MagicSpellbook spellbook,
 		Map<MagicRune, Integer> runeCounts,
 		Map<Integer, Integer> itemCounts,

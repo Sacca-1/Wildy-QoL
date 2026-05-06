@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.wildyqol.warnings.ammo.RangedAmmoWarningService;
 import com.wildyqol.warnings.charges.ItemChargeWarningService;
 import com.wildyqol.warnings.magic.MagicSpellbookWarningService;
+import com.wildyqol.warnings.teleport.TeleportOutWarningService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -21,12 +22,14 @@ public class WarningServiceManager
 	WarningServiceManager(
 		RangedAmmoWarningService rangedAmmoWarningService,
 		ItemChargeWarningService itemChargeWarningService,
-		MagicSpellbookWarningService magicSpellbookWarningService)
+		MagicSpellbookWarningService magicSpellbookWarningService,
+		TeleportOutWarningService teleportOutWarningService)
 	{
 		services = ImmutableList.of(
 			rangedAmmoWarningService,
 			itemChargeWarningService,
-			magicSpellbookWarningService);
+			magicSpellbookWarningService,
+			teleportOutWarningService);
 	}
 
 	public void startUp()

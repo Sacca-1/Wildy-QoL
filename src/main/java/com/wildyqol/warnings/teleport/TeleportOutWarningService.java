@@ -1,7 +1,9 @@
-package com.wildyqol.warnings.magic;
+package com.wildyqol.warnings.teleport;
 
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.WildyQoLConfig.TeleportOutWarningMode;
 import com.wildyqol.warnings.WarningService;
+import com.wildyqol.warnings.magic.MagicInventoryStateBuilder;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,19 +15,19 @@ import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 
 @Singleton
-public class MagicSpellbookWarningService extends WarningService<MagicSpellbookWarning>
+public class TeleportOutWarningService extends WarningService<TeleportOutWarning>
 {
 	private final WildyQoLConfig config;
-	private final MagicSpellbookEvaluator evaluator = new MagicSpellbookEvaluator();
+	private final TeleportOutEvaluator evaluator = new TeleportOutEvaluator();
 	private final MagicInventoryStateBuilder inventoryStateBuilder;
 
 	@Inject
-	MagicSpellbookWarningService(
+	TeleportOutWarningService(
 		Client client,
 		ClientThread clientThread,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, MagicSpellbookWarning::getText);
+		super(client, clientThread, TeleportOutWarning::getText);
 		this.config = config;
 		this.inventoryStateBuilder = new MagicInventoryStateBuilder(client);
 	}
@@ -53,48 +55,12 @@ public class MagicSpellbookWarningService extends WarningService<MagicSpellbookW
 	@Override
 	protected boolean isEnabled()
 	{
-		return config.spellbookRuneWarnings();
+		return config.teleportOutWarningMode() != TeleportOutWarningMode.NEVER;
 	}
 
 	@Override
-	protected List<MagicSpellbookWarning> evaluateAll()
+	protected List<TeleportOutWarning> evaluateAll()
 	{
-		return evaluator.evaluateAll(MagicSpellbookEvaluator.state(inventoryStateBuilder.build()), thresholds());
-	}
-
-	private MagicThresholds thresholds()
-	{
-		return new MagicThresholds()
-		{
-			@Override
-			public int teleBlock()
-			{
-				return config.teleBlockMinimum();
-			}
-
-			@Override
-			public int entangle()
-			{
-				return config.entangleMinimum();
-			}
-
-			@Override
-			public int surge()
-			{
-				return config.surgeMinimum();
-			}
-
-			@Override
-			public int ice()
-			{
-				return config.iceSpellMinimum();
-			}
-
-			@Override
-			public int blood()
-			{
-				return config.bloodSpellMinimum();
-			}
-		};
+		return evaluator.evaluateAll(TeleportOutEvaluator.state(inventoryStateBuilder.build()), config.teleportOutWarningMode());
 	}
 }
