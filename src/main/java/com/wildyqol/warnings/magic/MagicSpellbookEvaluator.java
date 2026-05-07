@@ -101,31 +101,36 @@ public class MagicSpellbookEvaluator
 			casts(SNARE, state),
 			casts(ENTANGLE, state)), thresholds.entangle());
 
-		MagicSpellbookWarning damageWarning = evaluateStandardDamage(state, thresholds);
-		if (damageWarning != null)
-		{
-			warnings.add(damageWarning);
-		}
+		warnings.addAll(evaluateStandardDamage(state, thresholds));
 		return sort(warnings);
 	}
 
-	private MagicSpellbookWarning evaluateStandardDamage(MagicSpellbookState state, MagicThresholds thresholds)
+	private List<MagicSpellbookWarning> evaluateStandardDamage(MagicSpellbookState state, MagicThresholds thresholds)
 	{
+		List<MagicSpellbookWarning> warnings = new ArrayList<>();
 		int threshold = thresholds.surge();
-		int fireSurgeCasts = max(countItem(state, ItemID.BLIGHTED_SURGE_SACK), casts(FIRE_SURGE, state));
+		int runeFireSurgeCasts = casts(FIRE_SURGE, state);
+		int fireSurgeCasts = max(countItem(state, ItemID.BLIGHTED_SURGE_SACK), runeFireSurgeCasts);
 		int godCasts = state.hasValidGodStaff() ? maxCasts(GOD_SPELLS, state) : 0;
 		int bestRuneDamage = max(fireSurgeCasts, godCasts);
+		if (runeFireSurgeCasts > 0 || godCasts > 0)
+		{
+			addTomeChargeWarning(warnings, state, MagicRune.FIRE, "tome of fire", thresholds.tomeCharges());
+		}
+
 		if (meets(bestRuneDamage, threshold) || state.isChargedWildySceptre())
 		{
-			return null;
+			return warnings;
 		}
 
 		if (bestRuneDamage > 0)
 		{
-			return low("Low damage casts: " + bestRuneDamage + "/" + threshold);
+			warnings.add(low("Low damage casts: " + bestRuneDamage + "/" + threshold));
+			return ImmutableList.copyOf(warnings);
 		}
 
-		return missing("Missing runes: damage");
+		warnings.add(missing("Missing runes: damage"));
+		return ImmutableList.copyOf(warnings);
 	}
 
 	private List<MagicSpellbookWarning> evaluateAncient(MagicSpellbookState state, MagicThresholds thresholds)
@@ -198,6 +203,20 @@ public class MagicSpellbookEvaluator
 		}
 
 		warnings.add(missing("Missing runes: " + missingText));
+	}
+
+	private void addTomeChargeWarning(
+		List<MagicSpellbookWarning> warnings,
+		MagicSpellbookState state,
+		MagicRune rune,
+		String tomeName,
+		int threshold)
+	{
+		Integer charges = state.getTomeCharges().get(rune);
+		if (charges != null && threshold > 0 && charges < threshold)
+		{
+			warnings.add(low("Low " + tomeName + " charges: " + charges + "/" + threshold));
+		}
 	}
 
 	private boolean meets(int casts, int threshold)
@@ -286,6 +305,7 @@ public class MagicSpellbookEvaluator
 			inventoryState.getRuneCounts(),
 			inventoryState.getItemCounts(),
 			inventoryState.getProvidedRunes(),
+			inventoryState.getTomeCharges(),
 			inventoryState.isMagicCape(),
 			inventoryState.isValidGodStaff(),
 			inventoryState.isChargedWildySceptre(),
@@ -297,6 +317,7 @@ public class MagicSpellbookEvaluator
 		Map<MagicRune, Integer> runeCounts,
 		Map<Integer, Integer> itemCounts,
 		Set<MagicRune> providedRunes,
+		Map<MagicRune, Integer> tomeCharges,
 		boolean magicCape,
 		boolean validGodStaff,
 		boolean chargedWildySceptre,
@@ -320,11 +341,15 @@ public class MagicSpellbookEvaluator
 			}
 		});
 
+		EnumMap<MagicRune, Integer> normalizedTomeCharges = new EnumMap<>(MagicRune.class);
+		tomeCharges.forEach((rune, quantity) -> normalizedTomeCharges.put(rune, Math.max(0, quantity)));
+
 		return new MagicSpellbookState(
 			spellbook,
 			ImmutableMap.copyOf(normalizedRunes),
 			ImmutableMap.copyOf(normalizedItems),
 			ImmutableSet.copyOf(providedRunes),
+			ImmutableMap.copyOf(normalizedTomeCharges),
 			magicCape,
 			validGodStaff,
 			chargedWildySceptre,

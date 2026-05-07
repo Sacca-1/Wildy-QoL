@@ -313,7 +313,8 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "teleportOutWarningMode",
 		name = "Teleport out warning",
-		description = "Show a text overlay when no recognized teleport out of the wilderness is carried or worn for the selected Wilderness level",
+		description = "Show a text overlay when no recognized teleport out of the wilderness is carried or worn.<br>"
+			+ "Uses the selected Wilderness level.",
 		position = 4,
 		section = WARNINGS_SECTION
 	)
@@ -325,7 +326,9 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "onlyWarnAtBank",
 		name = "Only warn at bank",
-		description = "Only show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings when a Bank-capable bank is loaded nearby, or for 100 ticks after leaving a PvP area. Existing warnings still stay briefly after entering PvP. Disable this to always show warnings, including in PvP areas.",
+		description = "Only show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings near a bank.<br>"
+			+ "Also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.<br>"
+			+ "Disable this to always show warnings, including in PvP areas.",
 		position = 0,
 		section = WARNINGS_ADVANCED_SECTION
 	)
@@ -401,75 +404,10 @@ public interface WildyQoLConfig extends Config
 
 	@Range(min = 0)
 	@ConfigItem(
-		keyName = "serpentineHelmChargeMinimum",
-		name = "Serp helm charges minimum",
-		description = "Minimum serpentine helm charges required before warning",
-		position = 6,
-		section = WARNINGS_ADVANCED_SECTION
-	)
-	default int serpentineHelmChargeMinimum()
-	{
-		return 500;
-	}
-
-	@Range(min = 0)
-	@ConfigItem(
-		keyName = "toxicStaffChargeMinimum",
-		name = "Toxic SOTD charges minimum",
-		description = "Minimum Toxic staff of the dead charges required before warning",
-		position = 7,
-		section = WARNINGS_ADVANCED_SECTION
-	)
-	default int toxicStaffChargeMinimum()
-	{
-		return 500;
-	}
-
-	@Range(min = 0)
-	@ConfigItem(
-		keyName = "accursedThammaronsChargeMinimum",
-		name = "Accursed/Thammaron's charges minimum",
-		description = "Minimum Accursed/Thammaron's sceptre usable charges required before warning",
-		position = 8,
-		section = WARNINGS_ADVANCED_SECTION
-	)
-	default int accursedThammaronsChargeMinimum()
-	{
-		return 500;
-	}
-
-	@Range(min = 0)
-	@ConfigItem(
-		keyName = "crawsWebweaverChargeMinimum",
-		name = "Craw's/Webweaver charges minimum",
-		description = "Minimum Craw's/Webweaver bow usable charges required before warning",
-		position = 9,
-		section = WARNINGS_ADVANCED_SECTION
-	)
-	default int crawsWebweaverChargeMinimum()
-	{
-		return 500;
-	}
-
-	@Range(min = 0)
-	@ConfigItem(
-		keyName = "ursineViggorasChargeMinimum",
-		name = "Ursine/Viggora's charges minimum",
-		description = "Minimum Ursine/Viggora's mace usable charges required before warning",
-		position = 10,
-		section = WARNINGS_ADVANCED_SECTION
-	)
-	default int ursineViggorasChargeMinimum()
-	{
-		return 500;
-	}
-
-	@Range(min = 0)
-	@ConfigItem(
 		keyName = "tomeChargeMinimum",
 		name = "Tome charges minimum",
 		description = "Minimum tome charges required before warning",
-		position = 11,
+		position = 6,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int tomeChargeMinimum()
@@ -482,7 +420,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "teleBlockMinimum",
 		name = "TB minimum",
 		description = "Minimum Tele Block casts or sacks required before warning",
-		position = 12,
+		position = 7,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int teleBlockMinimum()
@@ -495,7 +433,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "entangleMinimum",
 		name = "Entangle minimum",
 		description = "Minimum freeze casts or sacks required before warning",
-		position = 13,
+		position = 8,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int entangleMinimum()
@@ -508,7 +446,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "surgeMinimum",
 		name = "Surge minimum",
 		description = "Minimum standard damage casts or sacks required before warning",
-		position = 14,
+		position = 15,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int surgeMinimum()
@@ -521,7 +459,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "iceSpellMinimum",
 		name = "Ice spell minimum",
 		description = "Minimum ancient ice casts or sacks required before warning",
-		position = 15,
+		position = 16,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int iceSpellMinimum()
@@ -534,7 +472,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "bloodSpellMinimum",
 		name = "Blood spell minimum",
 		description = "Minimum ancient blood casts required before warning when blood spell runes are present",
-		position = 16,
+		position = 17,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int bloodSpellMinimum()
@@ -547,7 +485,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "vengeanceMinimum",
 		name = "Vengeance minimum",
 		description = "Minimum vengeance casts or sacks required before warning",
-		position = 17,
+		position = 18,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int vengeanceMinimum()
@@ -559,7 +497,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "suboptimalRangedAmmoWarnings",
 		name = "Suboptimal ammo warning",
 		description = "Warn when recognized ranged weapons have only lower-tier compatible ammo",
-		position = 18,
+		position = 19,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default boolean suboptimalRangedAmmoWarnings()
@@ -570,7 +508,8 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "enableExtendedFreezeTimersV2",
 		name = "Extended freeze timers",
-		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres, Zuriel's staves, and Swampbark)",
+		description = "Use extended freeze timers that account for opponent gear.<br>"
+			+ "Includes Ancient sceptres, Zuriel's staves, and Swampbark.",
 		position = 0,
 		section = FREEZE_TIMERS_SECTION
 	)
@@ -594,7 +533,8 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "preserveFreezeTimerOnForcedMovement",
 		name = "Ignore forced movement",
-		description = "Keep the freeze timer running when you move because of mithril/adamant seeds or dragon spear/hasta special attacks",
+		description = "Keep the freeze timer running when mithril/adamant seeds move you.<br>"
+			+ "Also applies to dragon spear/hasta special attacks.",
 		position = 2,
 		section = FREEZE_TIMERS_SECTION
 	)

@@ -36,6 +36,12 @@ public class MagicSpellbookEvaluatorTest
 		}
 
 		@Override
+		public int tomeCharges()
+		{
+			return 50;
+		}
+
+		@Override
 		public int ice()
 		{
 			return 100;
@@ -242,6 +248,28 @@ public class MagicSpellbookEvaluatorTest
 	}
 
 	@Test
+	public void standardWarnsLowTomeOfFireChargesWithOtherFireSource()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(
+				MagicRune.AIR, 700,
+				MagicRune.WRATH, 100),
+			ImmutableMap.of(
+				ItemID.BLIGHTED_TELEPORT_SPELL_SACK, 10,
+				ItemID.BLIGHTED_ENTANGLE_SACK, 50),
+			ImmutableSet.of(MagicRune.FIRE),
+			ImmutableMap.of(MagicRune.FIRE, 25),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low tome of fire charges: 25/50");
+	}
+
+	@Test
 	public void doesNotRequireAncientBloodSpells()
 	{
 		List<MagicSpellbookWarning> warnings = evaluateAll(
@@ -440,12 +468,36 @@ public class MagicSpellbookEvaluatorTest
 		boolean chargedWildySceptre,
 		boolean unchargedWildySceptre)
 	{
+		return evaluateAll(
+			spellbook,
+			runeCounts,
+			itemCounts,
+			providedRunes,
+			ImmutableMap.of(),
+			magicCape,
+			validGodStaff,
+			chargedWildySceptre,
+			unchargedWildySceptre);
+	}
+
+	private List<MagicSpellbookWarning> evaluateAll(
+		MagicSpellbook spellbook,
+		Map<MagicRune, Integer> runeCounts,
+		Map<Integer, Integer> itemCounts,
+		Set<MagicRune> providedRunes,
+		Map<MagicRune, Integer> tomeCharges,
+		boolean magicCape,
+		boolean validGodStaff,
+		boolean chargedWildySceptre,
+		boolean unchargedWildySceptre)
+	{
 		return evaluator.evaluateAll(
 			MagicSpellbookEvaluator.state(
 				spellbook,
 				runeCounts,
 				itemCounts,
 				providedRunes,
+				tomeCharges,
 				magicCape,
 				validGodStaff,
 				chargedWildySceptre,

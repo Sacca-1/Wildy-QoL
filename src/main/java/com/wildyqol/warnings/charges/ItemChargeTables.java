@@ -29,6 +29,11 @@ final class ItemChargeTables
 		.put(ItemChargeKind.URSINE_VIGGORAS, buildSet(
 			ItemID.VIGGORAS_CHAINMACE,
 			ItemID.URSINE_CHAINMACE))
+		.put(ItemChargeKind.RING_OF_SUFFERING, buildSet(
+			ItemID.RING_OF_SUFFERING_R,
+			ItemID.RING_OF_SUFFERING_RI,
+			ItemID.RING_OF_SUFFERING_RI_25248,
+			ItemID.RING_OF_SUFFERING_RI_26762))
 		.put(ItemChargeKind.TOME_OF_FIRE, buildSet(
 			ItemID.TOME_OF_FIRE,
 			ItemID.TOME_OF_FIRE_27358))
@@ -56,6 +61,11 @@ final class ItemChargeTables
 		.put(ItemChargeKind.URSINE_VIGGORAS, buildSet(
 			ItemID.VIGGORAS_CHAINMACE_U,
 			ItemID.URSINE_CHAINMACE_U))
+		.put(ItemChargeKind.RING_OF_SUFFERING, buildSet(
+			ItemID.RING_OF_SUFFERING,
+			ItemID.RING_OF_SUFFERING_I,
+			ItemID.RING_OF_SUFFERING_I_25246,
+			ItemID.RING_OF_SUFFERING_I_26761))
 		.put(ItemChargeKind.TOME_OF_FIRE, buildSet(ItemID.TOME_OF_FIRE_EMPTY))
 		.put(ItemChargeKind.TOME_OF_WATER, buildSet(ItemID.TOME_OF_WATER_EMPTY))
 		.put(ItemChargeKind.TOME_OF_EARTH, buildSet(ItemID.TOME_OF_EARTH_EMPTY))

@@ -1,5 +1,6 @@
 package com.wildyqol.warnings;
 
+import java.util.Locale;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -130,7 +131,7 @@ public class BankProximityService
 			}
 		}
 
-		return hasBankAction(composition.getActions());
+		return hasBankObjectAction(composition);
 	}
 
 	private boolean isBankNpc(NPC npc)
@@ -162,12 +163,50 @@ public class BankProximityService
 
 		for (String action : actions)
 		{
-			if (action != null && "Bank".equalsIgnoreCase(Text.removeTags(action).trim()))
+			if (action != null && isBankAction(Text.removeTags(action).trim()))
 			{
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	static boolean hasBankObjectAction(ObjectComposition composition)
+	{
+		if (hasBankAction(composition.getActions()))
+		{
+			return true;
+		}
+
+		return isBankObjectName(composition.getName()) && hasUseAction(composition.getActions());
+	}
+
+	private static boolean isBankAction(String action)
+	{
+		return "Bank".equalsIgnoreCase(action);
+	}
+
+	private static boolean hasUseAction(@Nullable String[] actions)
+	{
+		if (actions == null)
+		{
+			return false;
+		}
+
+		for (String action : actions)
+		{
+			if (action != null && "Use".equalsIgnoreCase(Text.removeTags(action).trim()))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static boolean isBankObjectName(@Nullable String name)
+	{
+		return name != null && Text.removeTags(name).toLowerCase(Locale.ROOT).contains("bank");
 	}
 }

@@ -82,6 +82,7 @@ public class MagicInventoryStateBuilder
 			ImmutableMap.copyOf(builder.runeCounts),
 			ImmutableMap.copyOf(builder.itemCounts),
 			ImmutableSet.copyOf(builder.providedRunes),
+			ImmutableMap.copyOf(builder.tomeCharges),
 			builder.magicCape,
 			builder.validGodStaff,
 			builder.chargedWildySceptre,
@@ -130,6 +131,7 @@ public class MagicInventoryStateBuilder
 		builder.itemCounts.merge(ItemVariationMapping.map(itemId), item.getQuantity(), Integer::sum);
 		addRuneItem(builder, itemId, item.getQuantity());
 		addProviders(builder, itemId);
+		addTomeCharges(builder, itemId);
 
 		builder.magicCape |= MagicItemTables.isMagicCape(itemId);
 		builder.validGodStaff |= MagicItemTables.isGodStaff(itemId);
@@ -176,7 +178,42 @@ public class MagicInventoryStateBuilder
 	private boolean isChargedTome(int itemId, int tomeItemId, int chargeVarbit)
 	{
 		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(tomeItemId)
-			&& client.getVarbitValue(chargeVarbit) > 0;
+			&& chargeQuantity(chargeVarbit) > 0;
+	}
+
+	private void addTomeCharges(StateBuilder builder, int itemId)
+	{
+		if (isTomeOfFire(itemId))
+		{
+			builder.tomeCharges.put(MagicRune.FIRE, tomeCharges(itemId, ItemID.TOME_OF_FIRE_EMPTY, VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY));
+		}
+		else if (isTomeOfWater(itemId))
+		{
+			builder.tomeCharges.put(MagicRune.WATER, tomeCharges(itemId, ItemID.TOME_OF_WATER_EMPTY, VarbitID.CHARGES_TOME_OF_WATER_QUANTITY));
+		}
+	}
+
+	private boolean isTomeOfFire(int itemId)
+	{
+		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_FIRE)
+			|| ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_FIRE_27358)
+			|| ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_FIRE_EMPTY);
+	}
+
+	private boolean isTomeOfWater(int itemId)
+	{
+		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_WATER)
+			|| ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_WATER_EMPTY);
+	}
+
+	private int tomeCharges(int itemId, int emptyTomeItemId, int varbitId)
+	{
+		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(emptyTomeItemId) ? 0 : chargeQuantity(varbitId);
+	}
+
+	private int chargeQuantity(int varbitId)
+	{
+		return Math.max(client.getVarbitValue(varbitId), client.getServerVarbitValue(varbitId));
 	}
 
 	private void collectRunePouch(StateBuilder builder)
@@ -256,6 +293,7 @@ public class MagicInventoryStateBuilder
 		private final EnumMap<MagicRune, Integer> runeCounts = new EnumMap<>(MagicRune.class);
 		private final Map<Integer, Integer> itemCounts = new HashMap<>();
 		private final EnumSet<MagicRune> providedRunes = EnumSet.noneOf(MagicRune.class);
+		private final EnumMap<MagicRune, Integer> tomeCharges = new EnumMap<>(MagicRune.class);
 		private boolean magicCape;
 		private boolean validGodStaff;
 		private boolean chargedWildySceptre;

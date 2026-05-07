@@ -11,6 +11,7 @@ class MagicSpellbookState
 	Map<MagicRune, Integer> runeCounts;
 	Map<Integer, Integer> itemCounts;
 	Set<MagicRune> providedRunes;
+	Map<MagicRune, Integer> tomeCharges;
 	boolean magicCape;
 	boolean validGodStaff;
 	boolean chargedWildySceptre;

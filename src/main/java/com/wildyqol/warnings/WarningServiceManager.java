@@ -73,7 +73,13 @@ public class WarningServiceManager
 		List<String> texts = new ArrayList<>();
 		for (WarningService<?> service : services)
 		{
-			texts.addAll(service.getOverlayTexts());
+			for (String text : service.getOverlayTexts())
+			{
+				if (!texts.contains(text))
+				{
+					texts.add(text);
+				}
+			}
 		}
 		return texts;
 	}

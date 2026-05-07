@@ -10,46 +10,12 @@ enum ItemChargeKind
 			return thresholds.bowfaCharges();
 		}
 	},
-	SERPENTINE_HELM("serpentine helm", "serpentine helm charges")
-	{
-		@Override
-		int threshold(ItemChargeThresholds thresholds)
-		{
-			return thresholds.serpentineHelmCharges();
-		}
-	},
-	TOXIC_STAFF("toxic SOTD", "toxic SOTD charges")
-	{
-		@Override
-		int threshold(ItemChargeThresholds thresholds)
-		{
-			return thresholds.toxicStaffCharges();
-		}
-	},
-	ACCURSED_THAMMARONS("Accursed/Thammaron's sceptre", "Accursed/Thammaron's sceptre charges")
-	{
-		@Override
-		int threshold(ItemChargeThresholds thresholds)
-		{
-			return thresholds.accursedThammaronsCharges();
-		}
-	},
-	CRAWS_WEBWEAVER("Craw's/Webweaver bow", "Craw's/Webweaver bow charges")
-	{
-		@Override
-		int threshold(ItemChargeThresholds thresholds)
-		{
-			return thresholds.crawsWebweaverCharges();
-		}
-	},
-	URSINE_VIGGORAS("Ursine/Viggora's mace", "Ursine/Viggora's mace charges")
-	{
-		@Override
-		int threshold(ItemChargeThresholds thresholds)
-		{
-			return thresholds.ursineViggorasCharges();
-		}
-	},
+	SERPENTINE_HELM("serpentine helm", null),
+	TOXIC_STAFF("toxic SOTD", null),
+	ACCURSED_THAMMARONS("Accursed/Thammaron's sceptre", null),
+	CRAWS_WEBWEAVER("Craw's/Webweaver bow", null),
+	URSINE_VIGGORAS("Ursine/Viggora's mace", null),
+	RING_OF_SUFFERING("ring of suffering recoil", null),
 	TOME_OF_FIRE("tome of fire", "tome of fire charges")
 	{
 		@Override

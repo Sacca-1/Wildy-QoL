@@ -56,15 +56,27 @@ public class ItemChargeEvaluatorTest
 	public void disabledThresholdSuppressesLowWarning()
 	{
 		TestThresholds thresholds = new TestThresholds();
-		thresholds.serpentineHelmCharges = 0;
+		thresholds.bowfaCharges = 0;
 
 		Optional<ItemChargeWarning> warning = evaluate(
-			ImmutableSet.of(ItemChargeKind.SERPENTINE_HELM),
+			ImmutableSet.of(ItemChargeKind.BOWFA),
 			ImmutableSet.of(),
-			charges(ItemChargeKind.SERPENTINE_HELM, 0),
+			charges(ItemChargeKind.BOWFA, 0),
 			thresholds);
 
 		assertFalse(warning.isPresent());
+	}
+
+	@Test
+	public void problemChargeItemsDoNotWarnLowCharges()
+	{
+		List<ItemChargeWarning> warnings = evaluateAll(
+			ImmutableSet.of(ItemChargeKind.CRAWS_WEBWEAVER),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.CRAWS_WEBWEAVER, 0),
+			new TestThresholds());
+
+		assertTrue(warnings.isEmpty());
 	}
 
 	@Test
@@ -132,6 +144,18 @@ public class ItemChargeEvaluatorTest
 		assertNull(ItemChargeTables.getUnchargedKind(ItemID.VIGGORAS_CHAINMACE));
 		assertNull(ItemChargeTables.getUnchargedKind(ItemID.URSINE_CHAINMACE));
 		assertNull(ItemChargeTables.getChargedKind(ItemID.URSINE_CHAINMACE_U));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_R));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_RI));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_RI_25248));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_RI_26762));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getUnchargedKind(ItemID.RING_OF_SUFFERING));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getUnchargedKind(ItemID.RING_OF_SUFFERING_I));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getUnchargedKind(ItemID.RING_OF_SUFFERING_I_25246));
+		assertEquals(ItemChargeKind.RING_OF_SUFFERING, ItemChargeTables.getUnchargedKind(ItemID.RING_OF_SUFFERING_I_26761));
+		assertNull(ItemChargeTables.getUnchargedKind(ItemID.RING_OF_SUFFERING_R));
+		assertNull(ItemChargeTables.getUnchargedKind(ItemID.RING_OF_SUFFERING_RI));
+		assertNull(ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING));
+		assertNull(ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_I));
 
 		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE));
 		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE_27358));
@@ -200,47 +224,12 @@ public class ItemChargeEvaluatorTest
 	private static class TestThresholds implements ItemChargeThresholds
 	{
 		private int bowfaCharges = 250;
-		private int serpentineHelmCharges = 500;
-		private int toxicStaffCharges = 500;
-		private int accursedThammaronsCharges = 500;
-		private int crawsWebweaverCharges = 500;
-		private int ursineViggorasCharges = 500;
 		private int tomeCharges = 50;
 
 		@Override
 		public int bowfaCharges()
 		{
 			return bowfaCharges;
-		}
-
-		@Override
-		public int serpentineHelmCharges()
-		{
-			return serpentineHelmCharges;
-		}
-
-		@Override
-		public int toxicStaffCharges()
-		{
-			return toxicStaffCharges;
-		}
-
-		@Override
-		public int accursedThammaronsCharges()
-		{
-			return accursedThammaronsCharges;
-		}
-
-		@Override
-		public int crawsWebweaverCharges()
-		{
-			return crawsWebweaverCharges;
-		}
-
-		@Override
-		public int ursineViggorasCharges()
-		{
-			return ursineViggorasCharges;
 		}
 
 		@Override

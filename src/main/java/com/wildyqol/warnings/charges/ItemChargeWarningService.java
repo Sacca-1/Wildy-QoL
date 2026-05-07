@@ -74,17 +74,17 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		collectItems(chargedItems, unchargedItems);
 
 		EnumMap<ItemChargeKind, Integer> charges = new EnumMap<>(ItemChargeKind.class);
-		charges.put(ItemChargeKind.BOWFA, client.getVarbitValue(VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY));
-		charges.put(ItemChargeKind.SERPENTINE_HELM, client.getVarbitValue(VarbitID.CHARGES_SERPENTINE_HELM_QUANTITY));
-		charges.put(ItemChargeKind.TOXIC_STAFF, client.getVarbitValue(VarbitID.CHARGES_TOXIC_STAFF_OF_THE_DEAD_QUANTITY));
-		charges.put(ItemChargeKind.ACCURSED_THAMMARONS, client.getVarbitValue(VarbitID.CHARGES_WILDERNESS_WEAPON_QUANTITY));
-		charges.put(ItemChargeKind.CRAWS_WEBWEAVER, client.getVarbitValue(VarbitID.CHARGES_WILDERNESS_WEAPON_QUANTITY));
-		charges.put(ItemChargeKind.URSINE_VIGGORAS, client.getVarbitValue(VarbitID.CHARGES_WILDERNESS_WEAPON_QUANTITY));
-		charges.put(ItemChargeKind.TOME_OF_FIRE, client.getVarbitValue(VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY));
-		charges.put(ItemChargeKind.TOME_OF_WATER, client.getVarbitValue(VarbitID.CHARGES_TOME_OF_WATER_QUANTITY));
-		charges.put(ItemChargeKind.TOME_OF_EARTH, client.getVarbitValue(VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY));
+		charges.put(ItemChargeKind.BOWFA, chargeQuantity(VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY));
+		charges.put(ItemChargeKind.TOME_OF_FIRE, chargeQuantity(VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY));
+		charges.put(ItemChargeKind.TOME_OF_WATER, chargeQuantity(VarbitID.CHARGES_TOME_OF_WATER_QUANTITY));
+		charges.put(ItemChargeKind.TOME_OF_EARTH, chargeQuantity(VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY));
 
 		return ItemChargeEvaluator.state(chargedItems.build(), unchargedItems.build(), charges);
+	}
+
+	private int chargeQuantity(int varbitId)
+	{
+		return Math.max(client.getVarbitValue(varbitId), client.getServerVarbitValue(varbitId));
 	}
 
 	private void collectItems(
@@ -137,9 +137,6 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	private boolean isTrackedVarbit(int varbitId)
 	{
 		return varbitId == VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY
-			|| varbitId == VarbitID.CHARGES_SERPENTINE_HELM_QUANTITY
-			|| varbitId == VarbitID.CHARGES_TOXIC_STAFF_OF_THE_DEAD_QUANTITY
-			|| varbitId == VarbitID.CHARGES_WILDERNESS_WEAPON_QUANTITY
 			|| varbitId == VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY
 			|| varbitId == VarbitID.CHARGES_TOME_OF_WATER_QUANTITY
 			|| varbitId == VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY
@@ -155,36 +152,6 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 			public int bowfaCharges()
 			{
 				return config.bowfaChargeMinimum();
-			}
-
-			@Override
-			public int serpentineHelmCharges()
-			{
-				return config.serpentineHelmChargeMinimum();
-			}
-
-			@Override
-			public int toxicStaffCharges()
-			{
-				return config.toxicStaffChargeMinimum();
-			}
-
-			@Override
-			public int accursedThammaronsCharges()
-			{
-				return config.accursedThammaronsChargeMinimum();
-			}
-
-			@Override
-			public int crawsWebweaverCharges()
-			{
-				return config.crawsWebweaverChargeMinimum();
-			}
-
-			@Override
-			public int ursineViggorasCharges()
-			{
-				return config.ursineViggorasChargeMinimum();
 			}
 
 			@Override
