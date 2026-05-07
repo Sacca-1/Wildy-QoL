@@ -66,6 +66,13 @@ final class MagicItemTables
 		ItemID.ACCURSED_SCEPTRE_U, ItemID.ACCURSED_SCEPTRE_AU);
 	private static final Set<Integer> MAGIC_CAPES = buildSet(
 		ItemID.MAGIC_CAPE, ItemID.MAGIC_CAPET, ItemID.MAX_CAPE, ItemID.MAX_CAPE_13342);
+	private static final Set<Integer> RUNE_POUCHES = buildSet(
+		ItemID.RUNE_POUCH,
+		ItemID.RUNE_POUCH_23650,
+		ItemID.RUNE_POUCH_L,
+		ItemID.RUNE_POUCH_27086,
+		ItemID.DIVINE_RUNE_POUCH,
+		ItemID.DIVINE_RUNE_POUCH_L);
 
 	private MagicItemTables()
 	{
@@ -130,5 +137,10 @@ final class MagicItemTables
 	static boolean isMagicCape(int itemId)
 	{
 		return MAGIC_CAPES.contains(ItemVariationMapping.map(itemId)) || MAGIC_CAPES.contains(itemId);
+	}
+
+	static boolean isRunePouch(int itemId)
+	{
+		return RUNE_POUCHES.contains(ItemVariationMapping.map(itemId)) || RUNE_POUCHES.contains(itemId);
 	}
 }

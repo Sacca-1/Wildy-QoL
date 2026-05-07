@@ -229,8 +229,11 @@ public class RangedAmmoEvaluatorTest
 		assertEquals(RangedAmmoRequirement.DRAGON_JAVELINS, RangedAmmoTables.getRequirement(ItemID.HEAVY_BALLISTA));
 		assertEquals(RangedAmmoRequirement.DRAGON_ARROWS, RangedAmmoTables.getRequirement(ItemID.SCORCHING_BOW));
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_CHARGED));
+		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_CHARGED_TROUVER));
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_INFINITE));
+		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.DIZANAS_QUIVER_INFINITE_TROUVER));
 		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.SKILLCAPE_MAX_DIZANAS));
+		assertTrue(RangedAmmoTables.isQuiver(net.runelite.api.gameval.ItemID.SKILLCAPE_MAX_DIZANAS_TROUVER));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.DRAGON_ARROW));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BRONZE_BOLTS));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BRONZE_BOLTS_P_6061));

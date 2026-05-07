@@ -19,6 +19,8 @@ public class WarningEligibilityService
 
 	private int currentTick;
 	private int lastPvpTick = NO_PVP_TICK;
+	private int bankVisibleTick = NO_PVP_TICK;
+	private boolean bankVisible;
 
 	@Inject
 	WarningEligibilityService(
@@ -56,8 +58,19 @@ public class WarningEligibilityService
 		}
 
 		boolean recentlyLeftPvp = isRecentlyLeftPvp(inPvp, currentTick, lastPvpTick);
-		boolean eligibleOutsidePvp = bankProximityService.isBankVisible() || recentlyLeftPvp;
+		boolean eligibleOutsidePvp = recentlyLeftPvp || isBankVisibleThisTick();
 		return new WarningEligibility(true, inPvp, eligibleOutsidePvp);
+	}
+
+	private boolean isBankVisibleThisTick()
+	{
+		if (bankVisibleTick != currentTick)
+		{
+			bankVisible = bankProximityService.isBankVisible();
+			bankVisibleTick = currentTick;
+		}
+
+		return bankVisible;
 	}
 
 	static boolean isRecentlyLeftPvp(boolean inPvp, int currentTick, int lastPvpTick)
@@ -71,5 +84,7 @@ public class WarningEligibilityService
 	{
 		currentTick = 0;
 		lastPvpTick = NO_PVP_TICK;
+		bankVisibleTick = NO_PVP_TICK;
+		bankVisible = false;
 	}
 }

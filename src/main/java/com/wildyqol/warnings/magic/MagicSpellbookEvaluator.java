@@ -58,10 +58,11 @@ public class MagicSpellbookEvaluator
 
 		boolean standardResources = hasStandardResources(state);
 		boolean ancientResources = hasAncientIceResources(state);
+		boolean lunarResources = hasLunarResources(state);
 
 		if (state.getSpellbook() == MagicSpellbook.STANDARD)
 		{
-			if (!standardResources && ancientResources)
+			if (!standardResources && (ancientResources || lunarResources))
 			{
 				return mismatch();
 			}
@@ -70,7 +71,7 @@ public class MagicSpellbookEvaluator
 
 		if (state.getSpellbook() == MagicSpellbook.ANCIENT)
 		{
-			if (!ancientResources && standardResources)
+			if (!ancientResources && (standardResources || lunarResources))
 			{
 				return mismatch();
 			}
@@ -79,7 +80,7 @@ public class MagicSpellbookEvaluator
 
 		if (state.getSpellbook() == MagicSpellbook.LUNAR)
 		{
-			if (standardResources || ancientResources)
+			if (!lunarResources && (standardResources || ancientResources))
 			{
 				return mismatch();
 			}
@@ -170,6 +171,12 @@ public class MagicSpellbookEvaluator
 	{
 		return countItem(state, ItemID.BLIGHTED_ANCIENT_ICE_SACK) > 0
 			|| maxCasts(ICE_SPELLS, state) > 0;
+	}
+
+	private boolean hasLunarResources(MagicSpellbookState state)
+	{
+		return countItem(state, ItemID.BLIGHTED_VENGEANCE_SACK) > 0
+			|| casts(VENGEANCE, state) > 0;
 	}
 
 	private void addCategoryWarning(

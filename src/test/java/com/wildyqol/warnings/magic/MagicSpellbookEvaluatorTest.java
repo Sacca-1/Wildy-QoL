@@ -108,6 +108,66 @@ public class MagicSpellbookEvaluatorTest
 	}
 
 	@Test
+	public void nonLunarSpellbooksWarnMismatchForVengeanceSacks()
+	{
+		List<MagicSpellbookWarning> standardWarnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_VENGEANCE_SACK, 10),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+		List<MagicSpellbookWarning> ancientWarnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(),
+			ImmutableMap.of(ItemID.BLIGHTED_VENGEANCE_SACK, 10),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, standardWarnings.size());
+		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertEquals(1, ancientWarnings.size());
+		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+	}
+
+	@Test
+	public void nonLunarSpellbooksWarnMismatchForVengeanceRunes()
+	{
+		ImmutableMap<MagicRune, Integer> vengeanceRunes = ImmutableMap.of(
+			MagicRune.ASTRAL, 40,
+			MagicRune.DEATH, 20,
+			MagicRune.EARTH, 100);
+		List<MagicSpellbookWarning> standardWarnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			vengeanceRunes,
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+		List<MagicSpellbookWarning> ancientWarnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			vengeanceRunes,
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, standardWarnings.size());
+		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertEquals(1, ancientWarnings.size());
+		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+	}
+
+	@Test
 	public void warnsMissingStandardCategoriesWithOnlyTeleportSacks()
 	{
 		List<MagicSpellbookWarning> warnings = evaluateAll(
@@ -357,6 +417,17 @@ public class MagicSpellbookEvaluatorTest
 		assertFalse(MagicItemTables.isMagicCape(ItemID.INFERNAL_MAX_CAPE));
 		assertFalse(MagicItemTables.isMagicCape(ItemID.ASSEMBLER_MAX_CAPE));
 		assertFalse(MagicItemTables.isMagicCape(ItemID.DIZANAS_MAX_CAPE));
+	}
+
+	@Test
+	public void recognizesRunePouches()
+	{
+		assertTrue(MagicItemTables.isRunePouch(ItemID.RUNE_POUCH));
+		assertTrue(MagicItemTables.isRunePouch(ItemID.RUNE_POUCH_L));
+		assertTrue(MagicItemTables.isRunePouch(ItemID.DIVINE_RUNE_POUCH));
+		assertTrue(MagicItemTables.isRunePouch(ItemID.DIVINE_RUNE_POUCH_L));
+		assertFalse(MagicItemTables.isRunePouch(ItemID.RUNE_POUCH_NOTE));
+		assertFalse(MagicItemTables.isRunePouch(ItemID.LAW_RUNE));
 	}
 
 	private List<MagicSpellbookWarning> evaluateAll(

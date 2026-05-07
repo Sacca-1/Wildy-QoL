@@ -131,11 +131,14 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 			addAmmo(ammoCounts, equipment.getItem(EquipmentInventorySlot.AMMO.getSlotIdx()));
 		}
 
-		addAmmo(ammoCounts,
-			client.getVarpValue(VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO),
-			client.getVarpValue(VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO_AMOUNT));
-
 		ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+		if (hasQuiver(equipment) || hasQuiver(inventory))
+		{
+			addAmmo(ammoCounts,
+				client.getVarpValue(VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO),
+				client.getVarpValue(VarPlayerID.DIZANAS_QUIVER_TEMP_AMMO_AMOUNT));
+		}
+
 		if (inventory != null)
 		{
 			for (Item item : inventory.getItems())
@@ -145,6 +148,24 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 		}
 
 		return ammoCounts;
+	}
+
+	private boolean hasQuiver(@Nullable ItemContainer container)
+	{
+		if (container == null)
+		{
+			return false;
+		}
+
+		for (Item item : container.getItems())
+		{
+			if (item != null && item.getId() > 0 && RangedAmmoTables.isQuiver(item.getId()))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private void addAmmo(Map<Integer, Integer> ammoCounts, @Nullable Item item)

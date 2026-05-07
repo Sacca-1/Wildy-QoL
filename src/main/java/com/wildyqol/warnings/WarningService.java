@@ -83,6 +83,12 @@ public abstract class WarningService<T>
 	{
 		boolean enabled = isEnabled();
 		List<T> warnings = enabled ? evaluateAll() : Collections.emptyList();
+		if (!enabled || warnings.isEmpty())
+		{
+			visibleWarnings = visibility.update(warnings, enabled, false, false, false, gameTick);
+			return;
+		}
+
 		WarningEligibility eligibility = warningEligibilityService.getEligibility();
 		visibleWarnings = visibility.update(
 			warnings,

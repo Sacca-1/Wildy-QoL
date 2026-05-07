@@ -71,7 +71,10 @@ public class MagicInventoryStateBuilder
 	{
 		StateBuilder builder = new StateBuilder();
 		collectItems(builder);
-		collectRunePouch(builder);
+		if (builder.runePouch)
+		{
+			collectRunePouch(builder);
+		}
 		return new MagicInventoryState(
 			currentSpellbook(),
 			client.getBoostedSkillLevel(Skill.MAGIC),
@@ -132,6 +135,7 @@ public class MagicInventoryStateBuilder
 		builder.validGodStaff |= MagicItemTables.isGodStaff(itemId);
 		builder.chargedWildySceptre |= MagicItemTables.isChargedWildySceptre(itemId);
 		builder.unchargedWildySceptre |= MagicItemTables.isUnchargedWildySceptre(itemId);
+		builder.runePouch |= MagicItemTables.isRunePouch(itemId);
 	}
 
 	private void addRuneItem(StateBuilder builder, int itemId, int quantity)
@@ -256,5 +260,6 @@ public class MagicInventoryStateBuilder
 		private boolean validGodStaff;
 		private boolean chargedWildySceptre;
 		private boolean unchargedWildySceptre;
+		private boolean runePouch;
 	}
 }
