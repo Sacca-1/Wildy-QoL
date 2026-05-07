@@ -1,6 +1,7 @@
 package com.wildyqol.warnings.magic;
 
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.warnings.WarningEligibilityService;
 import com.wildyqol.warnings.WarningService;
 import java.util.List;
 import javax.inject.Inject;
@@ -23,9 +24,10 @@ public class MagicSpellbookWarningService extends WarningService<MagicSpellbookW
 	MagicSpellbookWarningService(
 		Client client,
 		ClientThread clientThread,
+		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, MagicSpellbookWarning::getText);
+		super(clientThread, warningEligibilityService, MagicSpellbookWarning::getText);
 		this.config = config;
 		this.inventoryStateBuilder = new MagicInventoryStateBuilder(client);
 	}

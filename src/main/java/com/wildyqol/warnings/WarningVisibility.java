@@ -14,7 +14,6 @@ public class WarningVisibility<T>
 
 	@Nullable
 	private String pvpGraceWarningText;
-	private boolean wasInPvp;
 	private int pvpGraceTicksRemaining;
 
 	public WarningVisibility(Function<T, String> textProvider)
@@ -22,35 +21,46 @@ public class WarningVisibility<T>
 		this.textProvider = textProvider;
 	}
 
-	public List<T> update(List<T> warnings, boolean enabled, boolean inPvp, boolean gameTick)
+	public List<T> update(
+		List<T> warnings,
+		boolean enabled,
+		boolean onlyWarnAtBank,
+		boolean inPvp,
+		boolean eligibleOutsidePvp,
+		boolean gameTick)
 	{
+		if (!enabled || warnings.isEmpty())
+		{
+			reset();
+			return ImmutableList.of();
+		}
+
+		if (!onlyWarnAtBank)
+		{
+			reset();
+			return warnings;
+		}
+
 		if (inPvp && gameTick && pvpGraceTicksRemaining > 0)
 		{
 			pvpGraceTicksRemaining--;
 		}
 
-		if (!enabled || warnings.isEmpty())
-		{
-			reset(inPvp);
-			return ImmutableList.of();
-		}
-
 		if (!inPvp)
 		{
+			if (!eligibleOutsidePvp)
+			{
+				reset();
+				return ImmutableList.of();
+			}
+
 			pvpGraceWarningText = getWarningKey(warnings);
 			pvpGraceTicksRemaining = PVP_GRACE_TICKS;
-			wasInPvp = false;
 			return warnings;
 		}
 
-		if (!wasInPvp)
-		{
-			pvpGraceWarningText = getWarningKey(warnings);
-			pvpGraceTicksRemaining = PVP_GRACE_TICKS;
-		}
-
-		wasInPvp = true;
-		if (pvpGraceTicksRemaining <= 0 || !getWarningKey(warnings).equals(pvpGraceWarningText))
+		String warningKey = getWarningKey(warnings);
+		if (pvpGraceTicksRemaining <= 0 || !warningKey.equals(pvpGraceWarningText))
 		{
 			return ImmutableList.of();
 		}
@@ -58,25 +68,25 @@ public class WarningVisibility<T>
 		return warnings;
 	}
 
-	public Optional<T> update(Optional<T> warning, boolean enabled, boolean inPvp, boolean gameTick)
+	public Optional<T> update(
+		Optional<T> warning,
+		boolean enabled,
+		boolean onlyWarnAtBank,
+		boolean inPvp,
+		boolean eligibleOutsidePvp,
+		boolean gameTick)
 	{
 		List<T> warnings = warning
 			.map(ImmutableList::of)
 			.orElseGet(ImmutableList::of);
-		List<T> visibleWarnings = update(warnings, enabled, inPvp, gameTick);
+		List<T> visibleWarnings = update(warnings, enabled, onlyWarnAtBank, inPvp, eligibleOutsidePvp, gameTick);
 		return visibleWarnings.isEmpty() ? Optional.empty() : Optional.of(visibleWarnings.get(0));
 	}
 
 	public void reset()
 	{
-		reset(false);
-	}
-
-	private void reset(boolean inPvp)
-	{
 		pvpGraceWarningText = null;
 		pvpGraceTicksRemaining = 0;
-		wasInPvp = inPvp;
 	}
 
 	private String getWarningKey(List<T> warnings)

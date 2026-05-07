@@ -2,6 +2,7 @@ package com.wildyqol.warnings.charges;
 
 import com.google.common.collect.ImmutableSet;
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.warnings.WarningEligibilityService;
 import com.wildyqol.warnings.WarningService;
 import java.util.EnumMap;
 import java.util.List;
@@ -28,9 +29,10 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	ItemChargeWarningService(
 		Client client,
 		ClientThread clientThread,
+		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, ItemChargeWarning::getText);
+		super(clientThread, warningEligibilityService, ItemChargeWarning::getText);
 		this.client = client;
 		this.config = config;
 	}

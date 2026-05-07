@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import net.runelite.api.Client;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.VarbitChanged;
@@ -12,17 +11,20 @@ import net.runelite.client.callback.ClientThread;
 
 public abstract class WarningService<T>
 {
-	private final Client client;
 	private final ClientThread clientThread;
+	private final WarningEligibilityService warningEligibilityService;
 	private final Function<T, String> textProvider;
 	private final WarningVisibility<T> visibility;
 
 	private List<T> visibleWarnings = Collections.emptyList();
 
-	protected WarningService(Client client, ClientThread clientThread, Function<T, String> textProvider)
+	protected WarningService(
+		ClientThread clientThread,
+		WarningEligibilityService warningEligibilityService,
+		Function<T, String> textProvider)
 	{
-		this.client = client;
 		this.clientThread = clientThread;
+		this.warningEligibilityService = warningEligibilityService;
 		this.textProvider = textProvider;
 		this.visibility = new WarningVisibility<>(textProvider);
 	}
@@ -81,6 +83,13 @@ public abstract class WarningService<T>
 	{
 		boolean enabled = isEnabled();
 		List<T> warnings = enabled ? evaluateAll() : Collections.emptyList();
-		visibleWarnings = visibility.update(warnings, enabled, PvpArea.isPvpArea(client), gameTick);
+		WarningEligibility eligibility = warningEligibilityService.getEligibility();
+		visibleWarnings = visibility.update(
+			warnings,
+			enabled,
+			eligibility.isOnlyWarnAtBank(),
+			eligibility.isInPvp(),
+			eligibility.isEligibleOutsidePvp(),
+			gameTick);
 	}
 }

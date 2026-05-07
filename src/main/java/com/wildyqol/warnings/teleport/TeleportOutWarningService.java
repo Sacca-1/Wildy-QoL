@@ -2,6 +2,7 @@ package com.wildyqol.warnings.teleport;
 
 import com.wildyqol.WildyQoLConfig;
 import com.wildyqol.WildyQoLConfig.TeleportOutWarningMode;
+import com.wildyqol.warnings.WarningEligibilityService;
 import com.wildyqol.warnings.WarningService;
 import com.wildyqol.warnings.magic.MagicInventoryStateBuilder;
 import java.util.List;
@@ -25,9 +26,10 @@ public class TeleportOutWarningService extends WarningService<TeleportOutWarning
 	TeleportOutWarningService(
 		Client client,
 		ClientThread clientThread,
+		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, TeleportOutWarning::getText);
+		super(clientThread, warningEligibilityService, TeleportOutWarning::getText);
 		this.config = config;
 		this.inventoryStateBuilder = new MagicInventoryStateBuilder(client);
 	}

@@ -2,6 +2,7 @@ package com.wildyqol.warnings.ammo;
 
 import com.google.common.collect.ImmutableSet;
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.warnings.WarningEligibilityService;
 import com.wildyqol.warnings.WarningService;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +33,10 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 	RangedAmmoWarningService(
 		Client client,
 		ClientThread clientThread,
+		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, RangedAmmoWarning::getText);
+		super(clientThread, warningEligibilityService, RangedAmmoWarning::getText);
 		this.client = client;
 		this.config = config;
 	}

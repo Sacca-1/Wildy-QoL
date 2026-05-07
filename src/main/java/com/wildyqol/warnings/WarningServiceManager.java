@@ -16,15 +16,18 @@ import net.runelite.api.events.VarbitChanged;
 @Singleton
 public class WarningServiceManager
 {
+	private final WarningEligibilityService warningEligibilityService;
 	private final List<WarningService<?>> services;
 
 	@Inject
 	WarningServiceManager(
+		WarningEligibilityService warningEligibilityService,
 		RangedAmmoWarningService rangedAmmoWarningService,
 		ItemChargeWarningService itemChargeWarningService,
 		MagicSpellbookWarningService magicSpellbookWarningService,
 		TeleportOutWarningService teleportOutWarningService)
 	{
+		this.warningEligibilityService = warningEligibilityService;
 		services = ImmutableList.of(
 			rangedAmmoWarningService,
 			itemChargeWarningService,
@@ -34,11 +37,13 @@ public class WarningServiceManager
 
 	public void startUp()
 	{
+		warningEligibilityService.reset();
 		services.forEach(WarningService::startUp);
 	}
 
 	public void shutDown()
 	{
+		warningEligibilityService.reset();
 		services.forEach(WarningService::shutDown);
 	}
 
@@ -54,6 +59,7 @@ public class WarningServiceManager
 
 	public void onGameTick(GameTick event)
 	{
+		warningEligibilityService.onGameTick(event);
 		services.forEach(service -> service.onGameTick(event));
 	}
 
