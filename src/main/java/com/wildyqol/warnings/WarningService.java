@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.runelite.api.Client;
+import net.runelite.api.GameState;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.VarbitChanged;
@@ -11,6 +13,7 @@ import net.runelite.client.callback.ClientThread;
 
 public abstract class WarningService<T>
 {
+	private final Client client;
 	private final ClientThread clientThread;
 	private final WarningEligibilityService warningEligibilityService;
 	private final Function<T, String> textProvider;
@@ -19,10 +22,12 @@ public abstract class WarningService<T>
 	private List<T> visibleWarnings = Collections.emptyList();
 
 	protected WarningService(
+		Client client,
 		ClientThread clientThread,
 		WarningEligibilityService warningEligibilityService,
 		Function<T, String> textProvider)
 	{
+		this.client = client;
 		this.clientThread = clientThread;
 		this.warningEligibilityService = warningEligibilityService;
 		this.textProvider = textProvider;
@@ -82,8 +87,14 @@ public abstract class WarningService<T>
 	private void update(boolean gameTick)
 	{
 		boolean enabled = isEnabled();
+		if (!enabled || client.getGameState() != GameState.LOGGED_IN)
+		{
+			visibleWarnings = visibility.update(Collections.emptyList(), enabled, false, false, false, gameTick);
+			return;
+		}
+
 		List<T> warnings = enabled ? evaluateAll() : Collections.emptyList();
-		if (!enabled || warnings.isEmpty())
+		if (warnings.isEmpty())
 		{
 			visibleWarnings = visibility.update(warnings, enabled, false, false, false, gameTick);
 			return;

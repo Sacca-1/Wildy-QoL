@@ -59,13 +59,18 @@ public class BankProximityService
 		}
 
 		Tile[][][] tiles = scene.getTiles();
-		if (plane < 0 || plane >= tiles.length)
+		if (tiles == null || plane < 0 || plane >= tiles.length || tiles[plane] == null)
 		{
 			return false;
 		}
 
 		for (Tile[] row : tiles[plane])
 		{
+			if (row == null)
+			{
+				continue;
+			}
+
 			for (Tile tile : row)
 			{
 				if (isBankTile(tile))

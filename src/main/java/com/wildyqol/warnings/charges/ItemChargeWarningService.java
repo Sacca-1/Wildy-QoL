@@ -32,7 +32,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(clientThread, warningEligibilityService, ItemChargeWarning::getText);
+		super(client, clientThread, warningEligibilityService, ItemChargeWarning::getText);
 		this.client = client;
 		this.config = config;
 	}
