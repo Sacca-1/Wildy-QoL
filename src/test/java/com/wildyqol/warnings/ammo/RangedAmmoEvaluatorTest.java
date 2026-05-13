@@ -184,7 +184,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low bolts: 42/100");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low ammo: bolts 42/100");
 	}
 
 	@Test
@@ -206,7 +206,7 @@ public class RangedAmmoEvaluatorTest
 
 		assertEquals(2, warnings.size());
 		assertEquals("Missing ammo: dragon arrows", warnings.get(0).getText());
-		assertEquals("Low bolts: 42/100", warnings.get(1).getText());
+		assertEquals("Low ammo: bolts 42/100", warnings.get(1).getText());
 	}
 
 	@Test

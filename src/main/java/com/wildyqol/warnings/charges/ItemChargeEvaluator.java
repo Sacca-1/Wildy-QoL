@@ -24,7 +24,7 @@ public class ItemChargeEvaluator
 		{
 			if (state.getUnchargedItems().contains(kind))
 			{
-				warnings.add(missing("Missing " + kind.getMissingText() + " charges"));
+				warnings.add(missing("No charges: " + kind.getMissingText()));
 				continue;
 			}
 
@@ -37,7 +37,7 @@ public class ItemChargeEvaluator
 			int charges = state.getCharges().getOrDefault(kind, 0);
 			if (threshold > 0 && charges < threshold)
 			{
-				warnings.add(low("Low " + kind.getLowText() + ": " + charges + "/" + threshold));
+				warnings.add(low("Low charges: " + kind.getLowText() + " " + charges + "/" + threshold));
 			}
 		}
 

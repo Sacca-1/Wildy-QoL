@@ -146,7 +146,7 @@ public class RangedAmmoEvaluator
 			{
 				warnings.add(new RangedAmmoWarning(
 					RangedAmmoWarning.WarningPriority.LOW,
-					"Low " + requirement.getLowText() + ": " + compatibleCount + "/" + threshold));
+					"Low ammo: " + requirement.getLowText() + " " + compatibleCount + "/" + threshold));
 			}
 		}
 

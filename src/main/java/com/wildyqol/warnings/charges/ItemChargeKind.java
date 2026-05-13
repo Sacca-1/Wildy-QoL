@@ -2,7 +2,7 @@ package com.wildyqol.warnings.charges;
 
 enum ItemChargeKind
 {
-	BOWFA("Bowfa", "Bowfa charges")
+	BOWFA("Bowfa", "Bowfa")
 	{
 		@Override
 		int threshold(ItemChargeThresholds thresholds)
@@ -16,7 +16,7 @@ enum ItemChargeKind
 	CRAWS_WEBWEAVER("Craw's/Webweaver bow", null),
 	URSINE_VIGGORAS("Ursine/Viggora's mace", null),
 	RING_OF_SUFFERING("ring of suffering recoil", null),
-	TOME_OF_FIRE("tome of fire", "tome of fire charges")
+	TOME_OF_FIRE("tome of fire", "tome of fire")
 	{
 		@Override
 		int threshold(ItemChargeThresholds thresholds)
@@ -24,7 +24,7 @@ enum ItemChargeKind
 			return thresholds.tomeCharges();
 		}
 	},
-	TOME_OF_WATER("tome of water", "tome of water charges")
+	TOME_OF_WATER("tome of water", "tome of water")
 	{
 		@Override
 		int threshold(ItemChargeThresholds thresholds)
@@ -32,7 +32,7 @@ enum ItemChargeKind
 			return thresholds.tomeCharges();
 		}
 	},
-	TOME_OF_EARTH("tome of earth", "tome of earth charges")
+	TOME_OF_EARTH("tome of earth", "tome of earth")
 	{
 		@Override
 		int threshold(ItemChargeThresholds thresholds)

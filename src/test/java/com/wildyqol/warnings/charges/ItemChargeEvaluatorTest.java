@@ -37,7 +37,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.BOWFA, 80),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low Bowfa charges: 80/250");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: Bowfa 80/250");
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class ItemChargeEvaluatorTest
 			charges(),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.MISSING, "Missing toxic SOTD charges");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.MISSING, "No charges: toxic SOTD");
 	}
 
 	@Test
@@ -89,8 +89,8 @@ public class ItemChargeEvaluatorTest
 			new TestThresholds());
 
 		assertEquals(2, warnings.size());
-		assertWarning(warnings.get(0), ItemChargeWarning.WarningPriority.MISSING, "Missing tome of fire charges");
-		assertWarning(warnings.get(1), ItemChargeWarning.WarningPriority.LOW, "Low Bowfa charges: 80/250");
+		assertWarning(warnings.get(0), ItemChargeWarning.WarningPriority.MISSING, "No charges: tome of fire");
+		assertWarning(warnings.get(1), ItemChargeWarning.WarningPriority.LOW, "Low charges: Bowfa 80/250");
 	}
 
 	@Test

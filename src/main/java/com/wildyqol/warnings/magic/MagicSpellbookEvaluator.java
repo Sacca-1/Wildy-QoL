@@ -93,10 +93,10 @@ public class MagicSpellbookEvaluator
 	private List<MagicSpellbookWarning> evaluateStandard(MagicSpellbookState state, MagicThresholds thresholds)
 	{
 		List<MagicSpellbookWarning> warnings = new ArrayList<>();
-		addCategoryWarning(warnings, "Tele Block", "TB casts", max(
+		addCategoryWarning(warnings, "Tele Block", "Tele Block", max(
 			countItem(state, ItemID.BLIGHTED_TELEPORT_SPELL_SACK),
 			casts(TELE_BLOCK, state)), thresholds.teleBlock());
-		addCategoryWarning(warnings, "freeze", "freeze casts", max(
+		addCategoryWarning(warnings, "freeze", "freeze", max(
 			countItem(state, ItemID.BLIGHTED_ENTANGLE_SACK),
 			casts(SNARE, state),
 			casts(ENTANGLE, state)), thresholds.entangle());
@@ -125,7 +125,7 @@ public class MagicSpellbookEvaluator
 
 		if (bestRuneDamage > 0)
 		{
-			warnings.add(low("Low damage casts: " + bestRuneDamage + "/" + threshold));
+			warnings.add(low("Low casts: damage " + bestRuneDamage + "/" + threshold));
 			return ImmutableList.copyOf(warnings);
 		}
 
@@ -136,14 +136,14 @@ public class MagicSpellbookEvaluator
 	private List<MagicSpellbookWarning> evaluateAncient(MagicSpellbookState state, MagicThresholds thresholds)
 	{
 		List<MagicSpellbookWarning> warnings = new ArrayList<>();
-		addCategoryWarning(warnings, "ice spells", "ice casts", max(
+		addCategoryWarning(warnings, "ice spells", "ice", max(
 			countItem(state, ItemID.BLIGHTED_ANCIENT_ICE_SACK),
 			maxCasts(ICE_SPELLS, state)), thresholds.ice());
 
 		int bloodCasts = maxCasts(BLOOD_SPELLS, state);
 		if (bloodCasts > 0 && !meets(bloodCasts, thresholds.blood()))
 		{
-			warnings.add(low("Low blood casts: " + bloodCasts + "/" + thresholds.blood()));
+			warnings.add(low("Low casts: blood " + bloodCasts + "/" + thresholds.blood()));
 		}
 		return sort(warnings);
 	}
@@ -151,7 +151,7 @@ public class MagicSpellbookEvaluator
 	private List<MagicSpellbookWarning> evaluateLunar(MagicSpellbookState state, MagicThresholds thresholds)
 	{
 		List<MagicSpellbookWarning> warnings = new ArrayList<>();
-		addCategoryWarning(warnings, "Vengeance", "vengeance casts", max(
+		addCategoryWarning(warnings, "Vengeance", "Vengeance", max(
 			countItem(state, ItemID.BLIGHTED_VENGEANCE_SACK),
 			casts(VENGEANCE, state)), thresholds.vengeance());
 		return sort(warnings);
@@ -198,7 +198,7 @@ public class MagicSpellbookEvaluator
 
 		if (casts > 0)
 		{
-			warnings.add(low("Low " + lowText + ": " + casts + "/" + threshold));
+			warnings.add(low("Low casts: " + lowText + " " + casts + "/" + threshold));
 			return;
 		}
 
@@ -215,7 +215,7 @@ public class MagicSpellbookEvaluator
 		Integer charges = state.getTomeCharges().get(rune);
 		if (charges != null && threshold > 0 && charges < threshold)
 		{
-			warnings.add(low("Low " + tomeName + " charges: " + charges + "/" + threshold));
+			warnings.add(low("Low charges: " + tomeName + " " + charges + "/" + threshold));
 		}
 	}
 

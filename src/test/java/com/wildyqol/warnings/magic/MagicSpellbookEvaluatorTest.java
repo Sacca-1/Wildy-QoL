@@ -224,7 +224,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low ice casts: 50/100");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: ice 50/100");
 	}
 
 	@Test
@@ -244,7 +244,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low blood casts: 25/50");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: blood 25/50");
 	}
 
 	@Test
@@ -266,7 +266,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low tome of fire charges: 25/50");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low charges: tome of fire 25/50");
 	}
 
 	@Test
@@ -337,7 +337,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low vengeance casts: 5/10");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: Vengeance 5/10");
 	}
 
 	@Test
