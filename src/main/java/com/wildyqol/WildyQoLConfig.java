@@ -4,10 +4,38 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Range;
 
 @ConfigGroup("wildyqol")
 public interface WildyQoLConfig extends Config
 {
+	enum TeleportOutWarningMode
+	{
+		NEVER("Never", 0),
+		LEVEL_20("20", 20),
+		LEVEL_30("30", 30);
+
+		private final String label;
+		private final int wildernessLevel;
+
+		TeleportOutWarningMode(String label, int wildernessLevel)
+		{
+			this.label = label;
+			this.wildernessLevel = wildernessLevel;
+		}
+
+		public int getWildernessLevel()
+		{
+			return wildernessLevel;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
+	}
+
 	@ConfigSection(
 		name = "Misclick prevention",
 		description = "Settings to help avoid dangerous misclicks",
@@ -55,6 +83,22 @@ public interface WildyQoLConfig extends Config
 		closedByDefault = false
 	)
 	String WARNINGS_SECTION = "warningsSection";
+
+	@ConfigSection(
+		name = "Equipment warnings (preview)",
+		description = "Preview text overlay warnings for risky PvP equipment states",
+		position = 99,
+		closedByDefault = false
+	)
+	String PREVIEW_WARNINGS_SECTION = "previewWarningsSection";
+
+	@ConfigSection(
+		name = "Equipment warnings advanced (preview)",
+		description = "Advanced preview equipment warning thresholds",
+		position = 100,
+		closedByDefault = true
+	)
+	String PREVIEW_WARNINGS_ADVANCED_SECTION = "previewWarningsAdvancedSection";
 
 	@ConfigItem(
 		keyName = "runePouchBlocker",
@@ -239,9 +283,253 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "enablePreviewWarnings",
+		name = "Enable preview warnings",
+		description = "Enable preview text overlay warnings for risky PvP inventory states",
+		position = 0,
+		section = PREVIEW_WARNINGS_SECTION
+	)
+	default boolean enablePreviewWarnings()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "rangedAmmoWarnings",
+		name = "Ranged ammo warnings",
+		description = "Show a text overlay when recognized ranged weapons are missing compatible ammo",
+		position = 1,
+		section = PREVIEW_WARNINGS_SECTION
+	)
+	default boolean rangedAmmoWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "itemChargeWarnings",
+		name = "Item charges warnings",
+		description = "Show a text overlay when recognized charged items are empty or low",
+		position = 2,
+		section = PREVIEW_WARNINGS_SECTION
+	)
+	default boolean itemChargeWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "spellbookRuneWarnings",
+		name = "Spellbook/rune warnings",
+		description = "Show a text overlay when recognized runes and spellbook do not match or are insufficient",
+		position = 3,
+		section = PREVIEW_WARNINGS_SECTION
+	)
+	default boolean spellbookRuneWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "teleportOutWarningMode",
+		name = "Teleport out warning",
+		description = "Show a text overlay when no recognized teleport out of the wilderness is carried or worn.<br>"
+			+ "Uses the selected Wilderness level.",
+		position = 4,
+		section = PREVIEW_WARNINGS_SECTION
+	)
+	default TeleportOutWarningMode teleportOutWarningMode()
+	{
+		return TeleportOutWarningMode.LEVEL_20;
+	}
+
+	@ConfigItem(
+		keyName = "onlyWarnAtBank",
+		name = "Only warn at bank",
+		description = "Only show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings near a bank.<br>"
+			+ "Also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.<br>"
+			+ "Disable this to always show warnings, including in PvP areas.",
+		position = 0,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default boolean onlyWarnAtBank()
+	{
+		return true;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "atlatlDartMinimum",
+		name = "Atlatl dart minimum",
+		description = "Minimum atlatl darts required before warning",
+		position = 1,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int atlatlDartMinimum()
+	{
+		return 250;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "boltMinimum",
+		name = "Bolt minimum",
+		description = "Minimum bolts required before warning",
+		position = 2,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int boltMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "javelinMinimum",
+		name = "Javelin minimum",
+		description = "Minimum javelins required before warning",
+		position = 3,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int javelinMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "arrowMinimum",
+		name = "Arrow minimum",
+		description = "Minimum arrows required before warning",
+		position = 4,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int arrowMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "bowfaChargeMinimum",
+		name = "Bowfa charges minimum",
+		description = "Minimum Bow of faerdhinen charges required before warning",
+		position = 5,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int bowfaChargeMinimum()
+	{
+		return 250;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "tomeChargeMinimum",
+		name = "Tome charges minimum",
+		description = "Minimum tome charges required before warning",
+		position = 6,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int tomeChargeMinimum()
+	{
+		return 50;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "teleBlockMinimum",
+		name = "TB minimum",
+		description = "Minimum Tele Block casts or sacks required before warning",
+		position = 7,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int teleBlockMinimum()
+	{
+		return 10;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "entangleMinimum",
+		name = "Entangle minimum",
+		description = "Minimum freeze casts or sacks required before warning",
+		position = 8,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int entangleMinimum()
+	{
+		return 50;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "surgeMinimum",
+		name = "Surge minimum",
+		description = "Minimum standard damage casts or sacks required before warning",
+		position = 15,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int surgeMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "iceSpellMinimum",
+		name = "Ice spell minimum",
+		description = "Minimum ancient ice casts or sacks required before warning",
+		position = 16,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int iceSpellMinimum()
+	{
+		return 100;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "bloodSpellMinimum",
+		name = "Blood spell minimum",
+		description = "Minimum ancient blood casts required before warning when blood spell runes are present",
+		position = 17,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int bloodSpellMinimum()
+	{
+		return 50;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "vengeanceMinimum",
+		name = "Vengeance minimum",
+		description = "Minimum vengeance casts or sacks required before warning",
+		position = 18,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default int vengeanceMinimum()
+	{
+		return 10;
+	}
+
+	@ConfigItem(
+		keyName = "suboptimalRangedAmmoWarnings",
+		name = "Suboptimal ammo warning",
+		description = "Warn when recognized ranged weapons have only lower-tier compatible ammo",
+		position = 19,
+		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+	)
+	default boolean suboptimalRangedAmmoWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "enableExtendedFreezeTimersV2",
 		name = "Extended freeze timers",
-		description = "Use extended freeze timers that account for opponent gear (Ancient sceptres, Zuriel's staves, and Swampbark)",
+		description = "Use extended freeze timers that account for opponent gear.<br>"
+			+ "Includes Ancient sceptres, Zuriel's staves, and Swampbark.",
 		position = 0,
 		section = FREEZE_TIMERS_SECTION
 	)
@@ -265,7 +553,8 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "preserveFreezeTimerOnForcedMovement",
 		name = "Ignore forced movement",
-		description = "Keep the freeze timer running when you move because of mithril/adamant seeds or dragon spear/hasta special attacks",
+		description = "Keep the freeze timer running when mithril/adamant seeds move you.<br>"
+			+ "Also applies to dragon spear/hasta special attacks.",
 		position = 2,
 		section = FREEZE_TIMERS_SECTION
 	)
