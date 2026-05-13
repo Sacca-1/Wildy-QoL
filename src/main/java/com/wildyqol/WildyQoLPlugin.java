@@ -129,6 +129,7 @@ public class WildyQoLPlugin extends Plugin
 	public void onWidgetLoaded(WidgetLoaded event)
 	{
 		clientThread.invokeLater(() -> ikodParchmentRiskService.onWidgetLoaded(event));
+		warningServiceManager.onWidgetLoaded(event);
 	}
 
 	@Subscribe
@@ -205,6 +206,7 @@ public class WildyQoLPlugin extends Plugin
 	public void onChatMessage(ChatMessage event)
 	{
 		extendedFreezeTimersService.onChatMessage(event);
+		warningServiceManager.onChatMessage(event);
 	}
 
 	@Subscribe

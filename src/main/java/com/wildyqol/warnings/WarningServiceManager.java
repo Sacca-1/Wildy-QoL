@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.events.WidgetLoaded;
 
 @Singleton
 public class WarningServiceManager
@@ -61,6 +63,22 @@ public class WarningServiceManager
 	{
 		warningEligibilityService.onGameTick(event);
 		services.forEach(service -> service.onGameTick(event));
+	}
+
+	public void onChatMessage(ChatMessage event)
+	{
+		if (warningEligibilityService.onChatMessage(event))
+		{
+			services.forEach(WarningService::refreshOnClientThread);
+		}
+	}
+
+	public void onWidgetLoaded(WidgetLoaded event)
+	{
+		if (warningEligibilityService.onWidgetLoaded(event))
+		{
+			services.forEach(WarningService::refreshOnClientThread);
+		}
 	}
 
 	public void refreshOnClientThread()
