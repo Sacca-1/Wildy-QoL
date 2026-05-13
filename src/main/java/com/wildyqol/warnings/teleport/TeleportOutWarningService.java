@@ -57,7 +57,7 @@ public class TeleportOutWarningService extends WarningService<TeleportOutWarning
 	@Override
 	protected boolean isEnabled()
 	{
-		return config.teleportOutWarningMode() != TeleportOutWarningMode.NEVER;
+		return config.enablePreviewWarnings() && config.teleportOutWarningMode() != TeleportOutWarningMode.NEVER;
 	}
 
 	@Override

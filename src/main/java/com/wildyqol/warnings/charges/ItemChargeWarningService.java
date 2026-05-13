@@ -58,7 +58,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	@Override
 	protected boolean isEnabled()
 	{
-		return config.itemChargeWarnings();
+		return config.enablePreviewWarnings() && config.itemChargeWarnings();
 	}
 
 	@Override
