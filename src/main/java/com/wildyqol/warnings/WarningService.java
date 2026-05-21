@@ -1,5 +1,6 @@
 package com.wildyqol.warnings;
 
+import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -89,22 +90,40 @@ public abstract class WarningService<T>
 		boolean enabled = isEnabled();
 		if (!enabled || client.getGameState() != GameState.LOGGED_IN)
 		{
-			visibleWarnings = visibility.update(Collections.emptyList(), enabled, false, false, false, gameTick);
+			visibleWarnings = visibility.update(
+				Collections.emptyList(),
+				enabled,
+				WarningDisplayMode.ALWAYS,
+				false,
+				false,
+				gameTick);
+			return;
+		}
+
+		WarningEligibility eligibility = warningEligibilityService.getEligibility();
+		if (!eligibility.isEquipmentWarningsVisible())
+		{
+			visibleWarnings = visibility.update(
+				Collections.emptyList(),
+				enabled,
+				WarningDisplayMode.ALWAYS,
+				false,
+				false,
+				gameTick);
 			return;
 		}
 
 		List<T> warnings = enabled ? evaluateAll() : Collections.emptyList();
 		if (warnings.isEmpty())
 		{
-			visibleWarnings = visibility.update(warnings, enabled, false, false, false, gameTick);
+			visibleWarnings = visibility.update(warnings, enabled, WarningDisplayMode.ALWAYS, false, false, gameTick);
 			return;
 		}
 
-		WarningEligibility eligibility = warningEligibilityService.getEligibility();
 		visibleWarnings = visibility.update(
 			warnings,
 			enabled,
-			eligibility.isOnlyWarnAtBank(),
+			eligibility.getWarningDisplayMode(),
 			eligibility.isInPvp(),
 			eligibility.isEligibleOutsidePvp(),
 			gameTick);

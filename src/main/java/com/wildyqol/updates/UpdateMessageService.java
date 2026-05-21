@@ -14,7 +14,7 @@ import net.runelite.client.config.ConfigManager;
 public class UpdateMessageService
 {
 	private static final String CONFIG_GROUP = "wildyqol";
-	private static final String UPDATE_MESSAGE_KEY = "updateMessageShown130";
+	private static final String UPDATE_MESSAGE_KEY = "updateMessageShown140";
 
 	private final ConfigManager configManager;
 	private final WildyQoLConfig config;
@@ -32,7 +32,7 @@ public class UpdateMessageService
 
 	public void startUp()
 	{
-		shouldShowUpdateMessage = !config.updateMessageShown130();
+		shouldShowUpdateMessage = !config.updateMessageShown140();
 	}
 
 	public void onGameStateChanged(GameStateChanged event)
@@ -44,7 +44,7 @@ public class UpdateMessageService
 
 		chatMessageManager.queue(QueuedMessage.builder()
 			.type(ChatMessageType.GAMEMESSAGE)
-			.runeLiteFormattedMessage("<col=00ff00>Wildy QoL:</col> v1.3.0: added remapping for new fish icons, extended freeze timers (ancient sceptres, swampbark), and rune pouch misclick prevention. Check plugin settings for details.")
+			.runeLiteFormattedMessage("<col=00ff00>Wildy QoL 1.4.0:</col><br>- Added DMM overload proc timer<br>- Added warnings when banking for common PvP equipment problems (ammo, runes, spellbook, charges, teleport out). Please check the plugin settings if you want to customize this.<br>Found any issues or have a request? Message me on discord @sacca_1 or create an issue on the Wildy QoL github.")
 			.build());
 		configManager.setConfiguration(CONFIG_GROUP, UPDATE_MESSAGE_KEY, true);
 		shouldShowUpdateMessage = false;

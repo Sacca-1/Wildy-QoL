@@ -233,9 +233,9 @@ public class MagicSpellbookEvaluatorTest
 		List<MagicSpellbookWarning> warnings = evaluateAll(
 			MagicSpellbook.ANCIENT,
 			ImmutableMap.of(
-				MagicRune.CHAOS, 100,
 				MagicRune.DEATH, 100,
-				MagicRune.BLOOD, 25),
+				MagicRune.BLOOD, 100,
+				MagicRune.SOUL, 25),
 			ImmutableMap.of(ItemID.BLIGHTED_ANCIENT_ICE_SACK, 100),
 			ImmutableSet.of(),
 			false,
@@ -244,7 +244,48 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: blood 25/50");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: blood barrage 25/50");
+	}
+
+	@Test
+	public void lowerBloodSpellsDoNotHideLowBloodBarrage()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.ANCIENT,
+			ImmutableMap.of(
+				MagicRune.CHAOS, 1_000,
+				MagicRune.DEATH, 200,
+				MagicRune.BLOOD, 200,
+				MagicRune.SOUL, 25),
+			ImmutableMap.of(ItemID.BLIGHTED_ANCIENT_ICE_SACK, 100),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: blood barrage 25/50");
+	}
+
+	@Test
+	public void standardWarnsMismatchForBloodBarrageRunes()
+	{
+		List<MagicSpellbookWarning> warnings = evaluateAll(
+			MagicSpellbook.STANDARD,
+			ImmutableMap.of(
+				MagicRune.DEATH, 200,
+				MagicRune.BLOOD, 200,
+				MagicRune.SOUL, 50),
+			ImmutableMap.of(),
+			ImmutableSet.of(),
+			false,
+			false,
+			false,
+			false);
+
+		assertEquals(1, warnings.size());
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
 	}
 
 	@Test

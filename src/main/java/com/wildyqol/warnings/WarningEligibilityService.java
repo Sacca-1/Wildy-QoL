@@ -1,14 +1,18 @@
 package com.wildyqol.warnings;
 
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.Player;
+import net.runelite.api.SkullIcon;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.vars.AccountType;
 import net.runelite.client.util.Text;
 
 @Singleton
@@ -26,7 +30,9 @@ public class WarningEligibilityService
 	private int currentTick;
 	private int lastPvpTick = NO_PVP_TICK;
 	private int bankVisibleTick = NO_PVP_TICK;
+	private int pvpRelevantBankVisibleTick = NO_PVP_TICK;
 	private boolean bankVisible;
+	private boolean pvpRelevantBankVisible;
 	private boolean warningsSuppressedAfterDeath;
 
 	@Inject
@@ -71,27 +77,39 @@ public class WarningEligibilityService
 
 	public WarningEligibility getEligibility()
 	{
-		boolean onlyWarnAtBank = config.onlyWarnAtBank();
+		WarningDisplayMode warningDisplayMode = config.warningDisplayMode();
 		boolean inPvp = PvpArea.isPvpArea(client);
+		boolean equipmentWarningsVisible = isAccountEligibleForEquipmentWarnings(client, config)
+			&& (!config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client));
 
 		if (inPvp)
 		{
 			lastPvpTick = currentTick;
 		}
 
-		if (!onlyWarnAtBank)
+		if (warningDisplayMode != WarningDisplayMode.BANK && warningDisplayMode != WarningDisplayMode.PVP_BANKS)
 		{
-			return new WarningEligibility(false, inPvp, true);
+			return new WarningEligibility(warningDisplayMode, inPvp, true, equipmentWarningsVisible);
 		}
 
 		if (warningsSuppressedAfterDeath)
 		{
-			return new WarningEligibility(true, false, false);
+			return new WarningEligibility(warningDisplayMode, false, false, equipmentWarningsVisible);
 		}
 
+		boolean eligibleOutsidePvp = isEligibleOutsidePvp(warningDisplayMode, inPvp);
+		return new WarningEligibility(warningDisplayMode, inPvp, eligibleOutsidePvp, equipmentWarningsVisible);
+	}
+
+	private boolean isEligibleOutsidePvp(WarningDisplayMode warningDisplayMode, boolean inPvp)
+	{
 		boolean recentlyLeftPvp = isRecentlyLeftPvp(inPvp, currentTick, lastPvpTick);
-		boolean eligibleOutsidePvp = recentlyLeftPvp || isBankVisibleThisTick();
-		return new WarningEligibility(true, inPvp, eligibleOutsidePvp);
+		if (warningDisplayMode == WarningDisplayMode.PVP_BANKS)
+		{
+			return recentlyLeftPvp || isPvpRelevantBankVisibleThisTick();
+		}
+
+		return recentlyLeftPvp || isBankVisibleThisTick();
 	}
 
 	private boolean isBankVisibleThisTick()
@@ -103,6 +121,17 @@ public class WarningEligibilityService
 		}
 
 		return bankVisible;
+	}
+
+	private boolean isPvpRelevantBankVisibleThisTick()
+	{
+		if (pvpRelevantBankVisibleTick != currentTick)
+		{
+			pvpRelevantBankVisible = bankProximityService.isPvpRelevantBankVisible();
+			pvpRelevantBankVisibleTick = currentTick;
+		}
+
+		return pvpRelevantBankVisible;
 	}
 
 	static boolean isRecentlyLeftPvp(boolean inPvp, int currentTick, int lastPvpTick)
@@ -124,6 +153,22 @@ public class WarningEligibilityService
 		return groupId == InterfaceID.BANKMAIN;
 	}
 
+	static boolean isSkulled(Client client)
+	{
+		Player localPlayer = client.getLocalPlayer();
+		return localPlayer != null && localPlayer.getSkullIcon() != SkullIcon.NONE;
+	}
+
+	static boolean isAccountEligibleForEquipmentWarnings(Client client, WildyQoLConfig config)
+	{
+		if (config.showEquipmentWarningsOnRestrictedAccounts())
+		{
+			return true;
+		}
+
+		return client.getAccountType() == AccountType.NORMAL;
+	}
+
 	boolean isWarningsSuppressedAfterDeath()
 	{
 		return warningsSuppressedAfterDeath;
@@ -134,7 +179,9 @@ public class WarningEligibilityService
 		currentTick = 0;
 		lastPvpTick = NO_PVP_TICK;
 		bankVisibleTick = NO_PVP_TICK;
+		pvpRelevantBankVisibleTick = NO_PVP_TICK;
 		bankVisible = false;
+		pvpRelevantBankVisible = false;
 		warningsSuppressedAfterDeath = false;
 	}
 }

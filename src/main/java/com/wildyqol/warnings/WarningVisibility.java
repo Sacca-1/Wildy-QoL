@@ -1,6 +1,7 @@
 package com.wildyqol.warnings;
 
 import com.google.common.collect.ImmutableList;
+import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -24,7 +25,7 @@ public class WarningVisibility<T>
 	public List<T> update(
 		List<T> warnings,
 		boolean enabled,
-		boolean onlyWarnAtBank,
+		WarningDisplayMode warningDisplayMode,
 		boolean inPvp,
 		boolean eligibleOutsidePvp,
 		boolean gameTick)
@@ -35,10 +36,16 @@ public class WarningVisibility<T>
 			return ImmutableList.of();
 		}
 
-		if (!onlyWarnAtBank)
+		if (warningDisplayMode == WarningDisplayMode.ALWAYS)
 		{
 			reset();
 			return warnings;
+		}
+
+		if (warningDisplayMode == WarningDisplayMode.PVP_AREA)
+		{
+			reset();
+			return inPvp ? warnings : ImmutableList.of();
 		}
 
 		if (inPvp && gameTick && pvpGraceTicksRemaining > 0)
@@ -71,7 +78,7 @@ public class WarningVisibility<T>
 	public Optional<T> update(
 		Optional<T> warning,
 		boolean enabled,
-		boolean onlyWarnAtBank,
+		WarningDisplayMode warningDisplayMode,
 		boolean inPvp,
 		boolean eligibleOutsidePvp,
 		boolean gameTick)
@@ -79,7 +86,7 @@ public class WarningVisibility<T>
 		List<T> warnings = warning
 			.map(ImmutableList::of)
 			.orElseGet(ImmutableList::of);
-		List<T> visibleWarnings = update(warnings, enabled, onlyWarnAtBank, inPvp, eligibleOutsidePvp, gameTick);
+		List<T> visibleWarnings = update(warnings, enabled, warningDisplayMode, inPvp, eligibleOutsidePvp, gameTick);
 		return visibleWarnings.isEmpty() ? Optional.empty() : Optional.of(visibleWarnings.get(0));
 	}
 

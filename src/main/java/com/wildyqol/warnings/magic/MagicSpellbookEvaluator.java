@@ -37,11 +37,8 @@ public class MagicSpellbookEvaluator
 		MagicSpellRequirement.of(MagicRune.BLOOD, 2, MagicRune.DEATH, 2, MagicRune.WATER, 3),
 		MagicSpellRequirement.of(MagicRune.BLOOD, 2, MagicRune.DEATH, 4, MagicRune.WATER, 6));
 
-	private static final List<MagicSpellRequirement> BLOOD_SPELLS = ImmutableList.of(
-		MagicSpellRequirement.of(MagicRune.CHAOS, 2, MagicRune.DEATH, 2, MagicRune.BLOOD, 1),
-		MagicSpellRequirement.of(MagicRune.CHAOS, 4, MagicRune.DEATH, 2, MagicRune.BLOOD, 2),
-		MagicSpellRequirement.of(MagicRune.DEATH, 2, MagicRune.BLOOD, 4),
-		MagicSpellRequirement.of(MagicRune.BLOOD, 4, MagicRune.DEATH, 4, MagicRune.SOUL, 1));
+	private static final MagicSpellRequirement BLOOD_BARRAGE = MagicSpellRequirement.of(
+		MagicRune.BLOOD, 4, MagicRune.DEATH, 4, MagicRune.SOUL, 1);
 
 	public Optional<MagicSpellbookWarning> evaluate(MagicSpellbookState state, MagicThresholds thresholds)
 	{
@@ -57,7 +54,7 @@ public class MagicSpellbookEvaluator
 		}
 
 		boolean standardResources = hasStandardResources(state);
-		boolean ancientResources = hasAncientIceResources(state);
+		boolean ancientResources = hasAncientResources(state);
 		boolean lunarResources = hasLunarResources(state);
 
 		if (state.getSpellbook() == MagicSpellbook.STANDARD)
@@ -140,10 +137,10 @@ public class MagicSpellbookEvaluator
 			countItem(state, ItemID.BLIGHTED_ANCIENT_ICE_SACK),
 			maxCasts(ICE_SPELLS, state)), thresholds.ice());
 
-		int bloodCasts = maxCasts(BLOOD_SPELLS, state);
+		int bloodCasts = casts(BLOOD_BARRAGE, state);
 		if (bloodCasts > 0 && !meets(bloodCasts, thresholds.blood()))
 		{
-			warnings.add(low("Low casts: blood " + bloodCasts + "/" + thresholds.blood()));
+			warnings.add(low("Low casts: blood barrage " + bloodCasts + "/" + thresholds.blood()));
 		}
 		return sort(warnings);
 	}
@@ -172,10 +169,11 @@ public class MagicSpellbookEvaluator
 			|| state.isUnchargedWildySceptre();
 	}
 
-	private boolean hasAncientIceResources(MagicSpellbookState state)
+	private boolean hasAncientResources(MagicSpellbookState state)
 	{
 		return countItem(state, ItemID.BLIGHTED_ANCIENT_ICE_SACK) > 0
-			|| maxCasts(ICE_SPELLS, state) > 0;
+			|| maxCasts(ICE_SPELLS, state) > 0
+			|| casts(BLOOD_BARRAGE, state) > 0;
 	}
 
 	private boolean hasLunarResources(MagicSpellbookState state)

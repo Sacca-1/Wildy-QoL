@@ -166,8 +166,7 @@ public class MagicInventoryStateBuilder
 			case WATER:
 				return isChargedTome(itemId, ItemID.TOME_OF_WATER, VarbitID.CHARGES_TOME_OF_WATER_QUANTITY);
 			case FIRE:
-				return isChargedTome(itemId, ItemID.TOME_OF_FIRE, VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY)
-					|| isChargedTome(itemId, ItemID.TOME_OF_FIRE_27358, VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY);
+				return isChargedTomeOfFire(itemId);
 			case EARTH:
 				return isChargedTome(itemId, ItemID.TOME_OF_EARTH, VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY);
 			default:
@@ -185,7 +184,7 @@ public class MagicInventoryStateBuilder
 	{
 		if (isTomeOfFire(itemId))
 		{
-			builder.tomeCharges.put(MagicRune.FIRE, tomeCharges(itemId, ItemID.TOME_OF_FIRE_EMPTY, VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY));
+			addTomeOfFireCharges(builder, itemId);
 		}
 		else if (isTomeOfWater(itemId))
 		{
@@ -193,11 +192,34 @@ public class MagicInventoryStateBuilder
 		}
 	}
 
+	private void addTomeOfFireCharges(StateBuilder builder, int itemId)
+	{
+		if (isEmptyTomeOfFire(itemId))
+		{
+			builder.tomeCharges.put(MagicRune.FIRE, 0);
+			return;
+		}
+
+		int charges = tomeOfFireCharges();
+		if (charges > 0)
+		{
+			builder.tomeCharges.put(MagicRune.FIRE, charges);
+		}
+	}
+
 	private boolean isTomeOfFire(int itemId)
 	{
-		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_FIRE)
-			|| ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_FIRE_27358)
-			|| ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_FIRE_EMPTY);
+		return isChargedTomeOfFire(itemId) || isEmptyTomeOfFire(itemId);
+	}
+
+	private boolean isChargedTomeOfFire(int itemId)
+	{
+		return itemId == ItemID.TOME_OF_FIRE || itemId == ItemID.TOME_OF_FIRE_27358;
+	}
+
+	private boolean isEmptyTomeOfFire(int itemId)
+	{
+		return itemId == ItemID.TOME_OF_FIRE_EMPTY;
 	}
 
 	private boolean isTomeOfWater(int itemId)
@@ -209,6 +231,11 @@ public class MagicInventoryStateBuilder
 	private int tomeCharges(int itemId, int emptyTomeItemId, int varbitId)
 	{
 		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(emptyTomeItemId) ? 0 : chargeQuantity(varbitId);
+	}
+
+	private int tomeOfFireCharges()
+	{
+		return chargeQuantity(VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY);
 	}
 
 	private int chargeQuantity(int varbitId)

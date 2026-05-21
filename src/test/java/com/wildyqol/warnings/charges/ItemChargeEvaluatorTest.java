@@ -80,6 +80,30 @@ public class ItemChargeEvaluatorTest
 	}
 
 	@Test
+	public void chargedTomeOfFireWithZeroVarbitDoesNotWarnLowCharges()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.TOME_OF_FIRE, 0),
+			new TestThresholds());
+
+		assertFalse(warning.isPresent());
+	}
+
+	@Test
+	public void chargedTomeOfFireWithKnownLowChargesWarns()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.TOME_OF_FIRE, 25),
+			new TestThresholds());
+
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire 25/50");
+	}
+
+	@Test
 	public void returnsSortedWarnings()
 	{
 		List<ItemChargeWarning> warnings = evaluateAll(
