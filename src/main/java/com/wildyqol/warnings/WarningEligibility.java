@@ -1,23 +1,29 @@
 package com.wildyqol.warnings;
 
+import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
+
 public class WarningEligibility
 {
-	private final boolean onlyWarnAtBank;
+	private final WarningDisplayMode warningDisplayMode;
 	private final boolean inPvp;
 	private final boolean eligibleOutsidePvp;
 	private final boolean equipmentWarningsVisible;
 
-	WarningEligibility(boolean onlyWarnAtBank, boolean inPvp, boolean eligibleOutsidePvp, boolean equipmentWarningsVisible)
+	WarningEligibility(
+		WarningDisplayMode warningDisplayMode,
+		boolean inPvp,
+		boolean eligibleOutsidePvp,
+		boolean equipmentWarningsVisible)
 	{
-		this.onlyWarnAtBank = onlyWarnAtBank;
+		this.warningDisplayMode = warningDisplayMode;
 		this.inPvp = inPvp;
 		this.eligibleOutsidePvp = eligibleOutsidePvp;
 		this.equipmentWarningsVisible = equipmentWarningsVisible;
 	}
 
-	public boolean isOnlyWarnAtBank()
+	public WarningDisplayMode getWarningDisplayMode()
 	{
-		return onlyWarnAtBank;
+		return warningDisplayMode;
 	}
 
 	public boolean isInPvp()

@@ -1,6 +1,7 @@
 package com.wildyqol.warnings;
 
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.runelite.api.ChatMessageType;
@@ -74,7 +75,7 @@ public class WarningEligibilityService
 
 	public WarningEligibility getEligibility()
 	{
-		boolean onlyWarnAtBank = config.onlyWarnAtBank();
+		WarningDisplayMode warningDisplayMode = config.warningDisplayMode();
 		boolean inPvp = PvpArea.isPvpArea(client);
 		boolean equipmentWarningsVisible = isAccountEligibleForEquipmentWarnings(client, config)
 			&& (!config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client));
@@ -84,19 +85,19 @@ public class WarningEligibilityService
 			lastPvpTick = currentTick;
 		}
 
-		if (!onlyWarnAtBank)
+		if (warningDisplayMode != WarningDisplayMode.BANK)
 		{
-			return new WarningEligibility(false, inPvp, true, equipmentWarningsVisible);
+			return new WarningEligibility(warningDisplayMode, inPvp, true, equipmentWarningsVisible);
 		}
 
 		if (warningsSuppressedAfterDeath)
 		{
-			return new WarningEligibility(true, false, false, equipmentWarningsVisible);
+			return new WarningEligibility(WarningDisplayMode.BANK, false, false, equipmentWarningsVisible);
 		}
 
 		boolean recentlyLeftPvp = isRecentlyLeftPvp(inPvp, currentTick, lastPvpTick);
 		boolean eligibleOutsidePvp = recentlyLeftPvp || isBankVisibleThisTick();
-		return new WarningEligibility(true, inPvp, eligibleOutsidePvp, equipmentWarningsVisible);
+		return new WarningEligibility(WarningDisplayMode.BANK, inPvp, eligibleOutsidePvp, equipmentWarningsVisible);
 	}
 
 	private boolean isBankVisibleThisTick()

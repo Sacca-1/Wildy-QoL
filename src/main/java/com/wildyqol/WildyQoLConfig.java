@@ -36,6 +36,26 @@ public interface WildyQoLConfig extends Config
 		}
 	}
 
+	enum WarningDisplayMode
+	{
+		BANK("Bank"),
+		PVP_AREA("PvP area"),
+		ALWAYS("Always");
+
+		private final String label;
+
+		WarningDisplayMode(String label)
+		{
+			this.label = label;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
+	}
+
 	@ConfigSection(
 		name = "Misclick prevention",
 		description = "Settings to help avoid dangerous misclicks",
@@ -324,17 +344,16 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "onlyWarnAtBank",
-		name = "Only warn at bank",
-		description = "Only show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings near a bank.<br>"
-			+ "Also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.<br>"
-			+ "Disable this to always show warnings, including in PvP areas.",
+		keyName = "warningDisplayMode",
+		name = "Warn at",
+		description = "Choose where ranged ammo, item charge, spellbook/rune, and teleport-out text warnings appear.<br>"
+			+ "Bank also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.",
 		position = 0,
 		section = WARNINGS_ADVANCED_SECTION
 	)
-	default boolean onlyWarnAtBank()
+	default WarningDisplayMode warningDisplayMode()
 	{
-		return true;
+		return WarningDisplayMode.BANK;
 	}
 
 	@ConfigItem(

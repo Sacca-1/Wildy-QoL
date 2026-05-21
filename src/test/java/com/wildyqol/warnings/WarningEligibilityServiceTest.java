@@ -1,9 +1,11 @@
 package com.wildyqol.warnings;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import java.lang.reflect.Proxy;
 import java.util.EnumSet;
 import net.runelite.api.Client;
@@ -80,23 +82,45 @@ public class WarningEligibilityServiceTest
 	@Test
 	public void deathSuppressionOnlyAppliesToBankGatedWarnings()
 	{
-		WarningEligibilityService bankGatedService = new WarningEligibilityService(clientOutsidePvp(), config(true), null);
+		WarningEligibilityService bankGatedService = new WarningEligibilityService(
+			clientOutsidePvp(),
+			config(WarningDisplayMode.BANK),
+			null);
 		bankGatedService.onChatMessage(deathMessage());
 
 		WarningEligibility bankGatedEligibility = bankGatedService.getEligibility();
-		assertTrue(bankGatedEligibility.isOnlyWarnAtBank());
+		assertSame(WarningDisplayMode.BANK, bankGatedEligibility.getWarningDisplayMode());
 		assertFalse(bankGatedEligibility.isInPvp());
 		assertFalse(bankGatedEligibility.isEligibleOutsidePvp());
 		assertTrue(bankGatedEligibility.isEquipmentWarningsVisible());
 
-		WarningEligibilityService alwaysShowService = new WarningEligibilityService(clientOutsidePvp(), config(false), null);
+		WarningEligibilityService alwaysShowService = new WarningEligibilityService(
+			clientOutsidePvp(),
+			config(WarningDisplayMode.ALWAYS),
+			null);
 		alwaysShowService.onChatMessage(deathMessage());
 
 		WarningEligibility alwaysShowEligibility = alwaysShowService.getEligibility();
-		assertFalse(alwaysShowEligibility.isOnlyWarnAtBank());
+		assertSame(WarningDisplayMode.ALWAYS, alwaysShowEligibility.getWarningDisplayMode());
 		assertFalse(alwaysShowEligibility.isInPvp());
 		assertTrue(alwaysShowEligibility.isEligibleOutsidePvp());
 		assertTrue(alwaysShowEligibility.isEquipmentWarningsVisible());
+	}
+
+	@Test
+	public void pvpAreaModeKeepsPvpStateWithoutBankGate()
+	{
+		WarningEligibilityService service = new WarningEligibilityService(
+			clientInPvp(),
+			config(WarningDisplayMode.PVP_AREA),
+			null);
+
+		WarningEligibility eligibility = service.getEligibility();
+
+		assertSame(WarningDisplayMode.PVP_AREA, eligibility.getWarningDisplayMode());
+		assertTrue(eligibility.isInPvp());
+		assertTrue(eligibility.isEligibleOutsidePvp());
+		assertTrue(eligibility.isEquipmentWarningsVisible());
 	}
 
 	@Test
@@ -104,19 +128,19 @@ public class WarningEligibilityServiceTest
 	{
 		WarningEligibilityService unskulledService = new WarningEligibilityService(
 			clientOutsidePvp(SkullIcon.NONE),
-			config(false, true),
+			config(WarningDisplayMode.ALWAYS, true),
 			null);
 		assertFalse(unskulledService.getEligibility().isEquipmentWarningsVisible());
 
 		WarningEligibilityService skulledService = new WarningEligibilityService(
 			clientOutsidePvp(SkullIcon.SKULL),
-			config(false, true),
+			config(WarningDisplayMode.ALWAYS, true),
 			null);
 		assertTrue(skulledService.getEligibility().isEquipmentWarningsVisible());
 
 		WarningEligibilityService disabledGateService = new WarningEligibilityService(
 			clientOutsidePvp(SkullIcon.NONE),
-			config(false, false),
+			config(WarningDisplayMode.ALWAYS, false),
 			null);
 		assertTrue(disabledGateService.getEligibility().isEquipmentWarningsVisible());
 	}
@@ -126,13 +150,13 @@ public class WarningEligibilityServiceTest
 	{
 		WarningEligibilityService normalService = new WarningEligibilityService(
 			clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
-			config(false, false),
+			config(WarningDisplayMode.ALWAYS, false),
 			null);
 		assertTrue(normalService.getEligibility().isEquipmentWarningsVisible());
 
 		WarningEligibilityService ironmanService = new WarningEligibilityService(
 			clientOutsidePvp(AccountType.IRONMAN, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
-			config(false, false),
+			config(WarningDisplayMode.ALWAYS, false),
 			null);
 		assertTrue(ironmanService.getEligibility().isEquipmentWarningsVisible());
 	}
@@ -142,13 +166,13 @@ public class WarningEligibilityServiceTest
 	{
 		WarningEligibilityService normalService = new WarningEligibilityService(
 			clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
-			config(false, false, false),
+			config(WarningDisplayMode.ALWAYS, false, false),
 			null);
 		assertTrue(normalService.getEligibility().isEquipmentWarningsVisible());
 
 		WarningEligibilityService ironmanService = new WarningEligibilityService(
 			clientOutsidePvp(AccountType.IRONMAN, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
-			config(false, false, false),
+			config(WarningDisplayMode.ALWAYS, false, false),
 			null);
 		assertFalse(ironmanService.getEligibility().isEquipmentWarningsVisible());
 	}
@@ -158,7 +182,7 @@ public class WarningEligibilityServiceTest
 	{
 		WarningEligibilityService service = new WarningEligibilityService(
 			clientOutsidePvp(AccountType.NORMAL, EnumSet.of(WorldType.DEADMAN), SkullIcon.NONE),
-			config(false, false, false),
+			config(WarningDisplayMode.ALWAYS, false, false),
 			null);
 
 		assertTrue(service.getEligibility().isEquipmentWarningsVisible());
@@ -175,27 +199,27 @@ public class WarningEligibilityServiceTest
 			0);
 	}
 
-	private static WildyQoLConfig config(boolean onlyWarnAtBank)
+	private static WildyQoLConfig config(WarningDisplayMode warningDisplayMode)
 	{
-		return config(onlyWarnAtBank, false);
+		return config(warningDisplayMode, false);
 	}
 
-	private static WildyQoLConfig config(boolean onlyWarnAtBank, boolean onlyWhenSkulled)
+	private static WildyQoLConfig config(WarningDisplayMode warningDisplayMode, boolean onlyWhenSkulled)
 	{
-		return config(onlyWarnAtBank, onlyWhenSkulled, true);
+		return config(warningDisplayMode, onlyWhenSkulled, true);
 	}
 
 	private static WildyQoLConfig config(
-		boolean onlyWarnAtBank,
+		WarningDisplayMode warningDisplayMode,
 		boolean onlyWhenSkulled,
 		boolean showOnRestrictedAccounts)
 	{
 		return new WildyQoLConfig()
 		{
 			@Override
-			public boolean onlyWarnAtBank()
+			public WarningDisplayMode warningDisplayMode()
 			{
-				return onlyWarnAtBank;
+				return warningDisplayMode;
 			}
 
 			@Override
@@ -217,6 +241,15 @@ public class WarningEligibilityServiceTest
 		return clientOutsidePvp(SkullIcon.NONE);
 	}
 
+	private static Client clientInPvp()
+	{
+		return client(
+			AccountType.NORMAL,
+			EnumSet.noneOf(WorldType.class),
+			SkullIcon.NONE,
+			true);
+	}
+
 	private static Client clientOutsidePvp(int skullIcon)
 	{
 		return clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), skullIcon);
@@ -226,6 +259,15 @@ public class WarningEligibilityServiceTest
 		AccountType accountType,
 		EnumSet<WorldType> worldTypes,
 		int skullIcon)
+	{
+		return client(accountType, worldTypes, skullIcon, false);
+	}
+
+	private static Client client(
+		AccountType accountType,
+		EnumSet<WorldType> worldTypes,
+		int skullIcon,
+		boolean inPvp)
 	{
 		return (Client) Proxy.newProxyInstance(
 			Client.class.getClassLoader(),
@@ -239,7 +281,7 @@ public class WarningEligibilityServiceTest
 
 				if ("getVarbitValue".equals(method.getName()))
 				{
-					return 0;
+					return inPvp ? 1 : 0;
 				}
 
 				if ("getLocalPlayer".equals(method.getName()))
