@@ -40,6 +40,21 @@ public class BankProximityServiceTest
 		assertFalse(BankProximityService.isWithinBankDistance(playerLocation, new WorldPoint(3210, 3200, 1)));
 	}
 
+	@Test
+	public void pvpRelevantBanksUseTwentyTileRadius()
+	{
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(2443, 3083, 0)));
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(2463, 3103, 0)));
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(3164, 3487, 0)));
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(3130, 3631, 0)));
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(3094, 3493, 0)));
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(1253, 3741, 0)));
+		assertTrue(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(1324, 3824, 0)));
+
+		assertFalse(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(2464, 3103, 0)));
+		assertFalse(BankProximityService.isPvpRelevantBankLocation(new WorldPoint(2443, 3083, 1)));
+	}
+
 	private ObjectComposition objectComposition(String name, String[] actions)
 	{
 		return (ObjectComposition) Proxy.newProxyInstance(

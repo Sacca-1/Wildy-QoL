@@ -39,6 +39,7 @@ public interface WildyQoLConfig extends Config
 	enum WarningDisplayMode
 	{
 		BANK("Bank"),
+		PVP_BANKS("PvP banks"),
 		PVP_AREA("PvP area"),
 		ALWAYS("Always");
 
@@ -347,7 +348,8 @@ public interface WildyQoLConfig extends Config
 		keyName = "warningDisplayMode",
 		name = "Warn at",
 		description = "Choose where ranged ammo, item charge, spellbook/rune, and teleport-out text warnings appear.<br>"
-			+ "Bank also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.",
+			+ "Bank also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.<br>"
+			+ "PvP banks limits bank warnings to configured PvP-relevant banks.",
 		position = 0,
 		section = WARNINGS_ADVANCED_SECTION
 	)

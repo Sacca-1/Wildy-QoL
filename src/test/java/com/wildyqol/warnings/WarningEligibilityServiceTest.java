@@ -8,12 +8,14 @@ import com.wildyqol.WildyQoLConfig;
 import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import java.lang.reflect.Proxy;
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.runelite.api.Client;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Player;
 import net.runelite.api.SkullIcon;
 import net.runelite.api.WorldType;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.vars.AccountType;
@@ -121,6 +123,47 @@ public class WarningEligibilityServiceTest
 		assertTrue(eligibility.isInPvp());
 		assertTrue(eligibility.isEligibleOutsidePvp());
 		assertTrue(eligibility.isEquipmentWarningsVisible());
+	}
+
+	@Test
+	public void pvpBanksModeOnlyUsesPvpRelevantBanks()
+	{
+		WarningEligibilityService pvpBankService = new WarningEligibilityService(
+			clientOutsidePvp(),
+			config(WarningDisplayMode.PVP_BANKS),
+			bankProximityService(true, true));
+
+		WarningEligibility pvpBankEligibility = pvpBankService.getEligibility();
+		assertSame(WarningDisplayMode.PVP_BANKS, pvpBankEligibility.getWarningDisplayMode());
+		assertTrue(pvpBankEligibility.isEligibleOutsidePvp());
+
+		WarningEligibilityService otherBankService = new WarningEligibilityService(
+			clientOutsidePvp(),
+			config(WarningDisplayMode.PVP_BANKS),
+			bankProximityService(true, false));
+
+		WarningEligibility otherBankEligibility = otherBankService.getEligibility();
+		assertSame(WarningDisplayMode.PVP_BANKS, otherBankEligibility.getWarningDisplayMode());
+		assertFalse(otherBankEligibility.isEligibleOutsidePvp());
+	}
+
+	@Test
+	public void pvpBanksModeKeepsRecentPvpFallback()
+	{
+		AtomicBoolean inPvp = new AtomicBoolean(true);
+		WarningEligibilityService service = new WarningEligibilityService(
+			clientWithPvpState(inPvp),
+			config(WarningDisplayMode.PVP_BANKS),
+			bankProximityService(false, false));
+
+		service.onGameTick(new GameTick());
+		inPvp.set(false);
+
+		service.onGameTick(new GameTick());
+		WarningEligibility eligibility = service.getEligibility();
+		assertSame(WarningDisplayMode.PVP_BANKS, eligibility.getWarningDisplayMode());
+		assertFalse(eligibility.isInPvp());
+		assertTrue(eligibility.isEligibleOutsidePvp());
 	}
 
 	@Test
@@ -250,6 +293,15 @@ public class WarningEligibilityServiceTest
 			true);
 	}
 
+	private static Client clientWithPvpState(AtomicBoolean inPvp)
+	{
+		return client(
+			AccountType.NORMAL,
+			EnumSet.noneOf(WorldType.class),
+			SkullIcon.NONE,
+			inPvp);
+	}
+
 	private static Client clientOutsidePvp(int skullIcon)
 	{
 		return clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), skullIcon);
@@ -269,6 +321,15 @@ public class WarningEligibilityServiceTest
 		int skullIcon,
 		boolean inPvp)
 	{
+		return client(accountType, worldTypes, skullIcon, new AtomicBoolean(inPvp));
+	}
+
+	private static Client client(
+		AccountType accountType,
+		EnumSet<WorldType> worldTypes,
+		int skullIcon,
+		AtomicBoolean inPvp)
+	{
 		return (Client) Proxy.newProxyInstance(
 			Client.class.getClassLoader(),
 			new Class<?>[] {Client.class},
@@ -281,7 +342,7 @@ public class WarningEligibilityServiceTest
 
 				if ("getVarbitValue".equals(method.getName()))
 				{
-					return inPvp ? 1 : 0;
+					return inPvp.get() ? 1 : 0;
 				}
 
 				if ("getLocalPlayer".equals(method.getName()))
@@ -322,5 +383,23 @@ public class WarningEligibilityServiceTest
 
 				return null;
 			});
+	}
+
+	private static BankProximityService bankProximityService(boolean bankVisible, boolean pvpRelevantBankVisible)
+	{
+		return new BankProximityService(null)
+		{
+			@Override
+			public boolean isBankVisible()
+			{
+				return bankVisible;
+			}
+
+			@Override
+			public boolean isPvpRelevantBankVisible()
+			{
+				return pvpRelevantBankVisible;
+			}
+		};
 	}
 }

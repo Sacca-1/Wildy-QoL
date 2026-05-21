@@ -30,7 +30,9 @@ public class WarningEligibilityService
 	private int currentTick;
 	private int lastPvpTick = NO_PVP_TICK;
 	private int bankVisibleTick = NO_PVP_TICK;
+	private int pvpRelevantBankVisibleTick = NO_PVP_TICK;
 	private boolean bankVisible;
+	private boolean pvpRelevantBankVisible;
 	private boolean warningsSuppressedAfterDeath;
 
 	@Inject
@@ -85,19 +87,29 @@ public class WarningEligibilityService
 			lastPvpTick = currentTick;
 		}
 
-		if (warningDisplayMode != WarningDisplayMode.BANK)
+		if (warningDisplayMode != WarningDisplayMode.BANK && warningDisplayMode != WarningDisplayMode.PVP_BANKS)
 		{
 			return new WarningEligibility(warningDisplayMode, inPvp, true, equipmentWarningsVisible);
 		}
 
 		if (warningsSuppressedAfterDeath)
 		{
-			return new WarningEligibility(WarningDisplayMode.BANK, false, false, equipmentWarningsVisible);
+			return new WarningEligibility(warningDisplayMode, false, false, equipmentWarningsVisible);
 		}
 
+		boolean eligibleOutsidePvp = isEligibleOutsidePvp(warningDisplayMode, inPvp);
+		return new WarningEligibility(warningDisplayMode, inPvp, eligibleOutsidePvp, equipmentWarningsVisible);
+	}
+
+	private boolean isEligibleOutsidePvp(WarningDisplayMode warningDisplayMode, boolean inPvp)
+	{
 		boolean recentlyLeftPvp = isRecentlyLeftPvp(inPvp, currentTick, lastPvpTick);
-		boolean eligibleOutsidePvp = recentlyLeftPvp || isBankVisibleThisTick();
-		return new WarningEligibility(WarningDisplayMode.BANK, inPvp, eligibleOutsidePvp, equipmentWarningsVisible);
+		if (warningDisplayMode == WarningDisplayMode.PVP_BANKS)
+		{
+			return recentlyLeftPvp || isPvpRelevantBankVisibleThisTick();
+		}
+
+		return recentlyLeftPvp || isBankVisibleThisTick();
 	}
 
 	private boolean isBankVisibleThisTick()
@@ -109,6 +121,17 @@ public class WarningEligibilityService
 		}
 
 		return bankVisible;
+	}
+
+	private boolean isPvpRelevantBankVisibleThisTick()
+	{
+		if (pvpRelevantBankVisibleTick != currentTick)
+		{
+			pvpRelevantBankVisible = bankProximityService.isPvpRelevantBankVisible();
+			pvpRelevantBankVisibleTick = currentTick;
+		}
+
+		return pvpRelevantBankVisible;
 	}
 
 	static boolean isRecentlyLeftPvp(boolean inPvp, int currentTick, int lastPvpTick)
@@ -156,7 +179,9 @@ public class WarningEligibilityService
 		currentTick = 0;
 		lastPvpTick = NO_PVP_TICK;
 		bankVisibleTick = NO_PVP_TICK;
+		pvpRelevantBankVisibleTick = NO_PVP_TICK;
 		bankVisible = false;
+		pvpRelevantBankVisible = false;
 		warningsSuppressedAfterDeath = false;
 	}
 }
