@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Proxy;
 import net.runelite.api.ObjectComposition;
+import net.runelite.api.coords.WorldPoint;
 import org.junit.Test;
 
 public class BankProximityServiceTest
@@ -26,6 +27,17 @@ public class BankProximityServiceTest
 		assertFalse(BankProximityService.hasBankObjectAction(objectComposition("Chest", new String[] {"Use"})));
 		assertFalse(BankProximityService.hasBankAction(new String[] {null, "Banker"}));
 		assertFalse(BankProximityService.hasBankAction(null));
+	}
+
+	@Test
+	public void bankDistanceIsTenTilesOnSamePlane()
+	{
+		WorldPoint playerLocation = new WorldPoint(3200, 3200, 0);
+
+		assertTrue(BankProximityService.isWithinBankDistance(playerLocation, new WorldPoint(3210, 3200, 0)));
+		assertTrue(BankProximityService.isWithinBankDistance(playerLocation, new WorldPoint(3210, 3210, 0)));
+		assertFalse(BankProximityService.isWithinBankDistance(playerLocation, new WorldPoint(3211, 3200, 0)));
+		assertFalse(BankProximityService.isWithinBankDistance(playerLocation, new WorldPoint(3210, 3200, 1)));
 	}
 
 	private ObjectComposition objectComposition(String name, String[] actions)

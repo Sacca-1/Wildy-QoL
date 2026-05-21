@@ -9,15 +9,19 @@ import net.runelite.api.GameObject;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.ObjectComposition;
+import net.runelite.api.Player;
 import net.runelite.api.Scene;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
 import net.runelite.api.WorldView;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.util.Text;
 
 @Singleton
 public class BankProximityService
 {
+	private static final int BANK_PROXIMITY_DISTANCE = 10;
+
 	private final Client client;
 
 	@Inject
@@ -28,6 +32,13 @@ public class BankProximityService
 
 	public boolean isBankVisible()
 	{
+		Player localPlayer = client.getLocalPlayer();
+		if (localPlayer == null)
+		{
+			return false;
+		}
+
+		WorldPoint playerLocation = localPlayer.getWorldLocation();
 		WorldView worldView = client.getTopLevelWorldView();
 		if (worldView == null)
 		{
@@ -35,14 +46,15 @@ public class BankProximityService
 		}
 
 		int plane = worldView.getPlane();
-		if (hasVisibleBankObject(worldView.getScene(), plane))
+		if (hasVisibleBankObject(worldView.getScene(), plane, playerLocation))
 		{
 			return true;
 		}
 
 		for (NPC npc : client.getNpcs())
 		{
-			if (npc.getWorldLocation().getPlane() == plane && isBankNpc(npc))
+			if (isWithinBankDistance(playerLocation, npc.getWorldLocation())
+				&& isBankNpc(npc))
 			{
 				return true;
 			}
@@ -51,7 +63,7 @@ public class BankProximityService
 		return false;
 	}
 
-	private boolean hasVisibleBankObject(@Nullable Scene scene, int plane)
+	private boolean hasVisibleBankObject(@Nullable Scene scene, int plane, WorldPoint playerLocation)
 	{
 		if (scene == null)
 		{
@@ -73,7 +85,7 @@ public class BankProximityService
 
 			for (Tile tile : row)
 			{
-				if (isBankTile(tile))
+				if (isBankTile(tile, playerLocation))
 				{
 					return true;
 				}
@@ -83,16 +95,16 @@ public class BankProximityService
 		return false;
 	}
 
-	private boolean isBankTile(@Nullable Tile tile)
+	private boolean isBankTile(@Nullable Tile tile, WorldPoint playerLocation)
 	{
 		if (tile == null)
 		{
 			return false;
 		}
 
-		if (isBankObject(tile.getWallObject())
-			|| isBankObject(tile.getDecorativeObject())
-			|| isBankObject(tile.getGroundObject()))
+		if (isBankObjectWithinDistance(tile.getWallObject(), playerLocation)
+			|| isBankObjectWithinDistance(tile.getDecorativeObject(), playerLocation)
+			|| isBankObjectWithinDistance(tile.getGroundObject(), playerLocation))
 		{
 			return true;
 		}
@@ -105,13 +117,20 @@ public class BankProximityService
 
 		for (GameObject gameObject : gameObjects)
 		{
-			if (isBankObject(gameObject))
+			if (isBankObjectWithinDistance(gameObject, playerLocation))
 			{
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	private boolean isBankObjectWithinDistance(@Nullable TileObject object, WorldPoint playerLocation)
+	{
+		return object != null
+			&& isWithinBankDistance(playerLocation, object.getWorldLocation())
+			&& isBankObject(object);
 	}
 
 	private boolean isBankObject(@Nullable TileObject object)
@@ -157,6 +176,14 @@ public class BankProximityService
 		}
 
 		return hasBankAction(composition.getActions());
+	}
+
+	static boolean isWithinBankDistance(WorldPoint playerLocation, WorldPoint bankLocation)
+	{
+		return playerLocation.getPlane() == bankLocation.getPlane()
+			&& Math.max(
+				Math.abs(playerLocation.getX() - bankLocation.getX()),
+				Math.abs(playerLocation.getY() - bankLocation.getY())) <= BANK_PROXIMITY_DISTANCE;
 	}
 
 	static boolean hasBankAction(@Nullable String[] actions)
