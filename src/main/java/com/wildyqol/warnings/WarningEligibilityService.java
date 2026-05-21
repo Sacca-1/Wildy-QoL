@@ -11,6 +11,7 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.vars.AccountType;
 import net.runelite.client.util.Text;
 
 @Singleton
@@ -75,7 +76,8 @@ public class WarningEligibilityService
 	{
 		boolean onlyWarnAtBank = config.onlyWarnAtBank();
 		boolean inPvp = PvpArea.isPvpArea(client);
-		boolean equipmentWarningsVisible = !config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client);
+		boolean equipmentWarningsVisible = isAccountEligibleForEquipmentWarnings(client, config)
+			&& (!config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client));
 
 		if (inPvp)
 		{
@@ -131,6 +133,16 @@ public class WarningEligibilityService
 	{
 		Player localPlayer = client.getLocalPlayer();
 		return localPlayer != null && localPlayer.getSkullIcon() != SkullIcon.NONE;
+	}
+
+	static boolean isAccountEligibleForEquipmentWarnings(Client client, WildyQoLConfig config)
+	{
+		if (config.showEquipmentWarningsOnRestrictedAccounts())
+		{
+			return true;
+		}
+
+		return client.getAccountType() == AccountType.NORMAL;
 	}
 
 	boolean isWarningsSuppressedAfterDeath()

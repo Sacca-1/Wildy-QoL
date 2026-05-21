@@ -14,6 +14,7 @@ import net.runelite.api.WorldType;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.vars.AccountType;
 import org.junit.Test;
 
 public class WarningEligibilityServiceTest
@@ -120,6 +121,49 @@ public class WarningEligibilityServiceTest
 		assertTrue(disabledGateService.getEligibility().isEquipmentWarningsVisible());
 	}
 
+	@Test
+	public void equipmentWarningsShowOnAllAccountTypesByDefault()
+	{
+		WarningEligibilityService normalService = new WarningEligibilityService(
+			clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
+			config(false, false),
+			null);
+		assertTrue(normalService.getEligibility().isEquipmentWarningsVisible());
+
+		WarningEligibilityService ironmanService = new WarningEligibilityService(
+			clientOutsidePvp(AccountType.IRONMAN, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
+			config(false, false),
+			null);
+		assertTrue(ironmanService.getEligibility().isEquipmentWarningsVisible());
+	}
+
+	@Test
+	public void equipmentWarningsCanBeLimitedToNormalAccounts()
+	{
+		WarningEligibilityService normalService = new WarningEligibilityService(
+			clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
+			config(false, false, false),
+			null);
+		assertTrue(normalService.getEligibility().isEquipmentWarningsVisible());
+
+		WarningEligibilityService ironmanService = new WarningEligibilityService(
+			clientOutsidePvp(AccountType.IRONMAN, EnumSet.noneOf(WorldType.class), SkullIcon.NONE),
+			config(false, false, false),
+			null);
+		assertFalse(ironmanService.getEligibility().isEquipmentWarningsVisible());
+	}
+
+	@Test
+	public void deadmanNormalAccountsStillShowEquipmentWarningsByDefault()
+	{
+		WarningEligibilityService service = new WarningEligibilityService(
+			clientOutsidePvp(AccountType.NORMAL, EnumSet.of(WorldType.DEADMAN), SkullIcon.NONE),
+			config(false, false, false),
+			null);
+
+		assertTrue(service.getEligibility().isEquipmentWarningsVisible());
+	}
+
 	private static ChatMessage deathMessage()
 	{
 		return new ChatMessage(
@@ -138,6 +182,14 @@ public class WarningEligibilityServiceTest
 
 	private static WildyQoLConfig config(boolean onlyWarnAtBank, boolean onlyWhenSkulled)
 	{
+		return config(onlyWarnAtBank, onlyWhenSkulled, true);
+	}
+
+	private static WildyQoLConfig config(
+		boolean onlyWarnAtBank,
+		boolean onlyWhenSkulled,
+		boolean showOnRestrictedAccounts)
+	{
 		return new WildyQoLConfig()
 		{
 			@Override
@@ -151,6 +203,12 @@ public class WarningEligibilityServiceTest
 			{
 				return onlyWhenSkulled;
 			}
+
+			@Override
+			public boolean showEquipmentWarningsOnRestrictedAccounts()
+			{
+				return showOnRestrictedAccounts;
+			}
 		};
 	}
 
@@ -161,6 +219,14 @@ public class WarningEligibilityServiceTest
 
 	private static Client clientOutsidePvp(int skullIcon)
 	{
+		return clientOutsidePvp(AccountType.NORMAL, EnumSet.noneOf(WorldType.class), skullIcon);
+	}
+
+	private static Client clientOutsidePvp(
+		AccountType accountType,
+		EnumSet<WorldType> worldTypes,
+		int skullIcon)
+	{
 		return (Client) Proxy.newProxyInstance(
 			Client.class.getClassLoader(),
 			new Class<?>[] {Client.class},
@@ -168,7 +234,7 @@ public class WarningEligibilityServiceTest
 			{
 				if ("getWorldType".equals(method.getName()))
 				{
-					return EnumSet.noneOf(WorldType.class);
+					return worldTypes;
 				}
 
 				if ("getVarbitValue".equals(method.getName()))
@@ -179,6 +245,11 @@ public class WarningEligibilityServiceTest
 				if ("getLocalPlayer".equals(method.getName()))
 				{
 					return player(skullIcon);
+				}
+
+				if ("getAccountType".equals(method.getName()))
+				{
+					return accountType;
 				}
 
 				if ("toString".equals(method.getName()))
