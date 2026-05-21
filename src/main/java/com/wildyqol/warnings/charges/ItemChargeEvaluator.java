@@ -35,6 +35,11 @@ public class ItemChargeEvaluator
 
 			int threshold = kind.threshold(thresholds);
 			int charges = state.getCharges().getOrDefault(kind, 0);
+			if (kind == ItemChargeKind.TOME_OF_FIRE && charges == 0)
+			{
+				continue;
+			}
+
 			if (threshold > 0 && charges < threshold)
 			{
 				warnings.add(low("Low charges: " + kind.getLowText() + " " + charges + "/" + threshold));

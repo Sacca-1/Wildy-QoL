@@ -80,6 +80,30 @@ public class ItemChargeEvaluatorTest
 	}
 
 	@Test
+	public void chargedTomeOfFireWithZeroVarbitDoesNotWarnLowCharges()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.TOME_OF_FIRE, 0),
+			new TestThresholds());
+
+		assertFalse(warning.isPresent());
+	}
+
+	@Test
+	public void chargedTomeOfFireWithKnownLowChargesWarns()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.TOME_OF_FIRE, 25),
+			new TestThresholds());
+
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire 25/50");
+	}
+
+	@Test
 	public void returnsSortedWarnings()
 	{
 		List<ItemChargeWarning> warnings = evaluateAll(
@@ -158,7 +182,7 @@ public class ItemChargeEvaluatorTest
 		assertNull(ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_I));
 
 		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE));
-		assertNull(ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE_27358));
+		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE_27358));
 		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getUnchargedKind(ItemID.TOME_OF_FIRE_EMPTY));
 		assertEquals(ItemChargeKind.TOME_OF_WATER, ItemChargeTables.getChargedKind(ItemID.TOME_OF_WATER));
 		assertEquals(ItemChargeKind.TOME_OF_WATER, ItemChargeTables.getUnchargedKind(ItemID.TOME_OF_WATER_EMPTY));
