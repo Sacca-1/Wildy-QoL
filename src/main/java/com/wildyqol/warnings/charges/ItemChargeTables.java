@@ -34,9 +34,7 @@ final class ItemChargeTables
 			ItemID.RING_OF_SUFFERING_RI,
 			ItemID.RING_OF_SUFFERING_RI_25248,
 			ItemID.RING_OF_SUFFERING_RI_26762))
-		.put(ItemChargeKind.TOME_OF_FIRE, buildSet(
-			ItemID.TOME_OF_FIRE,
-			ItemID.TOME_OF_FIRE_27358))
+		.put(ItemChargeKind.TOME_OF_FIRE, buildSet(ItemID.TOME_OF_FIRE))
 		.put(ItemChargeKind.TOME_OF_WATER, buildSet(ItemID.TOME_OF_WATER))
 		.put(ItemChargeKind.TOME_OF_EARTH, buildSet(ItemID.TOME_OF_EARTH))
 		.build();

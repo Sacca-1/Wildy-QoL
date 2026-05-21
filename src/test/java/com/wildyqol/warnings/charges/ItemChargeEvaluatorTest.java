@@ -158,7 +158,7 @@ public class ItemChargeEvaluatorTest
 		assertNull(ItemChargeTables.getChargedKind(ItemID.RING_OF_SUFFERING_I));
 
 		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE));
-		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE_27358));
+		assertNull(ItemChargeTables.getChargedKind(ItemID.TOME_OF_FIRE_27358));
 		assertEquals(ItemChargeKind.TOME_OF_FIRE, ItemChargeTables.getUnchargedKind(ItemID.TOME_OF_FIRE_EMPTY));
 		assertEquals(ItemChargeKind.TOME_OF_WATER, ItemChargeTables.getChargedKind(ItemID.TOME_OF_WATER));
 		assertEquals(ItemChargeKind.TOME_OF_WATER, ItemChargeTables.getUnchargedKind(ItemID.TOME_OF_WATER_EMPTY));
