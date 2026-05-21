@@ -55,7 +55,7 @@ public class MagicSpellbookWarningService extends WarningService<MagicSpellbookW
 	@Override
 	protected boolean isEnabled()
 	{
-		return config.enablePreviewWarnings() && config.spellbookRuneWarnings();
+		return config.spellbookRuneWarnings();
 	}
 
 	@Override

@@ -85,20 +85,12 @@ public interface WildyQoLConfig extends Config
 	String WARNINGS_SECTION = "warningsSection";
 
 	@ConfigSection(
-		name = "Equipment warnings (preview)",
-		description = "Preview text overlay warnings for risky PvP equipment states",
-		position = 99,
-		closedByDefault = false
-	)
-	String PREVIEW_WARNINGS_SECTION = "previewWarningsSection";
-
-	@ConfigSection(
-		name = "Equipment warnings advanced (preview)",
-		description = "Advanced preview equipment warning thresholds",
-		position = 100,
+		name = "Warnings (advanced)",
+		description = "Advanced warning thresholds",
+		position = 6,
 		closedByDefault = true
 	)
-	String PREVIEW_WARNINGS_ADVANCED_SECTION = "previewWarningsAdvancedSection";
+	String WARNINGS_ADVANCED_SECTION = "warningsAdvancedSection";
 
 	@ConfigItem(
 		keyName = "runePouchBlocker",
@@ -283,23 +275,11 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "enablePreviewWarnings",
-		name = "Enable preview warnings",
-		description = "Enable preview text overlay warnings for risky PvP inventory states",
-		position = 0,
-		section = PREVIEW_WARNINGS_SECTION
-	)
-	default boolean enablePreviewWarnings()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		keyName = "rangedAmmoWarnings",
 		name = "Ranged ammo warnings",
 		description = "Show a text overlay when recognized ranged weapons are missing compatible ammo",
 		position = 1,
-		section = PREVIEW_WARNINGS_SECTION
+		section = WARNINGS_SECTION
 	)
 	default boolean rangedAmmoWarnings()
 	{
@@ -311,7 +291,7 @@ public interface WildyQoLConfig extends Config
 		name = "Item charges warnings",
 		description = "Show a text overlay when recognized charged items are empty or low",
 		position = 2,
-		section = PREVIEW_WARNINGS_SECTION
+		section = WARNINGS_SECTION
 	)
 	default boolean itemChargeWarnings()
 	{
@@ -323,7 +303,7 @@ public interface WildyQoLConfig extends Config
 		name = "Spellbook/rune warnings",
 		description = "Show a text overlay when recognized runes and spellbook do not match or are insufficient",
 		position = 3,
-		section = PREVIEW_WARNINGS_SECTION
+		section = WARNINGS_SECTION
 	)
 	default boolean spellbookRuneWarnings()
 	{
@@ -336,7 +316,7 @@ public interface WildyQoLConfig extends Config
 		description = "Show a text overlay when no recognized teleport out of the wilderness is carried or worn.<br>"
 			+ "Uses the selected Wilderness level.",
 		position = 4,
-		section = PREVIEW_WARNINGS_SECTION
+		section = WARNINGS_SECTION
 	)
 	default TeleportOutWarningMode teleportOutWarningMode()
 	{
@@ -350,7 +330,7 @@ public interface WildyQoLConfig extends Config
 			+ "Also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.<br>"
 			+ "Disable this to always show warnings, including in PvP areas.",
 		position = 0,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default boolean onlyWarnAtBank()
 	{
@@ -363,7 +343,7 @@ public interface WildyQoLConfig extends Config
 		name = "Atlatl dart minimum",
 		description = "Minimum atlatl darts required before warning",
 		position = 1,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int atlatlDartMinimum()
 	{
@@ -376,7 +356,7 @@ public interface WildyQoLConfig extends Config
 		name = "Bolt minimum",
 		description = "Minimum bolts required before warning",
 		position = 2,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int boltMinimum()
 	{
@@ -389,7 +369,7 @@ public interface WildyQoLConfig extends Config
 		name = "Javelin minimum",
 		description = "Minimum javelins required before warning",
 		position = 3,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int javelinMinimum()
 	{
@@ -402,7 +382,7 @@ public interface WildyQoLConfig extends Config
 		name = "Arrow minimum",
 		description = "Minimum arrows required before warning",
 		position = 4,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int arrowMinimum()
 	{
@@ -415,7 +395,7 @@ public interface WildyQoLConfig extends Config
 		name = "Bowfa charges minimum",
 		description = "Minimum Bow of faerdhinen charges required before warning",
 		position = 5,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int bowfaChargeMinimum()
 	{
@@ -428,7 +408,7 @@ public interface WildyQoLConfig extends Config
 		name = "Tome charges minimum",
 		description = "Minimum tome charges required before warning",
 		position = 6,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int tomeChargeMinimum()
 	{
@@ -441,7 +421,7 @@ public interface WildyQoLConfig extends Config
 		name = "TB minimum",
 		description = "Minimum Tele Block casts or sacks required before warning",
 		position = 7,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int teleBlockMinimum()
 	{
@@ -454,7 +434,7 @@ public interface WildyQoLConfig extends Config
 		name = "Entangle minimum",
 		description = "Minimum freeze casts or sacks required before warning",
 		position = 8,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int entangleMinimum()
 	{
@@ -467,7 +447,7 @@ public interface WildyQoLConfig extends Config
 		name = "Surge minimum",
 		description = "Minimum standard damage casts or sacks required before warning",
 		position = 15,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int surgeMinimum()
 	{
@@ -480,7 +460,7 @@ public interface WildyQoLConfig extends Config
 		name = "Ice spell minimum",
 		description = "Minimum ancient ice casts or sacks required before warning",
 		position = 16,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int iceSpellMinimum()
 	{
@@ -493,7 +473,7 @@ public interface WildyQoLConfig extends Config
 		name = "Blood spell minimum",
 		description = "Minimum ancient blood casts required before warning when blood spell runes are present",
 		position = 17,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int bloodSpellMinimum()
 	{
@@ -506,7 +486,7 @@ public interface WildyQoLConfig extends Config
 		name = "Vengeance minimum",
 		description = "Minimum vengeance casts or sacks required before warning",
 		position = 18,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int vengeanceMinimum()
 	{
@@ -518,7 +498,7 @@ public interface WildyQoLConfig extends Config
 		name = "Suboptimal ammo warning",
 		description = "Warn when recognized ranged weapons have only lower-tier compatible ammo",
 		position = 19,
-		section = PREVIEW_WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_ADVANCED_SECTION
 	)
 	default boolean suboptimalRangedAmmoWarnings()
 	{

@@ -65,7 +65,7 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 	@Override
 	protected boolean isEnabled()
 	{
-		return config.enablePreviewWarnings() && config.rangedAmmoWarnings();
+		return config.rangedAmmoWarnings();
 	}
 
 	@Override
