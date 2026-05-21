@@ -93,6 +93,13 @@ public abstract class WarningService<T>
 			return;
 		}
 
+		WarningEligibility eligibility = warningEligibilityService.getEligibility();
+		if (!eligibility.isEquipmentWarningsVisible())
+		{
+			visibleWarnings = visibility.update(Collections.emptyList(), enabled, false, false, false, gameTick);
+			return;
+		}
+
 		List<T> warnings = enabled ? evaluateAll() : Collections.emptyList();
 		if (warnings.isEmpty())
 		{
@@ -100,7 +107,6 @@ public abstract class WarningService<T>
 			return;
 		}
 
-		WarningEligibility eligibility = warningEligibilityService.getEligibility();
 		visibleWarnings = visibility.update(
 			warnings,
 			enabled,

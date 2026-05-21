@@ -8,6 +8,8 @@ import java.lang.reflect.Proxy;
 import java.util.EnumSet;
 import net.runelite.api.Client;
 import net.runelite.api.ChatMessageType;
+import net.runelite.api.Player;
+import net.runelite.api.SkullIcon;
 import net.runelite.api.WorldType;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.WidgetLoaded;
@@ -84,6 +86,7 @@ public class WarningEligibilityServiceTest
 		assertTrue(bankGatedEligibility.isOnlyWarnAtBank());
 		assertFalse(bankGatedEligibility.isInPvp());
 		assertFalse(bankGatedEligibility.isEligibleOutsidePvp());
+		assertTrue(bankGatedEligibility.isEquipmentWarningsVisible());
 
 		WarningEligibilityService alwaysShowService = new WarningEligibilityService(clientOutsidePvp(), config(false), null);
 		alwaysShowService.onChatMessage(deathMessage());
@@ -92,6 +95,29 @@ public class WarningEligibilityServiceTest
 		assertFalse(alwaysShowEligibility.isOnlyWarnAtBank());
 		assertFalse(alwaysShowEligibility.isInPvp());
 		assertTrue(alwaysShowEligibility.isEligibleOutsidePvp());
+		assertTrue(alwaysShowEligibility.isEquipmentWarningsVisible());
+	}
+
+	@Test
+	public void equipmentWarningsCanRequireSkull()
+	{
+		WarningEligibilityService unskulledService = new WarningEligibilityService(
+			clientOutsidePvp(SkullIcon.NONE),
+			config(false, true),
+			null);
+		assertFalse(unskulledService.getEligibility().isEquipmentWarningsVisible());
+
+		WarningEligibilityService skulledService = new WarningEligibilityService(
+			clientOutsidePvp(SkullIcon.SKULL),
+			config(false, true),
+			null);
+		assertTrue(skulledService.getEligibility().isEquipmentWarningsVisible());
+
+		WarningEligibilityService disabledGateService = new WarningEligibilityService(
+			clientOutsidePvp(SkullIcon.NONE),
+			config(false, false),
+			null);
+		assertTrue(disabledGateService.getEligibility().isEquipmentWarningsVisible());
 	}
 
 	private static ChatMessage deathMessage()
@@ -107,6 +133,11 @@ public class WarningEligibilityServiceTest
 
 	private static WildyQoLConfig config(boolean onlyWarnAtBank)
 	{
+		return config(onlyWarnAtBank, false);
+	}
+
+	private static WildyQoLConfig config(boolean onlyWarnAtBank, boolean onlyWhenSkulled)
+	{
 		return new WildyQoLConfig()
 		{
 			@Override
@@ -114,10 +145,21 @@ public class WarningEligibilityServiceTest
 			{
 				return onlyWarnAtBank;
 			}
+
+			@Override
+			public boolean onlyShowEquipmentWarningsWhenSkulled()
+			{
+				return onlyWhenSkulled;
+			}
 		};
 	}
 
 	private static Client clientOutsidePvp()
+	{
+		return clientOutsidePvp(SkullIcon.NONE);
+	}
+
+	private static Client clientOutsidePvp(int skullIcon)
 	{
 		return (Client) Proxy.newProxyInstance(
 			Client.class.getClassLoader(),
@@ -134,9 +176,35 @@ public class WarningEligibilityServiceTest
 					return 0;
 				}
 
+				if ("getLocalPlayer".equals(method.getName()))
+				{
+					return player(skullIcon);
+				}
+
 				if ("toString".equals(method.getName()))
 				{
 					return "clientOutsidePvp";
+				}
+
+				return null;
+			});
+	}
+
+	private static Player player(int skullIcon)
+	{
+		return (Player) Proxy.newProxyInstance(
+			Player.class.getClassLoader(),
+			new Class<?>[] {Player.class},
+			(proxy, method, args) ->
+			{
+				if ("getSkullIcon".equals(method.getName()))
+				{
+					return skullIcon;
+				}
+
+				if ("toString".equals(method.getName()))
+				{
+					return "player";
 				}
 
 				return null;

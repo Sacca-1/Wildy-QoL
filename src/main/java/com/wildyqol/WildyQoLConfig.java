@@ -337,12 +337,24 @@ public interface WildyQoLConfig extends Config
 		return true;
 	}
 
+	@ConfigItem(
+		keyName = "onlyShowEquipmentWarningsWhenSkulled",
+		name = "Only when skulled",
+		description = "Only show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings while skulled",
+		position = 1,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default boolean onlyShowEquipmentWarningsWhenSkulled()
+	{
+		return false;
+	}
+
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "atlatlDartMinimum",
 		name = "Atlatl dart minimum",
 		description = "Minimum atlatl darts required before warning",
-		position = 1,
+		position = 2,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int atlatlDartMinimum()
@@ -355,7 +367,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "boltMinimum",
 		name = "Bolt minimum",
 		description = "Minimum bolts required before warning",
-		position = 2,
+		position = 3,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int boltMinimum()
@@ -368,7 +380,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "javelinMinimum",
 		name = "Javelin minimum",
 		description = "Minimum javelins required before warning",
-		position = 3,
+		position = 4,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int javelinMinimum()
@@ -381,7 +393,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "arrowMinimum",
 		name = "Arrow minimum",
 		description = "Minimum arrows required before warning",
-		position = 4,
+		position = 5,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int arrowMinimum()
@@ -394,7 +406,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "bowfaChargeMinimum",
 		name = "Bowfa charges minimum",
 		description = "Minimum Bow of faerdhinen charges required before warning",
-		position = 5,
+		position = 6,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int bowfaChargeMinimum()
@@ -407,7 +419,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "tomeChargeMinimum",
 		name = "Tome charges minimum",
 		description = "Minimum tome charges required before warning",
-		position = 6,
+		position = 7,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int tomeChargeMinimum()
@@ -420,7 +432,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "teleBlockMinimum",
 		name = "TB minimum",
 		description = "Minimum Tele Block casts or sacks required before warning",
-		position = 7,
+		position = 8,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int teleBlockMinimum()
@@ -433,7 +445,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "entangleMinimum",
 		name = "Entangle minimum",
 		description = "Minimum freeze casts or sacks required before warning",
-		position = 8,
+		position = 9,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int entangleMinimum()

@@ -5,6 +5,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.Player;
+import net.runelite.api.SkullIcon;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.WidgetLoaded;
@@ -73,6 +75,7 @@ public class WarningEligibilityService
 	{
 		boolean onlyWarnAtBank = config.onlyWarnAtBank();
 		boolean inPvp = PvpArea.isPvpArea(client);
+		boolean equipmentWarningsVisible = !config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client);
 
 		if (inPvp)
 		{
@@ -81,17 +84,17 @@ public class WarningEligibilityService
 
 		if (!onlyWarnAtBank)
 		{
-			return new WarningEligibility(false, inPvp, true);
+			return new WarningEligibility(false, inPvp, true, equipmentWarningsVisible);
 		}
 
 		if (warningsSuppressedAfterDeath)
 		{
-			return new WarningEligibility(true, false, false);
+			return new WarningEligibility(true, false, false, equipmentWarningsVisible);
 		}
 
 		boolean recentlyLeftPvp = isRecentlyLeftPvp(inPvp, currentTick, lastPvpTick);
 		boolean eligibleOutsidePvp = recentlyLeftPvp || isBankVisibleThisTick();
-		return new WarningEligibility(true, inPvp, eligibleOutsidePvp);
+		return new WarningEligibility(true, inPvp, eligibleOutsidePvp, equipmentWarningsVisible);
 	}
 
 	private boolean isBankVisibleThisTick()
@@ -122,6 +125,12 @@ public class WarningEligibilityService
 	static boolean isBankWidgetGroup(int groupId)
 	{
 		return groupId == InterfaceID.BANKMAIN;
+	}
+
+	static boolean isSkulled(Client client)
+	{
+		Player localPlayer = client.getLocalPlayer();
+		return localPlayer != null && localPlayer.getSkullIcon() != SkullIcon.NONE;
 	}
 
 	boolean isWarningsSuppressedAfterDeath()
