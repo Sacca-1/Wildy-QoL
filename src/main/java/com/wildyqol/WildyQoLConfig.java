@@ -451,7 +451,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "tomeChargeMinimum",
 		name = "Tome charges minimum",
-		description = "Minimum tome charges required before warning",
+		description = "Minimum tracked tome charges required before warning",
 		position = 8,
 		section = WARNINGS_ADVANCED_SECTION
 	)
@@ -462,10 +462,36 @@ public interface WildyQoLConfig extends Config
 
 	@Range(min = 0)
 	@ConfigItem(
+		keyName = "toxicStaffChargeMinimum",
+		name = "Toxic SOTD minimum",
+		description = "Minimum tracked toxic staff of the dead charges required before warning",
+		position = 9,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int toxicStaffChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
+		keyName = "serpentineHelmChargeMinimum",
+		name = "Serp helm minimum",
+		description = "Minimum tracked serpentine helm charges required before warning",
+		position = 10,
+		section = WARNINGS_ADVANCED_SECTION
+	)
+	default int serpentineHelmChargeMinimum()
+	{
+		return 500;
+	}
+
+	@Range(min = 0)
+	@ConfigItem(
 		keyName = "teleBlockMinimum",
 		name = "TB minimum",
 		description = "Minimum Tele Block casts or sacks required before warning",
-		position = 9,
+		position = 11,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int teleBlockMinimum()
@@ -478,7 +504,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "entangleMinimum",
 		name = "Entangle minimum",
 		description = "Minimum freeze casts or sacks required before warning",
-		position = 10,
+		position = 12,
 		section = WARNINGS_ADVANCED_SECTION
 	)
 	default int entangleMinimum()

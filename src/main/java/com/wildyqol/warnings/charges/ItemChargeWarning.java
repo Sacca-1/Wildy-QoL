@@ -11,6 +11,7 @@ public class ItemChargeWarning
 	public enum WarningPriority
 	{
 		MISSING,
+		UNKNOWN,
 		LOW
 	}
 }

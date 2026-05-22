@@ -110,10 +110,6 @@ public class MagicSpellbookEvaluator
 		int fireSurgeCasts = max(countItem(state, ItemID.BLIGHTED_SURGE_SACK), runeFireSurgeCasts);
 		int godCasts = state.hasValidGodStaff() ? maxCasts(GOD_SPELLS, state) : 0;
 		int bestRuneDamage = max(fireSurgeCasts, godCasts);
-		if (runeFireSurgeCasts > 0 || godCasts > 0)
-		{
-			addTomeChargeWarning(warnings, state, MagicRune.FIRE, "tome of fire", thresholds.tomeCharges());
-		}
 
 		if (meets(bestRuneDamage, threshold) || state.isChargedWildySceptre())
 		{
@@ -201,20 +197,6 @@ public class MagicSpellbookEvaluator
 		}
 
 		warnings.add(missing("Missing runes: " + missingText));
-	}
-
-	private void addTomeChargeWarning(
-		List<MagicSpellbookWarning> warnings,
-		MagicSpellbookState state,
-		MagicRune rune,
-		String tomeName,
-		int threshold)
-	{
-		Integer charges = state.getTomeCharges().get(rune);
-		if (charges != null && threshold > 0 && charges < threshold)
-		{
-			warnings.add(low("Low charges: " + tomeName + " " + charges + "/" + threshold));
-		}
 	}
 
 	private boolean meets(int casts, int threshold)

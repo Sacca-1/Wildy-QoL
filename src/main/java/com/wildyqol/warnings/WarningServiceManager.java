@@ -11,7 +11,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GraphicChanged;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetLoaded;
 
@@ -67,10 +70,26 @@ public class WarningServiceManager
 
 	public void onChatMessage(ChatMessage event)
 	{
+		services.forEach(service -> service.onChatMessage(event));
 		if (warningEligibilityService.onChatMessage(event))
 		{
 			services.forEach(WarningService::refreshOnClientThread);
 		}
+	}
+
+	public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		services.forEach(service -> service.onMenuOptionClicked(event));
+	}
+
+	public void onGraphicChanged(GraphicChanged event)
+	{
+		services.forEach(service -> service.onGraphicChanged(event));
+	}
+
+	public void onHitsplatApplied(HitsplatApplied event)
+	{
+		services.forEach(service -> service.onHitsplatApplied(event));
 	}
 
 	public void onWidgetLoaded(WidgetLoaded event)

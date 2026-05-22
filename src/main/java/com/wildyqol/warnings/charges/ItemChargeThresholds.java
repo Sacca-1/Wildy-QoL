@@ -5,4 +5,8 @@ public interface ItemChargeThresholds
 	int bowfaCharges();
 
 	int tomeCharges();
+
+	int toxicStaffCharges();
+
+	int serpentineHelmCharges();
 }

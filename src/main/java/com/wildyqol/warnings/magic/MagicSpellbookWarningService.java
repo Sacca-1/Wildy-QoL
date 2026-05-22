@@ -87,12 +87,6 @@ public class MagicSpellbookWarningService extends WarningService<MagicSpellbookW
 			}
 
 			@Override
-			public int tomeCharges()
-			{
-				return config.tomeChargeMinimum();
-			}
-
-			@Override
 			public int ice()
 			{
 				return config.iceSpellMinimum();

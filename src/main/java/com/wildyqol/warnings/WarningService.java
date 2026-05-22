@@ -7,8 +7,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GraphicChanged;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.callback.ClientThread;
 
@@ -57,6 +61,22 @@ public abstract class WarningService<T>
 	public void onGameTick(GameTick event)
 	{
 		update(true);
+	}
+
+	public void onChatMessage(ChatMessage event)
+	{
+	}
+
+	public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+	}
+
+	public void onGraphicChanged(GraphicChanged event)
+	{
+	}
+
+	public void onHitsplatApplied(HitsplatApplied event)
+	{
 	}
 
 	public List<String> getOverlayTexts()

@@ -92,9 +92,6 @@ public class MagicInventoryStateBuilder
 	public static boolean isTrackedVarbit(int varbitId)
 	{
 		return varbitId == VarbitID.SPELLBOOK
-			|| varbitId == VarbitID.CHARGES_TOME_OF_WATER_QUANTITY
-			|| varbitId == VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY
-			|| varbitId == VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY
 			|| isRunePouchVarbit(varbitId);
 	}
 
@@ -131,7 +128,6 @@ public class MagicInventoryStateBuilder
 		builder.itemCounts.merge(ItemVariationMapping.map(itemId), item.getQuantity(), Integer::sum);
 		addRuneItem(builder, itemId, item.getQuantity());
 		addProviders(builder, itemId);
-		addTomeCharges(builder, itemId);
 
 		builder.magicCape |= MagicItemTables.isMagicCape(itemId);
 		builder.validGodStaff |= MagicItemTables.isGodStaff(itemId);
@@ -164,83 +160,24 @@ public class MagicInventoryStateBuilder
 		switch (rune)
 		{
 			case WATER:
-				return isChargedTome(itemId, ItemID.TOME_OF_WATER, VarbitID.CHARGES_TOME_OF_WATER_QUANTITY);
+				return isChargedTome(itemId, ItemID.TOME_OF_WATER);
 			case FIRE:
 				return isChargedTomeOfFire(itemId);
 			case EARTH:
-				return isChargedTome(itemId, ItemID.TOME_OF_EARTH, VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY);
+				return isChargedTome(itemId, ItemID.TOME_OF_EARTH);
 			default:
 				return false;
 		}
 	}
 
-	private boolean isChargedTome(int itemId, int tomeItemId, int chargeVarbit)
+	private boolean isChargedTome(int itemId, int tomeItemId)
 	{
-		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(tomeItemId)
-			&& chargeQuantity(chargeVarbit) > 0;
-	}
-
-	private void addTomeCharges(StateBuilder builder, int itemId)
-	{
-		if (isTomeOfFire(itemId))
-		{
-			addTomeOfFireCharges(builder, itemId);
-		}
-		else if (isTomeOfWater(itemId))
-		{
-			builder.tomeCharges.put(MagicRune.WATER, tomeCharges(itemId, ItemID.TOME_OF_WATER_EMPTY, VarbitID.CHARGES_TOME_OF_WATER_QUANTITY));
-		}
-	}
-
-	private void addTomeOfFireCharges(StateBuilder builder, int itemId)
-	{
-		if (isEmptyTomeOfFire(itemId))
-		{
-			builder.tomeCharges.put(MagicRune.FIRE, 0);
-			return;
-		}
-
-		int charges = tomeOfFireCharges();
-		if (charges > 0)
-		{
-			builder.tomeCharges.put(MagicRune.FIRE, charges);
-		}
-	}
-
-	private boolean isTomeOfFire(int itemId)
-	{
-		return isChargedTomeOfFire(itemId) || isEmptyTomeOfFire(itemId);
+		return itemId == tomeItemId;
 	}
 
 	private boolean isChargedTomeOfFire(int itemId)
 	{
 		return itemId == ItemID.TOME_OF_FIRE || itemId == ItemID.TOME_OF_FIRE_27358;
-	}
-
-	private boolean isEmptyTomeOfFire(int itemId)
-	{
-		return itemId == ItemID.TOME_OF_FIRE_EMPTY;
-	}
-
-	private boolean isTomeOfWater(int itemId)
-	{
-		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_WATER)
-			|| ItemVariationMapping.map(itemId) == ItemVariationMapping.map(ItemID.TOME_OF_WATER_EMPTY);
-	}
-
-	private int tomeCharges(int itemId, int emptyTomeItemId, int varbitId)
-	{
-		return ItemVariationMapping.map(itemId) == ItemVariationMapping.map(emptyTomeItemId) ? 0 : chargeQuantity(varbitId);
-	}
-
-	private int tomeOfFireCharges()
-	{
-		return chargeQuantity(VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY);
-	}
-
-	private int chargeQuantity(int varbitId)
-	{
-		return Math.max(client.getVarbitValue(varbitId), client.getServerVarbitValue(varbitId));
 	}
 
 	private void collectRunePouch(StateBuilder builder)

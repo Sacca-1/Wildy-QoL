@@ -80,7 +80,7 @@ public class ItemChargeEvaluatorTest
 	}
 
 	@Test
-	public void chargedTomeOfFireWithZeroVarbitDoesNotWarnLowCharges()
+	public void chargedTomeOfFireWithTrackedZeroChargesWarns()
 	{
 		Optional<ItemChargeWarning> warning = evaluate(
 			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
@@ -88,11 +88,11 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.TOME_OF_FIRE, 0),
 			new TestThresholds());
 
-		assertFalse(warning.isPresent());
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire ~0/50");
 	}
 
 	@Test
-	public void chargedTomeOfFireWithKnownLowChargesWarns()
+	public void chargedTomeOfFireWithTrackedLowChargesWarns()
 	{
 		Optional<ItemChargeWarning> warning = evaluate(
 			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
@@ -100,7 +100,77 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.TOME_OF_FIRE, 25),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire 25/50");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire ~25/50");
+	}
+
+	@Test
+	public void chargedTomeOfFireWithoutKnownChargesPromptsTracking()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
+			ImmutableSet.of(),
+			charges(),
+			new TestThresholds());
+
+		assertWarning(
+			warning,
+			ItemChargeWarning.WarningPriority.UNKNOWN,
+			"Unknown charges: check items to start tracking");
+	}
+
+	@Test
+	public void multipleUnknownTrackedChargesCollapseToSingleWarning()
+	{
+		List<ItemChargeWarning> warnings = evaluateAll(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE, ItemChargeKind.TOXIC_STAFF, ItemChargeKind.SERPENTINE_HELM),
+			ImmutableSet.of(),
+			charges(),
+			new TestThresholds());
+
+		assertEquals(1, warnings.size());
+		assertWarning(
+			warnings.get(0),
+			ItemChargeWarning.WarningPriority.UNKNOWN,
+			"Unknown charges: check items to start tracking");
+	}
+
+	@Test
+	public void disabledThresholdSuppressesUnknownTrackingWarning()
+	{
+		TestThresholds thresholds = new TestThresholds();
+		thresholds.tomeCharges = 0;
+
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE),
+			ImmutableSet.of(),
+			charges(),
+			thresholds);
+
+		assertFalse(warning.isPresent());
+	}
+
+	@Test
+	public void chargedToxicStaffWithTrackedLowChargesWarns()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOXIC_STAFF),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.TOXIC_STAFF, 300),
+			new TestThresholds());
+
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: toxic SOTD ~300/500");
+	}
+
+	@Test
+	public void chargedSerpentineHelmWithTrackedLowChargesWarns()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.SERPENTINE_HELM),
+			ImmutableSet.of(),
+			charges(ItemChargeKind.SERPENTINE_HELM, 300),
+			new TestThresholds());
+
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: serpentine helm ~300/500");
 	}
 
 	@Test
@@ -249,6 +319,8 @@ public class ItemChargeEvaluatorTest
 	{
 		private int bowfaCharges = 250;
 		private int tomeCharges = 50;
+		private int toxicStaffCharges = 500;
+		private int serpentineHelmCharges = 500;
 
 		@Override
 		public int bowfaCharges()
@@ -260,6 +332,18 @@ public class ItemChargeEvaluatorTest
 		public int tomeCharges()
 		{
 			return tomeCharges;
+		}
+
+		@Override
+		public int toxicStaffCharges()
+		{
+			return toxicStaffCharges;
+		}
+
+		@Override
+		public int serpentineHelmCharges()
+		{
+			return serpentineHelmCharges;
 		}
 	}
 }

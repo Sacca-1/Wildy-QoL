@@ -123,6 +123,7 @@ public class WildyQoLPlugin extends Plugin
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
 		misclickPreventionService.onMenuOptionClicked(event);
+		warningServiceManager.onMenuOptionClicked(event);
 	}
 
 	@Subscribe
@@ -175,6 +176,7 @@ public class WildyQoLPlugin extends Plugin
 	public void onGraphicChanged(GraphicChanged event)
 	{
 		extendedFreezeTimersService.onGraphicChanged(event);
+		warningServiceManager.onGraphicChanged(event);
 	}
 
 	@Subscribe
@@ -200,6 +202,7 @@ public class WildyQoLPlugin extends Plugin
 	public void onHitsplatApplied(HitsplatApplied event)
 	{
 		extendedFreezeTimersService.onHitsplatApplied(event);
+		warningServiceManager.onHitsplatApplied(event);
 	}
 
 	@Subscribe

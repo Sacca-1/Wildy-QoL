@@ -20,6 +20,7 @@ public class ItemChargeEvaluator
 	public List<ItemChargeWarning> evaluateAll(ItemChargeState state, ItemChargeThresholds thresholds)
 	{
 		List<ItemChargeWarning> warnings = new ArrayList<>();
+		boolean hasUnknownTrackedCharges = false;
 		for (ItemChargeKind kind : ItemChargeKind.values())
 		{
 			if (state.getUnchargedItems().contains(kind))
@@ -34,16 +35,26 @@ public class ItemChargeEvaluator
 			}
 
 			int threshold = kind.threshold(thresholds);
-			int charges = state.getCharges().getOrDefault(kind, 0);
-			if (kind == ItemChargeKind.TOME_OF_FIRE && charges == 0)
+			Integer charges = state.getCharges().get(kind);
+			if (charges == null)
 			{
+				if (threshold > 0 && kind.requiresManualTracking())
+				{
+					hasUnknownTrackedCharges = true;
+				}
 				continue;
 			}
 
 			if (threshold > 0 && charges < threshold)
 			{
-				warnings.add(low("Low charges: " + kind.getLowText() + " " + charges + "/" + threshold));
+				String chargeText = kind.hasEstimatedCharges() ? "~" + charges : Integer.toString(charges);
+				warnings.add(low("Low charges: " + kind.getLowText() + " " + chargeText + "/" + threshold));
 			}
+		}
+
+		if (hasUnknownTrackedCharges)
+		{
+			warnings.add(unknown("Unknown charges: check items to start tracking"));
 		}
 
 		warnings.sort((left, right) ->
@@ -82,6 +93,11 @@ public class ItemChargeEvaluator
 	private ItemChargeWarning missing(String text)
 	{
 		return new ItemChargeWarning(ItemChargeWarning.WarningPriority.MISSING, text);
+	}
+
+	private ItemChargeWarning unknown(String text)
+	{
+		return new ItemChargeWarning(ItemChargeWarning.WarningPriority.UNKNOWN, text);
 	}
 
 	private ItemChargeWarning low(String text)

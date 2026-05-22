@@ -10,8 +10,22 @@ enum ItemChargeKind
 			return thresholds.bowfaCharges();
 		}
 	},
-	SERPENTINE_HELM("serpentine helm", null),
-	TOXIC_STAFF("toxic SOTD", null),
+	SERPENTINE_HELM("serpentine helm", "serpentine helm")
+	{
+		@Override
+		int threshold(ItemChargeThresholds thresholds)
+		{
+			return thresholds.serpentineHelmCharges();
+		}
+	},
+	TOXIC_STAFF("toxic SOTD", "toxic SOTD")
+	{
+		@Override
+		int threshold(ItemChargeThresholds thresholds)
+		{
+			return thresholds.toxicStaffCharges();
+		}
+	},
 	ACCURSED_THAMMARONS("Accursed/Thammaron's sceptre", null),
 	CRAWS_WEBWEAVER("Craw's/Webweaver bow", null),
 	URSINE_VIGGORAS("Ursine/Viggora's mace", null),
@@ -66,6 +80,20 @@ enum ItemChargeKind
 	boolean supportsLowWarning()
 	{
 		return lowText != null;
+	}
+
+	boolean hasEstimatedCharges()
+	{
+		return this == SERPENTINE_HELM
+			|| this == TOXIC_STAFF
+			|| this == TOME_OF_FIRE
+			|| this == TOME_OF_WATER
+			|| this == TOME_OF_EARTH;
+	}
+
+	boolean requiresManualTracking()
+	{
+		return hasEstimatedCharges();
 	}
 
 	int threshold(ItemChargeThresholds thresholds)
