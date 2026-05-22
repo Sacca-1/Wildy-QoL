@@ -33,6 +33,8 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 ### Warnings
 
 - Protect Item Infobox in PvP areas.
+- Banking warnings for ammo, spellbook/runes, teleport-out options, and equipment charges.
+- Tome, toxic staff of the dead, and serpentine helm charge tracking is inspired by TicTac7x's Item Charges Improved plugin.
 
 ## Future Features
 

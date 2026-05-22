@@ -36,12 +36,6 @@ public class MagicSpellbookEvaluatorTest
 		}
 
 		@Override
-		public int tomeCharges()
-		{
-			return 50;
-		}
-
-		@Override
 		public int ice()
 		{
 			return 100;
@@ -289,7 +283,7 @@ public class MagicSpellbookEvaluatorTest
 	}
 
 	@Test
-	public void standardWarnsLowTomeOfFireChargesWithOtherFireSource()
+	public void standardIgnoresTomeOfFireBankAutochargeQuantity()
 	{
 		List<MagicSpellbookWarning> warnings = evaluateAll(
 			MagicSpellbook.STANDARD,
@@ -306,8 +300,7 @@ public class MagicSpellbookEvaluatorTest
 			false,
 			false);
 
-		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low charges: tome of fire 25/50");
+		assertTrue(warnings.isEmpty());
 	}
 
 	@Test

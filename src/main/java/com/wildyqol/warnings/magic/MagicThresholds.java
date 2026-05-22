@@ -8,8 +8,6 @@ public interface MagicThresholds
 
 	int surge();
 
-	int tomeCharges();
-
 	int ice();
 
 	int blood();

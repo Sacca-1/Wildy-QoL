@@ -12,7 +12,12 @@ import javax.inject.Singleton;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
+import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GraphicChanged;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
@@ -23,6 +28,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 {
 	private final Client client;
 	private final WildyQoLConfig config;
+	private final ItemChargeTracker itemChargeTracker;
 	private final ItemChargeEvaluator evaluator = new ItemChargeEvaluator();
 
 	@Inject
@@ -30,11 +36,13 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		Client client,
 		ClientThread clientThread,
 		WarningEligibilityService warningEligibilityService,
-		WildyQoLConfig config)
+		WildyQoLConfig config,
+		ItemChargeTracker itemChargeTracker)
 	{
 		super(client, clientThread, warningEligibilityService, ItemChargeWarning::getText);
 		this.client = client;
 		this.config = config;
+		this.itemChargeTracker = itemChargeTracker;
 	}
 
 	@Override
@@ -44,6 +52,39 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		{
 			refresh();
 		}
+	}
+
+	@Override
+	public void onGameTick(GameTick event)
+	{
+		itemChargeTracker.onGameTick(event);
+		super.onGameTick(event);
+	}
+
+	@Override
+	public void onChatMessage(ChatMessage event)
+	{
+		itemChargeTracker.onChatMessage(event);
+		refreshOnClientThread();
+	}
+
+	@Override
+	public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		itemChargeTracker.onMenuOptionClicked(event);
+	}
+
+	@Override
+	public void onGraphicChanged(GraphicChanged event)
+	{
+		itemChargeTracker.onGraphicChanged(event);
+		refreshOnClientThread();
+	}
+
+	@Override
+	public void onHitsplatApplied(HitsplatApplied event)
+	{
+		itemChargeTracker.onHitsplatApplied(event);
 	}
 
 	@Override
@@ -75,9 +116,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 
 		EnumMap<ItemChargeKind, Integer> charges = new EnumMap<>(ItemChargeKind.class);
 		charges.put(ItemChargeKind.BOWFA, chargeQuantity(VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY));
-		charges.put(ItemChargeKind.TOME_OF_FIRE, chargeQuantity(VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY));
-		charges.put(ItemChargeKind.TOME_OF_WATER, chargeQuantity(VarbitID.CHARGES_TOME_OF_WATER_QUANTITY));
-		charges.put(ItemChargeKind.TOME_OF_EARTH, chargeQuantity(VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY));
+		itemChargeTracker.addKnownCharges(charges);
 
 		return ItemChargeEvaluator.state(chargedItems.build(), unchargedItems.build(), charges);
 	}
@@ -124,6 +163,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		if (unchargedKind != null)
 		{
 			unchargedItems.add(unchargedKind);
+			itemChargeTracker.markUncharged(unchargedKind);
 			return;
 		}
 
@@ -137,9 +177,6 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	private boolean isTrackedVarbit(int varbitId)
 	{
 		return varbitId == VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY
-			|| varbitId == VarbitID.CHARGES_TOME_OF_FIRE_QUANTITY
-			|| varbitId == VarbitID.CHARGES_TOME_OF_WATER_QUANTITY
-			|| varbitId == VarbitID.CHARGES_TOME_OF_EARTH_QUANTITY
 			|| varbitId == VarbitID.INSIDE_WILDERNESS
 			|| varbitId == VarbitID.PVP_AREA_CLIENT;
 	}
@@ -158,6 +195,18 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 			public int tomeCharges()
 			{
 				return config.tomeChargeMinimum();
+			}
+
+			@Override
+			public int toxicStaffCharges()
+			{
+				return config.toxicStaffChargeMinimum();
+			}
+
+			@Override
+			public int serpentineHelmCharges()
+			{
+				return config.serpentineHelmChargeMinimum();
 			}
 		};
 	}
