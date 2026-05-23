@@ -230,6 +230,18 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "updateMessageShown141",
+		name = "Update Message Shown v1.4.1",
+		description = "Internal flag to track if the v1.4.1 update message has been shown",
+		hidden = true,
+		position = 4
+	)
+	default boolean updateMessageShown141()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "menaphiteProcTimerDisplayTicks",
 		name = "Show in ticks",
 		description = "Display the menaphite proc countdown using game ticks instead of seconds",

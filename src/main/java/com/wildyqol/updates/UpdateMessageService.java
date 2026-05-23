@@ -14,13 +14,17 @@ import net.runelite.client.config.ConfigManager;
 public class UpdateMessageService
 {
 	private static final String CONFIG_GROUP = "wildyqol";
-	private static final String UPDATE_MESSAGE_KEY = "updateMessageShown140";
+	private static final String UPDATE_MESSAGE_140_KEY = "updateMessageShown140";
+	private static final String UPDATE_MESSAGE_141_KEY = "updateMessageShown141";
+	private static final String UPDATE_MESSAGE_140 = "<col=00ff00>Wildy QoL 1.4.0:</col><br>- Added DMM overload proc timer<br>- Added warnings when banking for common PvP equipment problems (ammo, runes, spellbook, charges, teleport out). Please check the plugin settings if you want to customize this.<br>Found any issues or have a request? Message me on discord @sacca_1 or create an issue on the Wildy QoL github.";
+	private static final String UPDATE_MESSAGE_141 = "<col=00ff00>Wildy QoL 1.4.1:</col><br>- Equipment warning improvements<br>- Special attack orb misclick prevention. Off by default, check settings to turn this on in PvP or everywhere";
 
 	private final ConfigManager configManager;
 	private final WildyQoLConfig config;
 	private final ChatMessageManager chatMessageManager;
 
-	private boolean shouldShowUpdateMessage;
+	private boolean shouldShowUpdateMessage140;
+	private boolean shouldShowUpdateMessage141;
 
 	@Inject
 	private UpdateMessageService(ConfigManager configManager, WildyQoLConfig config, ChatMessageManager chatMessageManager)
@@ -32,21 +36,37 @@ public class UpdateMessageService
 
 	public void startUp()
 	{
-		shouldShowUpdateMessage = !config.updateMessageShown140();
+		shouldShowUpdateMessage140 = !config.updateMessageShown140();
+		shouldShowUpdateMessage141 = !config.updateMessageShown141();
 	}
 
 	public void onGameStateChanged(GameStateChanged event)
 	{
-		if (event.getGameState() != GameState.LOGGED_IN || !shouldShowUpdateMessage)
+		if (event.getGameState() != GameState.LOGGED_IN || !shouldShowUpdateMessage140 && !shouldShowUpdateMessage141)
 		{
 			return;
 		}
 
+		if (shouldShowUpdateMessage140)
+		{
+			queueUpdateMessage(UPDATE_MESSAGE_140);
+			configManager.setConfiguration(CONFIG_GROUP, UPDATE_MESSAGE_140_KEY, true);
+			shouldShowUpdateMessage140 = false;
+		}
+
+		if (shouldShowUpdateMessage141)
+		{
+			queueUpdateMessage(UPDATE_MESSAGE_141);
+			configManager.setConfiguration(CONFIG_GROUP, UPDATE_MESSAGE_141_KEY, true);
+			shouldShowUpdateMessage141 = false;
+		}
+	}
+
+	private void queueUpdateMessage(String message)
+	{
 		chatMessageManager.queue(QueuedMessage.builder()
 			.type(ChatMessageType.GAMEMESSAGE)
-			.runeLiteFormattedMessage("<col=00ff00>Wildy QoL 1.4.0:</col><br>- Added DMM overload proc timer<br>- Added warnings when banking for common PvP equipment problems (ammo, runes, spellbook, charges, teleport out). Please check the plugin settings if you want to customize this.<br>Found any issues or have a request? Message me on discord @sacca_1 or create an issue on the Wildy QoL github.")
+			.runeLiteFormattedMessage(message)
 			.build());
-		configManager.setConfiguration(CONFIG_GROUP, UPDATE_MESSAGE_KEY, true);
-		shouldShowUpdateMessage = false;
 	}
 }
