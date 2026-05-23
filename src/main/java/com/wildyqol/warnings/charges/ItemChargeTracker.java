@@ -107,10 +107,11 @@ class ItemChargeTracker
 	void onMenuOptionClicked(MenuOptionClicked event)
 	{
 		String option = Text.removeTags(event.getMenuOption());
+		String target = Text.removeTags(event.getMenuTarget());
 		if ("Check".equals(option))
 		{
-			ItemChargeKind kind = ItemChargeTables.getChargedKind(event.getItemId());
-			if (kind == ItemChargeKind.SERPENTINE_HELM || kind == ItemChargeKind.TOXIC_STAFF)
+			ItemChargeKind kind = scaleItemKind(event.getItemId(), target);
+			if (kind != null)
 			{
 				setScaleCheckContext(kind, SCALE_CHECK_CONTEXT_TICKS);
 			}
@@ -118,7 +119,7 @@ class ItemChargeTracker
 
 		if ("Use".equals(option))
 		{
-			ItemChargeKind kind = scaleUseKind(Text.removeTags(event.getMenuTarget()));
+			ItemChargeKind kind = scaleUseKind(target);
 			if (kind != null)
 			{
 				setScaleCheckContext(kind, SCALE_CHARGE_CONTEXT_TICKS);
@@ -347,6 +348,16 @@ class ItemChargeTracker
 		lastScaleCheckExpiryTick = -1;
 	}
 
+	private ItemChargeKind scaleItemKind(int itemId, String menuTarget)
+	{
+		ItemChargeKind kind = ItemChargeTables.getChargedKind(itemId);
+		if (kind == ItemChargeKind.SERPENTINE_HELM || kind == ItemChargeKind.TOXIC_STAFF)
+		{
+			return kind;
+		}
+		return scaleItemKind(menuTarget);
+	}
+
 	private ItemChargeKind scaleUseKind(String menuTarget)
 	{
 		String normalized = menuTarget.toLowerCase();
@@ -354,7 +365,12 @@ class ItemChargeTracker
 		{
 			return null;
 		}
+		return scaleItemKind(normalized);
+	}
 
+	private ItemChargeKind scaleItemKind(String menuTarget)
+	{
+		String normalized = menuTarget.toLowerCase();
 		if (normalized.contains("toxic staff"))
 		{
 			return ItemChargeKind.TOXIC_STAFF;
