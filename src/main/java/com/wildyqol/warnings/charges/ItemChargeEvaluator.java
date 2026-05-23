@@ -20,7 +20,7 @@ public class ItemChargeEvaluator
 	public List<ItemChargeWarning> evaluateAll(ItemChargeState state, ItemChargeThresholds thresholds)
 	{
 		List<ItemChargeWarning> warnings = new ArrayList<>();
-		boolean hasUnknownTrackedCharges = false;
+		List<String> unknownTrackedChargeItems = new ArrayList<>();
 		for (ItemChargeKind kind : ItemChargeKind.values())
 		{
 			if (state.getUnchargedItems().contains(kind))
@@ -40,7 +40,7 @@ public class ItemChargeEvaluator
 			{
 				if (threshold > 0 && kind.requiresManualTracking())
 				{
-					hasUnknownTrackedCharges = true;
+					unknownTrackedChargeItems.add(kind.getLowText());
 				}
 				continue;
 			}
@@ -52,9 +52,11 @@ public class ItemChargeEvaluator
 			}
 		}
 
-		if (hasUnknownTrackedCharges)
+		if (!unknownTrackedChargeItems.isEmpty())
 		{
-			warnings.add(unknown("Unknown charges: check items to start tracking"));
+			warnings.add(unknown("Unknown charges: check "
+				+ String.join(", ", unknownTrackedChargeItems)
+				+ " to start tracking"));
 		}
 
 		warnings.sort((left, right) ->

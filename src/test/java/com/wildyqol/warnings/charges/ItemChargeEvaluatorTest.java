@@ -115,7 +115,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warning,
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: check items to start tracking");
+			"Unknown charges: check tome of fire to start tracking");
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warnings.get(0),
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: check items to start tracking");
+			"Unknown charges: check serpentine helm, toxic SOTD, tome of fire to start tracking");
 	}
 
 	@Test
