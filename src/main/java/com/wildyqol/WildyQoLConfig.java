@@ -57,6 +57,26 @@ public interface WildyQoLConfig extends Config
 		}
 	}
 
+	enum SpecialAttackOrbBlockMode
+	{
+		NEVER("Never"),
+		PVP("PvP"),
+		ALWAYS("Always");
+
+		private final String label;
+
+		SpecialAttackOrbBlockMode(String label)
+		{
+			this.label = label;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
+	}
+
 	@ConfigSection(
 		name = "Misclick prevention",
 		description = "Settings to help avoid dangerous misclicks",
@@ -150,10 +170,22 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "specialAttackOrbBlocker",
+		name = "Special Attack Orb Blocker",
+		description = "Block special attack orb clicks",
+		position = 3,
+		section = MISCLICK_PREVENTION_SECTION
+	)
+	default SpecialAttackOrbBlockMode specialAttackOrbBlocker()
+	{
+		return SpecialAttackOrbBlockMode.NEVER;
+	}
+
+	@ConfigItem(
 		keyName = "marlinEqualsAnglerfish",
 		name = "Marlin = Anglerfish",
 		description = "Replace marlin inventory icon with anglerfish (PvP areas only)",
-		position = 3,
+		position = 4,
 		section = MISCLICK_PREVENTION_SECTION
 	)
 	default boolean marlinEqualsAnglerfish()
@@ -165,7 +197,7 @@ public interface WildyQoLConfig extends Config
 		keyName = "halibutEqualsKarambwan",
 		name = "Halibut = Karambwan",
 		description = "Replace halibut inventory icon with karambwan (PvP areas only)",
-		position = 4,
+		position = 5,
 		section = MISCLICK_PREVENTION_SECTION
 	)
 	default boolean halibutEqualsKarambwan()

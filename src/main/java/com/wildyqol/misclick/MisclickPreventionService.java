@@ -2,6 +2,7 @@ package com.wildyqol.misclick;
 
 import com.wildyqol.AreaDetection;
 import com.wildyqol.WildyQoLConfig;
+import com.wildyqol.WildyQoLConfig.SpecialAttackOrbBlockMode;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,6 +30,12 @@ public class MisclickPreventionService
 		ItemID.DIVINE_RUNE_POUCH,
 		ItemID.DIVINE_RUNE_POUCH_TROUVER
 	);
+	private static final Set<Integer> SPECIAL_ATTACK_ORB_BUTTON_IDS = Set.of(
+		InterfaceID.Orbs.SPECBUTTON,
+		InterfaceID.OrbsNomap.SPECBUTTON,
+		InterfaceID.OrbsOsm.SPECBUTTON,
+		InterfaceID.OrbsOsmNomap.SPECBUTTON
+	);
 
 	private final Client client;
 	private final ItemManager itemManager;
@@ -52,6 +59,11 @@ public class MisclickPreventionService
 
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
+		if (handleSpecialAttackOrbClick(event))
+		{
+			return;
+		}
+
 		if (handleRunePouchLeftClick(event))
 		{
 			return;
@@ -101,6 +113,43 @@ public class MisclickPreventionService
 		Widget selectedWidget = client.getSelectedWidget();
 		return selectedWidget != null
 			&& WidgetUtil.componentToInterface(selectedWidget.getId()) == InterfaceID.MAGIC_SPELLBOOK;
+	}
+
+	private boolean handleSpecialAttackOrbClick(MenuOptionClicked event)
+	{
+		SpecialAttackOrbBlockMode mode = config.specialAttackOrbBlocker();
+		if (mode == SpecialAttackOrbBlockMode.NEVER)
+		{
+			return false;
+		}
+
+		MenuEntry clicked = event.getMenuEntry();
+		Widget widget = clicked.getWidget();
+		int widgetId = widget != null ? widget.getId() : clicked.getParam1();
+
+		if (shouldBlockSpecialAttackOrbClick(mode, mode == SpecialAttackOrbBlockMode.PVP && isInPvpArea(), widgetId))
+		{
+			event.consume();
+			return true;
+		}
+
+		return false;
+	}
+
+	static boolean shouldBlockSpecialAttackOrbClick(SpecialAttackOrbBlockMode mode, boolean inPvpArea, int widgetId)
+	{
+		if (!isSpecialAttackOrbButton(widgetId))
+		{
+			return false;
+		}
+
+		return mode == SpecialAttackOrbBlockMode.ALWAYS
+			|| mode == SpecialAttackOrbBlockMode.PVP && inPvpArea;
+	}
+
+	static boolean isSpecialAttackOrbButton(int widgetId)
+	{
+		return SPECIAL_ATTACK_ORB_BUTTON_IDS.contains(widgetId);
 	}
 
 	private boolean handleRunePouchLeftClick(MenuOptionClicked event)
