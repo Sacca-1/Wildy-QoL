@@ -1,5 +1,6 @@
 package com.wildyqol.misclick;
 
+import com.wildyqol.AreaDetection;
 import com.wildyqol.WildyQoLConfig;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -13,7 +14,6 @@ import javax.inject.Singleton;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.Point;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetItem;
@@ -112,8 +112,7 @@ public class FishInventoryIconOverlay extends WidgetItemOverlay
 
     private boolean isInPvpArea()
     {
-        return client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1
-            || client.getVarbitValue(VarbitID.PVP_AREA_CLIENT) == 1;
+        return AreaDetection.isRawPvpArea(client);
     }
 
     private BufferedImage maskWithBackground(BufferedImage source, Color background)

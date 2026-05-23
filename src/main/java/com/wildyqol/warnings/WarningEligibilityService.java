@@ -1,5 +1,6 @@
 package com.wildyqol.warnings;
 
+import com.wildyqol.AreaDetection;
 import com.wildyqol.WildyQoLConfig;
 import com.wildyqol.WildyQoLConfig.WarningDisplayMode;
 import javax.inject.Inject;
@@ -80,6 +81,7 @@ public class WarningEligibilityService
 		WarningDisplayMode warningDisplayMode = config.warningDisplayMode();
 		boolean inPvp = PvpArea.isPvpArea(client);
 		boolean equipmentWarningsVisible = isAccountEligibleForEquipmentWarnings(client, config)
+			&& !AreaDetection.isPvpArenaWorld(client)
 			&& (!config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client));
 
 		if (inPvp)

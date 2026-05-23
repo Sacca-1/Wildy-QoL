@@ -231,6 +231,17 @@ public class WarningEligibilityServiceTest
 		assertTrue(service.getEligibility().isEquipmentWarningsVisible());
 	}
 
+	@Test
+	public void pvpArenaWorldSuppressesEquipmentWarnings()
+	{
+		WarningEligibilityService service = new WarningEligibilityService(
+			clientOutsidePvp(AccountType.NORMAL, EnumSet.of(WorldType.PVP_ARENA), SkullIcon.NONE),
+			config(WarningDisplayMode.ALWAYS),
+			null);
+
+		assertFalse(service.getEligibility().isEquipmentWarningsVisible());
+	}
+
 	private static ChatMessage deathMessage()
 	{
 		return new ChatMessage(

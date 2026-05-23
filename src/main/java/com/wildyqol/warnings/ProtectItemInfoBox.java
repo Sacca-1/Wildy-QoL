@@ -1,5 +1,6 @@
 package com.wildyqol.warnings;
 
+import com.wildyqol.AreaDetection;
 import com.wildyqol.WildyQoLConfig;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -88,6 +89,13 @@ public class ProtectItemInfoBox extends InfoBox
 	private boolean shouldNotifyProtectItem()
 	{
 		if (!PvpArea.isPvpArea(client))
+		{
+			return false;
+		}
+
+		if (AreaDetection.isDeadmanWorld(client)
+			|| AreaDetection.isActiveLmsGame(client)
+			|| AreaDetection.isPvpArenaMatch(client))
 		{
 			return false;
 		}

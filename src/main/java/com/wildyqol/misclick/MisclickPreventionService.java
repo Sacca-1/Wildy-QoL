@@ -1,5 +1,6 @@
 package com.wildyqol.misclick;
 
+import com.wildyqol.AreaDetection;
 import com.wildyqol.WildyQoLConfig;
 import java.util.Set;
 import javax.inject.Inject;
@@ -14,7 +15,6 @@ import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.game.ItemManager;
@@ -133,8 +133,7 @@ public class MisclickPreventionService
 
 	private boolean isInPvpArea()
 	{
-		return client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1
-			|| client.getVarbitValue(VarbitID.PVP_AREA_CLIENT) == 1;
+		return AreaDetection.isMisclickPvpArea(client);
 	}
 
 	private void handleEmptyVialBlocker(MenuOptionClicked event)
