@@ -9,6 +9,7 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 - Rune Pouch Blocker
 - Pet Spell Blocker
 - Empty Vial Blocker
+- Special Attack Orb Blocker
 - Fish icon remapping for marlin to anglerfish and halibut to karambwan in PvP areas.
 
 ### Items Kept on Death
