@@ -50,6 +50,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	{
 		if (event.getContainerId() == InventoryID.WORN || event.getContainerId() == InventoryID.INV)
 		{
+			itemChargeTracker.onItemContainerChanged(event);
 			refresh();
 		}
 	}
@@ -115,15 +116,9 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		collectItems(chargedItems, unchargedItems);
 
 		EnumMap<ItemChargeKind, Integer> charges = new EnumMap<>(ItemChargeKind.class);
-		charges.put(ItemChargeKind.BOWFA, chargeQuantity(VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY));
 		itemChargeTracker.addKnownCharges(charges);
 
 		return ItemChargeEvaluator.state(chargedItems.build(), unchargedItems.build(), charges);
-	}
-
-	private int chargeQuantity(int varbitId)
-	{
-		return Math.max(client.getVarbitValue(varbitId), client.getServerVarbitValue(varbitId));
 	}
 
 	private void collectItems(
@@ -176,8 +171,7 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 
 	private boolean isTrackedVarbit(int varbitId)
 	{
-		return varbitId == VarbitID.CHARGES_BOW_OF_FAERDHINEN_QUANTITY
-			|| varbitId == VarbitID.INSIDE_WILDERNESS
+		return varbitId == VarbitID.INSIDE_WILDERNESS
 			|| varbitId == VarbitID.PVP_AREA_CLIENT;
 	}
 

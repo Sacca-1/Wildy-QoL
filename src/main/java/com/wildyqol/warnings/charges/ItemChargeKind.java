@@ -93,7 +93,7 @@ enum ItemChargeKind
 
 	boolean requiresManualTracking()
 	{
-		return hasEstimatedCharges();
+		return this == BOWFA || hasEstimatedCharges();
 	}
 
 	int threshold(ItemChargeThresholds thresholds)

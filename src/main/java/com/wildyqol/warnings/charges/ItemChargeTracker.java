@@ -12,10 +12,12 @@ import net.runelite.api.EquipmentInventorySlot;
 import net.runelite.api.GraphicID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
+import net.runelite.api.ItemID;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicChanged;
 import net.runelite.api.events.HitsplatApplied;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.client.config.ConfigManager;
@@ -26,11 +28,20 @@ class ItemChargeTracker
 {
 	private static final String CONFIG_GROUP = "wildyqol";
 	private static final int PAGE_CHARGES = 20;
+	private static final int CRYSTAL_SHARD_CHARGES = 100;
 	private static final int SCALE_COMBAT_CHARGE_TICKS = 90;
 	private static final int COMBAT_RECENT_TICKS = 6;
 	private static final int SCALE_CHECK_CONTEXT_TICKS = 3;
 	private static final int SCALE_CHARGE_CONTEXT_TICKS = 300;
+	private static final int BOWFA_CHARGE_CONTEXT_TICKS = 300;
+	private static final int BOWFA_ATTACK_GRAPHIC = 1888;
 
+	private static final Pattern BOWFA_CHECK = Pattern.compile(
+		"Your bow of Faerdhinen has (?<charges>[\\d,.]+) charges? remaining.*",
+		Pattern.CASE_INSENSITIVE);
+	private static final Pattern BOWFA_AUTOCHARGE = Pattern.compile(
+		"The banker charges your Bow of faerdhinen using (?<amount>[\\d,]+)x Crystal shards?.*",
+		Pattern.CASE_INSENSITIVE);
 	private static final Pattern TOME_OF_FIRE_CHECK = Pattern.compile(
 		"Your tome has been charged with (?:Burnt|Searing) Pages\\. It currently holds (?<charges>.+) charges?\\.",
 		Pattern.CASE_INSENSITIVE);
@@ -57,6 +68,7 @@ class ItemChargeTracker
 
 	static
 	{
+		CONFIG_KEYS.put(ItemChargeKind.BOWFA, "trackedBowfaCharges");
 		CONFIG_KEYS.put(ItemChargeKind.TOME_OF_FIRE, "trackedTomeOfFireCharges");
 		CONFIG_KEYS.put(ItemChargeKind.TOME_OF_WATER, "trackedTomeOfWaterCharges");
 		CONFIG_KEYS.put(ItemChargeKind.TOME_OF_EARTH, "trackedTomeOfEarthCharges");
@@ -72,6 +84,8 @@ class ItemChargeTracker
 	private int toxicStaffCombatTicks;
 	private ItemChargeKind lastScaleCheckKind;
 	private int lastScaleCheckExpiryTick = -1;
+	private int bowfaChargeShardCount = -1;
+	private int bowfaChargeExpiryTick = -1;
 
 	@Inject
 	ItemChargeTracker(Client client, ConfigManager configManager)
@@ -88,7 +102,9 @@ class ItemChargeTracker
 		}
 
 		String message = Text.removeTags(event.getMessage());
-		if (matchSet(TOME_OF_FIRE_CHECK, message, ItemChargeKind.TOME_OF_FIRE)
+		if (matchSet(BOWFA_CHECK, message, ItemChargeKind.BOWFA)
+			|| matchIncrease(BOWFA_AUTOCHARGE, message, ItemChargeKind.BOWFA, CRYSTAL_SHARD_CHARGES)
+			|| matchSet(TOME_OF_FIRE_CHECK, message, ItemChargeKind.TOME_OF_FIRE)
 			|| matchSet(TOME_CHECK, message, likelyNonFireTomeKind())
 			|| matchAutocharge(message)
 			|| matchIncrease(SERP_AUTOCHARGE, message, ItemChargeKind.SERPENTINE_HELM)
@@ -119,12 +135,40 @@ class ItemChargeTracker
 
 		if ("Use".equals(option))
 		{
+			if (isBowfaCrystalShardUse(target))
+			{
+				setBowfaChargeContext();
+			}
+
 			ItemChargeKind kind = scaleUseKind(target);
 			if (kind != null)
 			{
 				setScaleCheckContext(kind, SCALE_CHARGE_CONTEXT_TICKS);
 			}
 		}
+	}
+
+	void onItemContainerChanged(ItemContainerChanged event)
+	{
+		if (event.getContainerId() != InventoryID.INV || bowfaChargeShardCount < 0)
+		{
+			return;
+		}
+
+		if (client.getTickCount() > bowfaChargeExpiryTick)
+		{
+			clearBowfaChargeContext();
+			return;
+		}
+
+		int currentShardCount = countCrystalShards(event.getItemContainer());
+		if (currentShardCount >= bowfaChargeShardCount)
+		{
+			return;
+		}
+
+		increase(ItemChargeKind.BOWFA, (bowfaChargeShardCount - currentShardCount) * CRYSTAL_SHARD_CHARGES);
+		clearBowfaChargeContext();
 	}
 
 	void onGraphicChanged(GraphicChanged event)
@@ -143,6 +187,10 @@ class ItemChargeTracker
 			else if (isEarthSpellGraphic(graphic))
 			{
 				decreaseIfEquipped(ItemChargeKind.TOME_OF_EARTH, EquipmentInventorySlot.SHIELD);
+			}
+			else if (graphic == BOWFA_ATTACK_GRAPHIC)
+			{
+				decreaseIfEquipped(ItemChargeKind.BOWFA, EquipmentInventorySlot.WEAPON);
 			}
 			return;
 		}
@@ -242,13 +290,18 @@ class ItemChargeTracker
 
 	private boolean matchIncrease(Pattern pattern, String message, ItemChargeKind kind)
 	{
+		return matchIncrease(pattern, message, kind, 1);
+	}
+
+	private boolean matchIncrease(Pattern pattern, String message, ItemChargeKind kind, int multiplier)
+	{
 		Matcher matcher = pattern.matcher(message);
 		if (!matcher.matches())
 		{
 			return false;
 		}
 
-		increase(kind, parseQuantity(matcher.group("amount")));
+		increase(kind, parseQuantity(matcher.group("amount")) * multiplier);
 		return true;
 	}
 
@@ -348,6 +401,24 @@ class ItemChargeTracker
 		lastScaleCheckExpiryTick = -1;
 	}
 
+	private void setBowfaChargeContext()
+	{
+		bowfaChargeShardCount = countCrystalShards(client.getItemContainer(InventoryID.INV));
+		bowfaChargeExpiryTick = client.getTickCount() + BOWFA_CHARGE_CONTEXT_TICKS;
+	}
+
+	private void clearBowfaChargeContext()
+	{
+		bowfaChargeShardCount = -1;
+		bowfaChargeExpiryTick = -1;
+	}
+
+	private boolean isBowfaCrystalShardUse(String menuTarget)
+	{
+		String normalized = menuTarget.toLowerCase();
+		return normalized.contains("crystal shard") && normalized.contains("bow of faerdhinen");
+	}
+
 	private ItemChargeKind scaleItemKind(int itemId, String menuTarget)
 	{
 		ItemChargeKind kind = ItemChargeTables.getChargedKind(itemId);
@@ -384,6 +455,24 @@ class ItemChargeTracker
 		}
 
 		return null;
+	}
+
+	private int countCrystalShards(ItemContainer container)
+	{
+		if (container == null)
+		{
+			return 0;
+		}
+
+		int count = 0;
+		for (Item item : container.getItems())
+		{
+			if (item != null && (item.getId() == ItemID.CRYSTAL_SHARD || item.getId() == ItemID.CRYSTAL_SHARDS))
+			{
+				count += item.getQuantity();
+			}
+		}
+		return count;
 	}
 
 	private void decreaseIfEquipped(ItemChargeKind kind, EquipmentInventorySlot slot)

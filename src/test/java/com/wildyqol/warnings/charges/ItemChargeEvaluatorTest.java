@@ -41,6 +41,21 @@ public class ItemChargeEvaluatorTest
 	}
 
 	@Test
+	public void chargedBowfaWithoutKnownChargesPromptsTracking()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.BOWFA),
+			ImmutableSet.of(),
+			charges(),
+			new TestThresholds());
+
+		assertWarning(
+			warning,
+			ItemChargeWarning.WarningPriority.UNKNOWN,
+			"Unknown charges: check Bowfa to start tracking");
+	}
+
+	@Test
 	public void warnsMissingCharges()
 	{
 		Optional<ItemChargeWarning> warning = evaluate(
@@ -122,7 +137,11 @@ public class ItemChargeEvaluatorTest
 	public void multipleUnknownTrackedChargesCollapseToSingleWarning()
 	{
 		List<ItemChargeWarning> warnings = evaluateAll(
-			ImmutableSet.of(ItemChargeKind.TOME_OF_FIRE, ItemChargeKind.TOXIC_STAFF, ItemChargeKind.SERPENTINE_HELM),
+			ImmutableSet.of(
+				ItemChargeKind.BOWFA,
+				ItemChargeKind.TOME_OF_FIRE,
+				ItemChargeKind.TOXIC_STAFF,
+				ItemChargeKind.SERPENTINE_HELM),
 			ImmutableSet.of(),
 			charges(),
 			new TestThresholds());
@@ -131,7 +150,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warnings.get(0),
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: check serpentine helm, toxic SOTD, tome of fire to start tracking");
+			"Unknown charges: check Bowfa, serpentine helm, toxic SOTD, tome of fire to start tracking");
 	}
 
 	@Test
