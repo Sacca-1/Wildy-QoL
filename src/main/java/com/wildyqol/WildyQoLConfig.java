@@ -133,6 +133,14 @@ public interface WildyQoLConfig extends Config
 	)
 	String WARNINGS_ADVANCED_SECTION = "warningsAdvancedSection";
 
+	@ConfigSection(
+		name = "PvP arena",
+		description = "Settings for PvP arena scenery",
+		position = 7,
+		closedByDefault = true
+	)
+	String PVP_ARENA_SECTION = "pvpArenaSection";
+
 	@ConfigItem(
 		keyName = "runePouchBlocker",
 		name = "Rune Pouch Blocker",
@@ -373,6 +381,19 @@ public interface WildyQoLConfig extends Config
 	default boolean spellbookRuneWarnings()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "removeObstructingPvpArenaScenery",
+		name = "Remove obstructing scenery",
+		description = "Remove high Emir's Arena scenery that can block the fight view.<br>"
+			+ "This removes the obstructing wall/scenery tiles and objects, so it will leave a visible black gap around the arena.",
+		position = 0,
+		section = PVP_ARENA_SECTION
+	)
+	default boolean removeObstructingPvpArenaScenery()
+	{
+		return false;
 	}
 
 	@ConfigItem(

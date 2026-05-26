@@ -6,6 +6,7 @@ import com.wildyqol.itemskeptondeath.IkodParchmentRiskService;
 import com.wildyqol.misclick.FishInventoryIconOverlay;
 import com.wildyqol.misclick.MisclickPreventionService;
 import com.wildyqol.proctimers.ProcTimerFeatureService;
+import com.wildyqol.scenery.EmirsArenaSceneryService;
 import com.wildyqol.updates.UpdateMessageService;
 import com.wildyqol.warnings.ProtectItemInfoBoxService;
 import com.wildyqol.warnings.WarningOverlay;
@@ -77,6 +78,9 @@ public class WildyQoLPlugin extends Plugin
 	@Inject
 	private WarningOverlay warningOverlay;
 
+	@Inject
+	private EmirsArenaSceneryService emirsArenaSceneryService;
+
 	@Override
 	protected void startUp()
 	{
@@ -89,6 +93,7 @@ public class WildyQoLPlugin extends Plugin
 		warningServiceManager.startUp();
 		procTimerFeatureService.startUp(this);
 		extendedFreezeTimersService.startUp(this);
+		emirsArenaSceneryService.startUp();
 		updateMessageService.startUp();
 	}
 
@@ -103,6 +108,7 @@ public class WildyQoLPlugin extends Plugin
 		warningServiceManager.shutDown();
 		procTimerFeatureService.shutDown();
 		extendedFreezeTimersService.shutDown();
+		emirsArenaSceneryService.shutDown();
 	}
 
 	@Subscribe
@@ -152,6 +158,7 @@ public class WildyQoLPlugin extends Plugin
 	{
 		ikodParchmentRiskService.onVarbitChanged(event);
 		procTimerFeatureService.onVarbitChanged(event);
+		emirsArenaSceneryService.onVarbitChanged(event);
 		warningServiceManager.onVarbitChanged(event);
 	}
 
@@ -169,6 +176,7 @@ public class WildyQoLPlugin extends Plugin
 		}
 
 		procTimerFeatureService.onConfigChanged(event);
+		emirsArenaSceneryService.onConfigChanged(event);
 		warningServiceManager.refreshOnClientThread();
 	}
 
