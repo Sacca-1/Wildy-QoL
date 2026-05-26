@@ -77,6 +77,28 @@ public interface WildyQoLConfig extends Config
 		}
 	}
 
+	enum PvpArenaSpellbookWarningMode
+	{
+		ANCIENT("Ancient"),
+		STANDARD("Standard"),
+		LUNAR("Lunar"),
+		PLAYERS_MATCH("Players match"),
+		NEVER("Never");
+
+		private final String label;
+
+		PvpArenaSpellbookWarningMode(String label)
+		{
+			this.label = label;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
+	}
+
 	@ConfigSection(
 		name = "Misclick prevention",
 		description = "Settings to help avoid dangerous misclicks",
@@ -250,6 +272,18 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "updateMessageShown142",
+		name = "Update Message Shown v1.4.2",
+		description = "Internal flag to track if the v1.4.2 update message has been shown",
+		hidden = true,
+		position = 5
+	)
+	default boolean updateMessageShown142()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "menaphiteProcTimerDisplayTicks",
 		name = "Show in ticks",
 		description = "Display the menaphite proc countdown using game ticks instead of seconds",
@@ -394,6 +428,21 @@ public interface WildyQoLConfig extends Config
 	default boolean removeObstructingPvpArenaScenery()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+		keyName = "pvpArenaSpellbookWarningMode",
+		name = "Spellbook warning",
+		description = "Highlight PvP Arena spellbooks when they do not match the selected rule.<br>"
+			+ "Ancient/Standard/Lunar: active kit and opponent must both use that spellbook.<br>"
+			+ "Players match: active kit and opponent must use the same spellbook.<br>"
+			+ "Never: disable this warning.",
+		position = 1,
+		section = PVP_ARENA_SECTION
+	)
+	default PvpArenaSpellbookWarningMode pvpArenaSpellbookWarningMode()
+	{
+		return PvpArenaSpellbookWarningMode.ANCIENT;
 	}
 
 	@ConfigItem(

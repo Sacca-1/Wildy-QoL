@@ -6,6 +6,7 @@ import com.wildyqol.itemskeptondeath.IkodParchmentRiskService;
 import com.wildyqol.misclick.FishInventoryIconOverlay;
 import com.wildyqol.misclick.MisclickPreventionService;
 import com.wildyqol.proctimers.ProcTimerFeatureService;
+import com.wildyqol.pvparena.PvpArenaSpellbookWarningOverlay;
 import com.wildyqol.scenery.EmirsArenaSceneryService;
 import com.wildyqol.updates.UpdateMessageService;
 import com.wildyqol.warnings.ProtectItemInfoBoxService;
@@ -81,12 +82,16 @@ public class WildyQoLPlugin extends Plugin
 	@Inject
 	private EmirsArenaSceneryService emirsArenaSceneryService;
 
+	@Inject
+	private PvpArenaSpellbookWarningOverlay pvpArenaSpellbookWarningOverlay;
+
 	@Override
 	protected void startUp()
 	{
 		log.debug("Wildy QoL started");
 		overlayManager.add(fishInventoryIconOverlay);
 		overlayManager.add(warningOverlay);
+		overlayManager.add(pvpArenaSpellbookWarningOverlay);
 		ikodParchmentRiskService.startUp();
 		clientThread.invokeLater(() -> ikodParchmentRiskService.refresh());
 		protectItemInfoBoxService.startUp(this);
@@ -103,6 +108,7 @@ public class WildyQoLPlugin extends Plugin
 		log.debug("Wildy QoL stopped");
 		overlayManager.remove(fishInventoryIconOverlay);
 		overlayManager.remove(warningOverlay);
+		overlayManager.remove(pvpArenaSpellbookWarningOverlay);
 		ikodParchmentRiskService.shutDown();
 		protectItemInfoBoxService.shutDown();
 		warningServiceManager.shutDown();
