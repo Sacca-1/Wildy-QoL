@@ -89,14 +89,14 @@ public class EmirsArenaSceneryService
 			return;
 		}
 
-		boolean nowInPvpArea = event.getValue() > 0;
+		boolean nowInPvpArea = isInPvpArea();
 		if (inPvpArea == nowInPvpArea)
 		{
 			return;
 		}
 
 		inPvpArea = nowInPvpArea;
-		if (removeObstructingScenery)
+		if (shouldRemoveArenaScenery())
 		{
 			reloadScene();
 		}
@@ -104,7 +104,7 @@ public class EmirsArenaSceneryService
 
 	private boolean shouldDrawTile(Scene scene, Tile tile)
 	{
-		if (!removeObstructingScenery || !inPvpArea || tile == null || tile.getLocalLocation() == null || !isRemovedWallTile(scene, tile))
+		if (!shouldRemoveArenaScenery() || !inPvpArea || tile == null || tile.getLocalLocation() == null || !isRemovedWallTile(scene, tile))
 		{
 			return true;
 		}
@@ -168,7 +168,7 @@ public class EmirsArenaSceneryService
 		clientThread.invoke(() ->
 		{
 			inPvpArea = isInPvpArea();
-			if (client.getGameState() == GameState.LOGGED_IN)
+			if (shouldRemoveArenaScenery() && client.getGameState() == GameState.LOGGED_IN)
 			{
 				client.setGameState(GameState.LOADING);
 			}
@@ -183,6 +183,11 @@ public class EmirsArenaSceneryService
 	private boolean isInPvpArea()
 	{
 		return AreaDetection.isRawPvpArea(client);
+	}
+
+	private boolean shouldRemoveArenaScenery()
+	{
+		return removeObstructingScenery && AreaDetection.isPvpArenaWorld(client);
 	}
 
 	private static final class TileRectangle
