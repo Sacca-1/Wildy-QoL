@@ -18,6 +18,7 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.vars.AccountType;
 import org.junit.Test;
 
@@ -242,6 +243,22 @@ public class WarningEligibilityServiceTest
 		assertFalse(service.getEligibility().isEquipmentWarningsVisible());
 	}
 
+	@Test
+	public void activeLmsGameSuppressesEquipmentWarnings()
+	{
+		WarningEligibilityService service = new WarningEligibilityService(
+			client(
+				AccountType.NORMAL,
+				EnumSet.noneOf(WorldType.class),
+				SkullIcon.NONE,
+				false,
+				true),
+			config(WarningDisplayMode.ALWAYS),
+			null);
+
+		assertFalse(service.getEligibility().isEquipmentWarningsVisible());
+	}
+
 	private static ChatMessage deathMessage()
 	{
 		return new ChatMessage(
@@ -332,7 +349,17 @@ public class WarningEligibilityServiceTest
 		int skullIcon,
 		boolean inPvp)
 	{
-		return client(accountType, worldTypes, skullIcon, new AtomicBoolean(inPvp));
+		return client(accountType, worldTypes, skullIcon, inPvp, false);
+	}
+
+	private static Client client(
+		AccountType accountType,
+		EnumSet<WorldType> worldTypes,
+		int skullIcon,
+		boolean inPvp,
+		boolean activeLmsGame)
+	{
+		return client(accountType, worldTypes, skullIcon, new AtomicBoolean(inPvp), activeLmsGame);
 	}
 
 	private static Client client(
@@ -340,6 +367,16 @@ public class WarningEligibilityServiceTest
 		EnumSet<WorldType> worldTypes,
 		int skullIcon,
 		AtomicBoolean inPvp)
+	{
+		return client(accountType, worldTypes, skullIcon, inPvp, false);
+	}
+
+	private static Client client(
+		AccountType accountType,
+		EnumSet<WorldType> worldTypes,
+		int skullIcon,
+		AtomicBoolean inPvp,
+		boolean activeLmsGame)
 	{
 		return (Client) Proxy.newProxyInstance(
 			Client.class.getClassLoader(),
@@ -353,7 +390,18 @@ public class WarningEligibilityServiceTest
 
 				if ("getVarbitValue".equals(method.getName()))
 				{
-					return inPvp.get() ? 1 : 0;
+					int varbitId = (int) args[0];
+					if (varbitId == VarbitID.BR_INGAME)
+					{
+						return activeLmsGame ? 1 : 0;
+					}
+
+					if (varbitId == VarbitID.INSIDE_WILDERNESS || varbitId == VarbitID.PVP_AREA_CLIENT)
+					{
+						return inPvp.get() ? 1 : 0;
+					}
+
+					return 0;
 				}
 
 				if ("getLocalPlayer".equals(method.getName()))

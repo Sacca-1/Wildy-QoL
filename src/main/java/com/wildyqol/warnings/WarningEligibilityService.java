@@ -82,6 +82,7 @@ public class WarningEligibilityService
 		boolean inPvp = PvpArea.isPvpArea(client);
 		boolean equipmentWarningsVisible = isAccountEligibleForEquipmentWarnings(client, config)
 			&& !AreaDetection.isPvpArenaWorld(client)
+			&& !AreaDetection.isActiveLmsGame(client)
 			&& (!config.onlyShowEquipmentWarningsWhenSkulled() || isSkulled(client));
 
 		if (inPvp)
