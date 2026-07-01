@@ -62,11 +62,20 @@ public enum RangedAmmoRequirement
 		"arrows",
 		AmmoThresholds::arrows,
 		dragonArrowBowAmmo(),
-		ItemID.DRAGON_ARROW,
-		ItemID.DRAGON_ARROWP,
-		ItemID.DRAGON_ARROWP_11228,
-		ItemID.DRAGON_ARROWP_11229,
-		ItemID.DRAGON_ARROW_20389
+		combine(
+			optimalAmmoSet(
+				ItemID.DRAGON_ARROW,
+				ItemID.DRAGON_ARROWP,
+				ItemID.DRAGON_ARROWP_11228,
+				ItemID.DRAGON_ARROWP_11229,
+				ItemID.DRAGON_ARROW_20389),
+			seekingArrowStack(SeekingArrowIds.DRAGON_ARROW)),
+		exactOptimalAmmoSet(
+			ItemID.DRAGON_ARROW,
+			ItemID.DRAGON_ARROWP,
+			ItemID.DRAGON_ARROWP_11228,
+			ItemID.DRAGON_ARROWP_11229,
+			ItemID.DRAGON_ARROW_20389)
 	);
 
 	private final String requiredText;
@@ -242,50 +251,58 @@ public enum RangedAmmoRequirement
 
 	private static Set<Integer> bronzeArrows()
 	{
-		return ammoSet(
-			ItemID.BRONZE_ARROW);
+		return combine(
+			ammoSet(ItemID.BRONZE_ARROW),
+			seekingArrowStack(SeekingArrowIds.BRONZE_ARROW));
 	}
 
 	private static Set<Integer> ironArrows()
 	{
-		return ammoSet(
-			ItemID.IRON_ARROW);
+		return combine(
+			ammoSet(ItemID.IRON_ARROW),
+			seekingArrowStack(SeekingArrowIds.IRON_ARROW));
 	}
 
 	private static Set<Integer> steelArrows()
 	{
-		return ammoSet(
-			ItemID.STEEL_ARROW);
+		return combine(
+			ammoSet(ItemID.STEEL_ARROW),
+			seekingArrowStack(SeekingArrowIds.STEEL_ARROW));
 	}
 
 	private static Set<Integer> mithrilArrows()
 	{
-		return ammoSet(
-			ItemID.MITHRIL_ARROW);
+		return combine(
+			ammoSet(ItemID.MITHRIL_ARROW),
+			seekingArrowStack(SeekingArrowIds.MITHRIL_ARROW));
 	}
 
 	private static Set<Integer> adamantArrows()
 	{
-		return ammoSet(
-			ItemID.ADAMANT_ARROW);
+		return combine(
+			ammoSet(ItemID.ADAMANT_ARROW),
+			seekingArrowStack(SeekingArrowIds.ADAMANT_ARROW));
 	}
 
 	private static Set<Integer> runeArrows()
 	{
-		return ammoSet(
-			ItemID.RUNE_ARROW);
+		return combine(
+			ammoSet(ItemID.RUNE_ARROW),
+			seekingArrowStack(SeekingArrowIds.RUNE_ARROW));
 	}
 
 	private static Set<Integer> amethystArrows()
 	{
-		return ammoSet(
-			ItemID.AMETHYST_ARROW);
+		return combine(
+			ammoSet(ItemID.AMETHYST_ARROW),
+			seekingArrowStack(SeekingArrowIds.AMETHYST_ARROW));
 	}
 
 	private static Set<Integer> dragonArrows()
 	{
-		return ammoSet(
-			ItemID.DRAGON_ARROW);
+		return combine(
+			ammoSet(ItemID.DRAGON_ARROW),
+			seekingArrowStack(SeekingArrowIds.DRAGON_ARROW));
 	}
 
 	private static Set<Integer> ammoSet(Integer... itemIds)
@@ -320,6 +337,16 @@ public enum RangedAmmoRequirement
 			{
 				ammoIds.add(itemId);
 			}
+		}
+		return ammoIds.build();
+	}
+
+	private static Set<Integer> seekingArrowStack(int firstItemId)
+	{
+		ImmutableSet.Builder<Integer> ammoIds = ImmutableSet.builder();
+		for (int itemId = firstItemId; itemId < firstItemId + SeekingArrowIds.STACK_VARIANTS; itemId++)
+		{
+			ammoIds.add(ItemVariationMapping.map(itemId));
 		}
 		return ammoIds.build();
 	}

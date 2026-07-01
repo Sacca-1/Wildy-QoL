@@ -249,14 +249,30 @@ public class RangedAmmoEvaluator
 		putAmmoName(ammoNames, ItemID.DRAGONSTONE_DRAGON_BOLTS_E, "Dragonstone dragon bolts");
 		putAmmoName(ammoNames, ItemID.ONYX_DRAGON_BOLTS_E, "Onyx dragon bolts");
 		putAmmoName(ammoNames, ItemID.BRONZE_ARROW, "Bronze arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.BRONZE_ARROW, "Bronze arrows");
 		putAmmoName(ammoNames, ItemID.IRON_ARROW, "Iron arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.IRON_ARROW, "Iron arrows");
 		putAmmoName(ammoNames, ItemID.STEEL_ARROW, "Steel arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.STEEL_ARROW, "Steel arrows");
 		putAmmoName(ammoNames, ItemID.MITHRIL_ARROW, "Mithril arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.MITHRIL_ARROW, "Mithril arrows");
 		putAmmoName(ammoNames, ItemID.ADAMANT_ARROW, "Adamant arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.ADAMANT_ARROW, "Adamant arrows");
 		putAmmoName(ammoNames, ItemID.RUNE_ARROW, "Rune arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.RUNE_ARROW, "Rune arrows");
 		putAmmoName(ammoNames, ItemID.AMETHYST_ARROW, "Amethyst arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.AMETHYST_ARROW, "Amethyst arrows");
 		putAmmoName(ammoNames, ItemID.DRAGON_ARROW, "Dragon arrows");
+		putSeekingArrowNames(ammoNames, SeekingArrowIds.DRAGON_ARROW, "Dragon arrows");
 		return ammoNames.build();
+	}
+
+	private static void putSeekingArrowNames(ImmutableMap.Builder<Integer, String> ammoNames, int firstItemId, String text)
+	{
+		for (int itemId = firstItemId; itemId < firstItemId + SeekingArrowIds.STACK_VARIANTS; itemId++)
+		{
+			putAmmoName(ammoNames, itemId, text);
+		}
 	}
 
 	private static void putAmmoName(ImmutableMap.Builder<Integer, String> ammoNames, int itemId, String text)

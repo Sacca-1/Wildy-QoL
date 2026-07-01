@@ -158,6 +158,33 @@ public class RangedAmmoEvaluatorTest
 	}
 
 	@Test
+	public void acceptsSeekingDragonArrowsAsOptimal()
+	{
+		assertFalse(evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
+			ImmutableMap.of(SeekingArrowIds.DRAGON_ARROW, 100)).isPresent());
+	}
+
+	@Test
+	public void acceptsSeekingDragonArrowStackVariantsAsOptimal()
+	{
+		assertFalse(evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
+			ImmutableMap.of(SeekingArrowIds.DRAGON_ARROW + 2, 100)).isPresent());
+	}
+
+	@Test
+	public void warnsSuboptimalSeekingRuneArrowBowAmmo()
+	{
+		Optional<RangedAmmoWarning> warning = evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
+			ImmutableMap.of(SeekingArrowIds.RUNE_ARROW, 100));
+
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.SUBOPTIMAL,
+			"Suboptimal ammo: Rune arrows");
+	}
+
+	@Test
 	public void warnsMissingAmmo()
 	{
 		Optional<RangedAmmoWarning> warning = evaluate(
@@ -239,6 +266,9 @@ public class RangedAmmoEvaluatorTest
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BRONZE_BOLTS_P_6061));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.RUNE_ARROW));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.RUNE_ARROWP_5621));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(SeekingArrowIds.DRAGON_ARROW));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(SeekingArrowIds.DRAGON_ARROW + 4));
+		assertTrue(RangedAmmoTables.isSupportedAmmo(SeekingArrowIds.RUNE_ARROW));
 		assertTrue(RangedAmmoTables.isSupportedAmmo(ItemID.BROAD_BOLTS));
 		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.ICE_ARROWS));
 		assertFalse(RangedAmmoTables.isSupportedAmmo(ItemID.OGRE_ARROW));
