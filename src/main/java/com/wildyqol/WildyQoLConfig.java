@@ -237,12 +237,12 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "showIkodTrouverOverlay",
-		name = "Trouver Cost Overlay",
-		description = "Show Trouver parchment cost + 500k gp in the Items Kept on Death interface",
+		name = "Repair Costs Overlay",
+		description = "Show repair costs for broken and mangled untradeables in the Items Kept on Death interface",
 		position = 0,
 		section = ITEMS_KEPT_ON_DEATH_SECTION
 	)
-	default boolean showIkodTrouverOverlay()
+	default boolean showIkodRepairCostsOverlay()
 	{
 		return true;
 	}

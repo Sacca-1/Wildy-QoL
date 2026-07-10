@@ -43,7 +43,7 @@ public class IkodParchmentRiskOverlay extends Overlay
         setLayer(OverlayLayer.ABOVE_WIDGETS);
     }
 
-    public void update(boolean ikodOpen, int lockedCount, long perItemCost, long surcharge, long baseRisk, Color labelColor)
+    public void update(boolean ikodOpen, long surcharge, long baseRisk, Color labelColor)
     {
         this.ikodOpen = ikodOpen;
         this.surcharge = surcharge;
@@ -53,13 +53,13 @@ public class IkodParchmentRiskOverlay extends Overlay
 
     public void reset()
     {
-        update(false, 0, 0L, 0L, 0L, Color.WHITE);
+        update(false, 0L, 0L, Color.WHITE);
     }
 
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        if (!config.showIkodTrouverOverlay() || !ikodOpen)
+        if (!config.showIkodRepairCostsOverlay() || !ikodOpen)
         {
             return null;
         }
@@ -89,7 +89,7 @@ public class IkodParchmentRiskOverlay extends Overlay
 
         String[] lines = condensed
             ? new String[] { "Total risk:", totalRiskText }
-            : new String[] { "Trouver cost:", surchargeText, "Total risk:", totalRiskText };
+            : new String[] { "Repair costs:", surchargeText, "Total risk:", totalRiskText };
 
         Color[] colors = condensed
             ? new Color[] { labelColor, Color.WHITE }

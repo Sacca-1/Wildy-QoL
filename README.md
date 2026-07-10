@@ -14,7 +14,7 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 
 ### Items Kept on Death
 
-- Adds Trouver parchment costs to risk. Thank you to 1 Option for the suggestion!
+- Adds untradeable repair costs to Items Kept on Death risk. Thank you to 1 Option for the suggestion!
 
 ### Freeze timers
 
