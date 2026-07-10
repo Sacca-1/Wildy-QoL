@@ -196,6 +196,7 @@ public class WildyQoLPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
+		ikodParchmentRiskService.onGameTick(event);
 		extendedFreezeTimersService.onGameTick(event);
 		warningServiceManager.onGameTick(event);
 	}
