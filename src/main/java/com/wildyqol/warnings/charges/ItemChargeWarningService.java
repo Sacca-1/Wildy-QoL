@@ -1,11 +1,12 @@
 package com.wildyqol.warnings.charges;
 
-import com.google.common.collect.ImmutableSet;
 import com.wildyqol.WildyQoLConfig;
 import com.wildyqol.warnings.WarningEligibilityService;
 import com.wildyqol.warnings.WarningService;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -111,19 +112,21 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 
 	private ItemChargeState buildState()
 	{
-		ImmutableSet.Builder<ItemChargeKind> chargedItems = ImmutableSet.builder();
-		ImmutableSet.Builder<ItemChargeKind> unchargedItems = ImmutableSet.builder();
+		Set<ItemChargeKind> chargedItems = EnumSet.noneOf(ItemChargeKind.class);
+		Set<ItemChargeKind> unchargedItems = EnumSet.noneOf(ItemChargeKind.class);
 		collectItems(chargedItems, unchargedItems);
+		unchargedItems.removeAll(chargedItems);
+		unchargedItems.forEach(itemChargeTracker::markUncharged);
 
 		EnumMap<ItemChargeKind, Integer> charges = new EnumMap<>(ItemChargeKind.class);
 		itemChargeTracker.addKnownCharges(charges);
 
-		return ItemChargeEvaluator.state(chargedItems.build(), unchargedItems.build(), charges);
+		return ItemChargeEvaluator.state(chargedItems, unchargedItems, charges);
 	}
 
 	private void collectItems(
-		ImmutableSet.Builder<ItemChargeKind> chargedItems,
-		ImmutableSet.Builder<ItemChargeKind> unchargedItems)
+		Set<ItemChargeKind> chargedItems,
+		Set<ItemChargeKind> unchargedItems)
 	{
 		ItemContainer equipment = client.getItemContainer(InventoryID.WORN);
 		if (equipment != null)
@@ -145,8 +148,8 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	}
 
 	private void addItem(
-		ImmutableSet.Builder<ItemChargeKind> chargedItems,
-		ImmutableSet.Builder<ItemChargeKind> unchargedItems,
+		Set<ItemChargeKind> chargedItems,
+		Set<ItemChargeKind> unchargedItems,
 		@Nullable Item item)
 	{
 		if (item == null || item.getId() <= 0 || ItemChargeTables.isIgnoredBowfa(item.getId()))
@@ -158,7 +161,6 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		if (unchargedKind != null)
 		{
 			unchargedItems.add(unchargedKind);
-			itemChargeTracker.markUncharged(unchargedKind);
 			return;
 		}
 

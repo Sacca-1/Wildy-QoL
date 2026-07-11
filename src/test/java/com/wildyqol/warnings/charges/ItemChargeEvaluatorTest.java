@@ -68,6 +68,18 @@ public class ItemChargeEvaluatorTest
 	}
 
 	@Test
+	public void chargedCopyTakesPriorityOverUnchargedCopy()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(ItemChargeKind.TOXIC_STAFF),
+			ImmutableSet.of(ItemChargeKind.TOXIC_STAFF),
+			charges(ItemChargeKind.TOXIC_STAFF, 300),
+			new TestThresholds());
+
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: toxic SOTD ~300/500");
+	}
+
+	@Test
 	public void disabledThresholdSuppressesLowWarning()
 	{
 		TestThresholds thresholds = new TestThresholds();

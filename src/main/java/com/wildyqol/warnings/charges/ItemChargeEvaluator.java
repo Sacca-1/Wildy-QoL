@@ -23,7 +23,7 @@ public class ItemChargeEvaluator
 		List<String> unknownTrackedChargeItems = new ArrayList<>();
 		for (ItemChargeKind kind : ItemChargeKind.values())
 		{
-			if (state.getUnchargedItems().contains(kind))
+			if (state.getUnchargedItems().contains(kind) && !state.getChargedItems().contains(kind))
 			{
 				warnings.add(missing("No charges: " + kind.getMissingText()));
 				continue;
