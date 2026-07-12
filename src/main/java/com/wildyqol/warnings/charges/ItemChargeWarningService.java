@@ -23,11 +23,13 @@ import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.config.ConfigManager;
 
 @Singleton
 public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 {
 	private final Client client;
+	private final ConfigManager configManager;
 	private final WildyQoLConfig config;
 	private final ItemChargeTracker itemChargeTracker;
 	private final ItemChargeEvaluator evaluator = new ItemChargeEvaluator();
@@ -36,14 +38,36 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 	ItemChargeWarningService(
 		Client client,
 		ClientThread clientThread,
+		ConfigManager configManager,
 		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config,
 		ItemChargeTracker itemChargeTracker)
 	{
 		super(client, clientThread, warningEligibilityService, ItemChargeWarning::getText);
 		this.client = client;
+		this.configManager = configManager;
 		this.config = config;
 		this.itemChargeTracker = itemChargeTracker;
+	}
+
+	@Override
+	public void startUp()
+	{
+		itemChargeTracker.refreshFromSharedState(configManager.getRSProfileKey());
+		super.startUp();
+	}
+
+	public void onRuneScapeProfileChanged()
+	{
+		itemChargeTracker.refreshFromSharedState(configManager.getRSProfileKey());
+		refreshOnClientThread();
+	}
+
+	@Override
+	public void shutDown()
+	{
+		itemChargeTracker.shutDown();
+		super.shutDown();
 	}
 
 	@Override

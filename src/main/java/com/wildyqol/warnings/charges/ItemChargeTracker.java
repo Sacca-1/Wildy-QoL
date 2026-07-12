@@ -1,6 +1,9 @@
 package com.wildyqol.warnings.charges;
 
+import com.wildyqol.persistence.SharedStateStore;
 import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,17 +23,16 @@ import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.gameval.InventoryID;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.util.Text;
 
 @Singleton
 class ItemChargeTracker
 {
-	private static final String CONFIG_GROUP = "wildyqol";
 	private static final int PAGE_CHARGES = 20;
 	private static final int CRYSTAL_SHARD_CHARGES = 100;
 	private static final int SCALE_COMBAT_CHARGE_TICKS = 90;
 	private static final int COMBAT_RECENT_TICKS = 6;
+	private static final int SHARED_STATE_FLUSH_TICKS = 500;
 	private static final int SCALE_CHECK_CONTEXT_TICKS = 3;
 	private static final int SCALE_CHARGE_CONTEXT_TICKS = 300;
 	private static final int BOWFA_CHARGE_CONTEXT_TICKS = 300;
@@ -64,20 +66,25 @@ class ItemChargeTracker
 		"Scales: (?<charges>[\\d,.]+)(?: \\(.*\\))?",
 		Pattern.CASE_INSENSITIVE);
 
-	private static final Map<ItemChargeKind, String> CONFIG_KEYS = new EnumMap<>(ItemChargeKind.class);
+	private static final Map<ItemChargeKind, String> STORAGE_KEYS = new EnumMap<>(ItemChargeKind.class);
+	private static final String SHARED_STATE_PREFIX = "charges.";
 
 	static
 	{
-		CONFIG_KEYS.put(ItemChargeKind.BOWFA, "trackedBowfaCharges");
-		CONFIG_KEYS.put(ItemChargeKind.TOME_OF_FIRE, "trackedTomeOfFireCharges");
-		CONFIG_KEYS.put(ItemChargeKind.TOME_OF_WATER, "trackedTomeOfWaterCharges");
-		CONFIG_KEYS.put(ItemChargeKind.TOME_OF_EARTH, "trackedTomeOfEarthCharges");
-		CONFIG_KEYS.put(ItemChargeKind.TOXIC_STAFF, "trackedToxicStaffCharges");
-		CONFIG_KEYS.put(ItemChargeKind.SERPENTINE_HELM, "trackedSerpentineHelmCharges");
+		STORAGE_KEYS.put(ItemChargeKind.BOWFA, "trackedBowfaCharges");
+		STORAGE_KEYS.put(ItemChargeKind.TOME_OF_FIRE, "trackedTomeOfFireCharges");
+		STORAGE_KEYS.put(ItemChargeKind.TOME_OF_WATER, "trackedTomeOfWaterCharges");
+		STORAGE_KEYS.put(ItemChargeKind.TOME_OF_EARTH, "trackedTomeOfEarthCharges");
+		STORAGE_KEYS.put(ItemChargeKind.TOXIC_STAFF, "trackedToxicStaffCharges");
+		STORAGE_KEYS.put(ItemChargeKind.SERPENTINE_HELM, "trackedSerpentineHelmCharges");
 	}
 
 	private final Client client;
-	private final ConfigManager configManager;
+	private final SharedStateStore sharedStateStore;
+	private final Map<ItemChargeKind, Integer> knownCharges = new EnumMap<>(ItemChargeKind.class);
+	private final EnumSet<ItemChargeKind> dirtyCharges = EnumSet.noneOf(ItemChargeKind.class);
+	private String activeProfileKey;
+	private int sharedStateFlushTicks;
 
 	private int outgoingCombatTicks;
 	private int serpCombatTicks;
@@ -88,10 +95,52 @@ class ItemChargeTracker
 	private int bowfaChargeExpiryTick = -1;
 
 	@Inject
-	ItemChargeTracker(Client client, ConfigManager configManager)
+	ItemChargeTracker(Client client, SharedStateStore sharedStateStore)
 	{
 		this.client = client;
-		this.configManager = configManager;
+		this.sharedStateStore = sharedStateStore;
+	}
+
+	void refreshFromSharedState(String profileKey)
+	{
+		flushSharedState();
+		sharedStateStore.flush();
+		knownCharges.clear();
+		dirtyCharges.clear();
+		activeProfileKey = profileKey;
+		sharedStateFlushTicks = 0;
+		if (profileKey == null)
+		{
+			return;
+		}
+
+		Map<String, String> sharedState = sharedStateStore.readCharacter(profileKey);
+		for (Map.Entry<ItemChargeKind, String> entry : STORAGE_KEYS.entrySet())
+		{
+			String storageKey = entry.getValue();
+			Integer sharedCharges = parseSharedCharges(sharedState.get(SHARED_STATE_PREFIX + storageKey));
+			if (sharedCharges != null)
+			{
+				knownCharges.put(entry.getKey(), sharedCharges);
+			}
+		}
+	}
+
+	private Integer parseSharedCharges(String value)
+	{
+		if (value == null)
+		{
+			return null;
+		}
+
+		try
+		{
+			return Math.max(0, Integer.parseInt(value));
+		}
+		catch (NumberFormatException ignored)
+		{
+			return null;
+		}
 	}
 
 	void onChatMessage(ChatMessage event)
@@ -230,11 +279,22 @@ class ItemChargeTracker
 		}
 
 		outgoingCombatTicks = Math.max(0, outgoingCombatTicks - 1);
+		if (++sharedStateFlushTicks >= SHARED_STATE_FLUSH_TICKS)
+		{
+			sharedStateFlushTicks = 0;
+			flushSharedState();
+		}
+	}
+
+	void shutDown()
+	{
+		flushSharedState();
+		sharedStateStore.flush();
 	}
 
 	void markUncharged(ItemChargeKind kind)
 	{
-		if (CONFIG_KEYS.containsKey(kind))
+		if (STORAGE_KEYS.containsKey(kind))
 		{
 			setCharges(kind, 0);
 		}
@@ -242,7 +302,7 @@ class ItemChargeTracker
 
 	void addKnownCharges(EnumMap<ItemChargeKind, Integer> charges)
 	{
-		for (ItemChargeKind kind : CONFIG_KEYS.keySet())
+		for (ItemChargeKind kind : STORAGE_KEYS.keySet())
 		{
 			Integer quantity = getCharges(kind);
 			if (quantity != null)
@@ -512,25 +572,46 @@ class ItemChargeTracker
 
 	private Integer getCharges(ItemChargeKind kind)
 	{
-		String key = CONFIG_KEYS.get(kind);
-		if (key == null)
+		return knownCharges.get(kind);
+	}
+
+	private void flushSharedState()
+	{
+		if (activeProfileKey == null || dirtyCharges.isEmpty())
 		{
-			return null;
+			return;
 		}
-		Integer charges = configManager.getRSProfileConfiguration(CONFIG_GROUP, key, Integer.class);
-		return charges == null ? null : Math.max(0, charges);
+
+		Map<String, String> changes = new HashMap<>();
+		for (ItemChargeKind kind : dirtyCharges)
+		{
+			String key = STORAGE_KEYS.get(kind);
+			Integer charges = knownCharges.get(kind);
+			if (key != null && charges != null)
+			{
+				changes.put(SHARED_STATE_PREFIX + key, Integer.toString(charges));
+			}
+		}
+		dirtyCharges.clear();
+		sharedStateStore.putCharacter(activeProfileKey, changes);
 	}
 
 	private void setCharges(ItemChargeKind kind, int charges)
 	{
-		String key = CONFIG_KEYS.get(kind);
+		String key = STORAGE_KEYS.get(kind);
 		if (key != null)
 		{
+			if (activeProfileKey == null)
+			{
+				return;
+			}
+
 			int normalizedCharges = Math.max(0, charges);
 			Integer currentCharges = getCharges(kind);
 			if (currentCharges == null || currentCharges != normalizedCharges)
 			{
-				configManager.setRSProfileConfiguration(CONFIG_GROUP, key, normalizedCharges);
+				knownCharges.put(kind, normalizedCharges);
+				dirtyCharges.add(kind);
 			}
 		}
 	}
