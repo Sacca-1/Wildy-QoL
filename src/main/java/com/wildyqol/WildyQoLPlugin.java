@@ -6,6 +6,7 @@ import com.wildyqol.itemskeptondeath.IkodParchmentRiskService;
 import com.wildyqol.misclick.FishInventoryIconOverlay;
 import com.wildyqol.misclick.MisclickPreventionService;
 import com.wildyqol.proctimers.ProcTimerFeatureService;
+import com.wildyqol.prayer.PrayerLayoutService;
 import com.wildyqol.pvparena.PvpArenaSpellbookWarningOverlay;
 import com.wildyqol.scenery.EmirsArenaSceneryService;
 import com.wildyqol.updates.UpdateMessageService;
@@ -31,6 +32,9 @@ import net.runelite.api.events.WidgetLoaded;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.PluginChanged;
+import net.runelite.client.events.ProfileChanged;
+import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -85,6 +89,9 @@ public class WildyQoLPlugin extends Plugin
 	@Inject
 	private PvpArenaSpellbookWarningOverlay pvpArenaSpellbookWarningOverlay;
 
+	@Inject
+	private PrayerLayoutService prayerLayoutService;
+
 	@Override
 	protected void startUp()
 	{
@@ -99,6 +106,7 @@ public class WildyQoLPlugin extends Plugin
 		procTimerFeatureService.startUp(this);
 		extendedFreezeTimersService.startUp(this);
 		emirsArenaSceneryService.startUp();
+		prayerLayoutService.startUp();
 		updateMessageService.startUp();
 	}
 
@@ -115,6 +123,7 @@ public class WildyQoLPlugin extends Plugin
 		procTimerFeatureService.shutDown();
 		extendedFreezeTimersService.shutDown();
 		emirsArenaSceneryService.shutDown();
+		prayerLayoutService.shutDown();
 	}
 
 	@Subscribe
@@ -123,6 +132,7 @@ public class WildyQoLPlugin extends Plugin
 		extendedFreezeTimersService.onGameStateChanged(event);
 		procTimerFeatureService.onGameStateChanged(event);
 		updateMessageService.onGameStateChanged(event);
+		prayerLayoutService.onGameStateChanged(event);
 	}
 
 	@Subscribe
@@ -165,12 +175,15 @@ public class WildyQoLPlugin extends Plugin
 		ikodParchmentRiskService.onVarbitChanged(event);
 		procTimerFeatureService.onVarbitChanged(event);
 		emirsArenaSceneryService.onVarbitChanged(event);
+		prayerLayoutService.onVarbitChanged(event);
 		warningServiceManager.onVarbitChanged(event);
 	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
+		prayerLayoutService.onConfigChanged(event);
+
 		if (!"wildyqol".equals(event.getGroup()))
 		{
 			return;
@@ -196,6 +209,7 @@ public class WildyQoLPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
+		prayerLayoutService.onGameTick();
 		ikodParchmentRiskService.onGameTick(event);
 		extendedFreezeTimersService.onGameTick(event);
 		warningServiceManager.onGameTick(event);
@@ -231,6 +245,25 @@ public class WildyQoLPlugin extends Plugin
 	public void onPlayerDespawned(PlayerDespawned event)
 	{
 		extendedFreezeTimersService.onPlayerDespawned(event);
+	}
+
+	@Subscribe
+	public void onPluginChanged(PluginChanged event)
+	{
+		prayerLayoutService.onPluginChanged(event);
+	}
+
+	@Subscribe
+	public void onProfileChanged(ProfileChanged event)
+	{
+		prayerLayoutService.onProfileChanged();
+	}
+
+	@Subscribe
+	public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
+	{
+		prayerLayoutService.onRuneScapeProfileChanged();
+		warningServiceManager.onRuneScapeProfileChanged();
 	}
 
 	@Provides

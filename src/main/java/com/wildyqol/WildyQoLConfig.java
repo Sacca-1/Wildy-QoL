@@ -163,6 +163,14 @@ public interface WildyQoLConfig extends Config
 	)
 	String PVP_ARENA_SECTION = "pvpArenaSection";
 
+	@ConfigSection(
+		name = "Prayer (preview)",
+		description = "Settings for persisting reordered and hidden prayers",
+		position = 8,
+		closedByDefault = true
+	)
+	String PRAYER_SECTION = "prayerSection";
+
 	@ConfigItem(
 		keyName = "runePouchBlocker",
 		name = "Rune Pouch Blocker",
@@ -443,6 +451,42 @@ public interface WildyQoLConfig extends Config
 	default PvpArenaSpellbookWarningMode pvpArenaSpellbookWarningMode()
 	{
 		return PvpArenaSpellbookWarningMode.ANCIENT;
+	}
+
+	@ConfigItem(
+		keyName = "persistPrayerReordering",
+		name = "Persist prayer layout",
+		description = "Save and restore reordered and hidden prayers for each character and supported PvP minigame build",
+		position = 0,
+		section = PRAYER_SECTION
+	)
+	default boolean persistPrayerReordering()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "gameMessageOnPrayerReordering",
+		name = "Game message confirmation",
+		description = "Show a game message when a saved prayer layout is restored",
+		position = 1,
+		section = PRAYER_SECTION
+	)
+	default boolean gameMessageOnPrayerReordering()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "hideRsnInPrayerLayoutMessage",
+		name = "Hide RSN",
+		description = "Hide the character name in prayer layout restore messages",
+		position = 2,
+		section = PRAYER_SECTION
+	)
+	default boolean hideRsnInPrayerLayoutMessage()
+	{
+		return false;
 	}
 
 	@ConfigItem(

@@ -22,6 +22,7 @@ import net.runelite.api.events.WidgetLoaded;
 public class WarningServiceManager
 {
 	private final WarningEligibilityService warningEligibilityService;
+	private final ItemChargeWarningService itemChargeWarningService;
 	private final List<WarningService<?>> services;
 
 	@Inject
@@ -33,6 +34,7 @@ public class WarningServiceManager
 		TeleportOutWarningService teleportOutWarningService)
 	{
 		this.warningEligibilityService = warningEligibilityService;
+		this.itemChargeWarningService = itemChargeWarningService;
 		services = ImmutableList.of(
 			rangedAmmoWarningService,
 			itemChargeWarningService,
@@ -103,6 +105,11 @@ public class WarningServiceManager
 	public void refreshOnClientThread()
 	{
 		services.forEach(WarningService::refreshOnClientThread);
+	}
+
+	public void onRuneScapeProfileChanged()
+	{
+		itemChargeWarningService.onRuneScapeProfileChanged();
 	}
 
 	public List<String> getOverlayTexts()
