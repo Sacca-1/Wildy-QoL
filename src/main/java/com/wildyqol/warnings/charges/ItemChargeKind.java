@@ -67,14 +67,19 @@ enum ItemChargeKind
 		this.lowText = lowText;
 	}
 
-	String getMissingText()
+	String getNoChargesText()
 	{
-		return missingText;
+		return this == RING_OF_SUFFERING ? "No recoil charges" : "No charges: " + missingText;
 	}
 
 	String getLowText()
 	{
 		return lowText;
+	}
+
+	String getTrackingText()
+	{
+		return this == TOXIC_STAFF ? "toxic staff" : lowText;
 	}
 
 	boolean supportsLowWarning()

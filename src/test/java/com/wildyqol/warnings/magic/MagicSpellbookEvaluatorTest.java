@@ -87,7 +87,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 	}
 
 	@Test
@@ -130,9 +130,9 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, standardWarnings.size());
-		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 		assertEquals(1, ancientWarnings.size());
-		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 	}
 
 	@Test
@@ -162,9 +162,9 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, standardWarnings.size());
-		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 		assertEquals(1, ancientWarnings.size());
-		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 	}
 
 	@Test
@@ -279,7 +279,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes don't match");
 	}
 
 	@Test

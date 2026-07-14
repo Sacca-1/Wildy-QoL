@@ -578,7 +578,7 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "boltMinimum",
-		name = "Crossbow bolts",
+		name = "Bolts",
 		description = "Warn when you have fewer than this many compatible crossbow bolts.<br>Set to 0 to disable this low-amount warning.",
 		position = 1,
 		section = WARNING_AMOUNTS_SECTION
@@ -591,7 +591,7 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "javelinMinimum",
-		name = "Dragon javelins",
+		name = "Javelins",
 		description = "Warn when you have fewer than this many dragon javelins.<br>Set to 0 to disable this low-amount warning.",
 		position = 2,
 		section = WARNING_AMOUNTS_SECTION
@@ -604,8 +604,8 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "arrowMinimum",
-		name = "Dragon arrows",
-		description = "Warn when you have fewer than this many dragon arrows.<br>Set to 0 to disable this low-amount warning.",
+		name = "Arrows",
+		description = "Warn when you have fewer than this many compatible arrows.<br>Set to 0 to disable this low-amount warning.",
 		position = 3,
 		section = WARNING_AMOUNTS_SECTION
 	)

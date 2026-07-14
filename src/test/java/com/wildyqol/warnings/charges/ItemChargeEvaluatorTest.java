@@ -52,7 +52,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warning,
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: Bowfa — use Check");
+			"Check Bowfa charges");
 	}
 
 	@Test
@@ -65,6 +65,18 @@ public class ItemChargeEvaluatorTest
 			new TestThresholds());
 
 		assertWarning(warning, ItemChargeWarning.WarningPriority.MISSING, "No charges: toxic staff of the dead");
+	}
+
+	@Test
+	public void usesRecoilChargeWordingForUnchargedRingOfSuffering()
+	{
+		Optional<ItemChargeWarning> warning = evaluate(
+			ImmutableSet.of(),
+			ImmutableSet.of(ItemChargeKind.RING_OF_SUFFERING),
+			charges(),
+			new TestThresholds());
+
+		assertWarning(warning, ItemChargeWarning.WarningPriority.MISSING, "No recoil charges");
 	}
 
 	@Test
@@ -142,7 +154,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warning,
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: tome of fire — use Check");
+			"Check tome of fire charges");
 	}
 
 	@Test
@@ -162,7 +174,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warnings.get(0),
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: Bowfa, serpentine helm, toxic staff of the dead, tome of fire — use Check");
+			"Check charges: Bowfa, serpentine helm, toxic staff, tome of fire");
 	}
 
 	@Test

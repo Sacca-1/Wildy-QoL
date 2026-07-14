@@ -27,7 +27,7 @@ public class WarningOverlayTest
 		WarningLine lowCharges = new WarningLine(WarningSeverity.CAUTION, "Low tome of fire charges: 200/500");
 		WarningLine missingTeleBlock = new WarningLine(WarningSeverity.CRITICAL, "No Tele Block casts");
 		WarningLine suboptimalAmmo = new WarningLine(WarningSeverity.CAUTION, "Suboptimal ammo: Ruby dragon bolts");
-		WarningLine missingTeleport = new WarningLine(WarningSeverity.CRITICAL, "Missing teleport out");
+		WarningLine missingTeleport = new WarningLine(WarningSeverity.CRITICAL, "No teleport out");
 
 		List<WarningLine> warnings = WarningOverlay.orderWarnings(Arrays.asList(
 			lowCharges,

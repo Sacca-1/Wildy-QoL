@@ -9,14 +9,14 @@ import net.runelite.client.game.ItemVariationMapping;
 public enum RangedAmmoRequirement
 {
 	ATLATL_DARTS(
-		"atlatl darts",
+		"darts",
 		"atlatl darts",
 		AmmoThresholds::atlatlDarts,
 		ItemID.ATLATL_DART,
 		ItemID.ATLATL_DART_29852
 	),
 	RUNE_BOLTS(
-		"rune crossbow ammo",
+		"bolts",
 		"rune crossbow ammo",
 		AmmoThresholds::bolts,
 		runeCrossbowAmmo(),
@@ -26,7 +26,7 @@ public enum RangedAmmoRequirement
 		ItemID.ONYX_BOLTS_E
 	),
 	DRAGON_BOLTS(
-		"dragon crossbow ammo",
+		"bolts",
 		"dragon crossbow ammo",
 		AmmoThresholds::bolts,
 		dragonCrossbowAmmo(),
@@ -41,14 +41,14 @@ public enum RangedAmmoRequirement
 		ItemID.OPAL_DRAGON_BOLTS_E_27192
 	),
 	ANTLER_BOLTS(
-		"antler bolts",
+		"bolts",
 		"antler bolts",
 		AmmoThresholds::bolts,
 		ItemID.SUNLIGHT_ANTLER_BOLTS,
 		ItemID.MOONLIGHT_ANTLER_BOLTS
 	),
 	DRAGON_JAVELINS(
-		"dragon javelins",
+		"javelins",
 		"dragon javelins",
 		AmmoThresholds::javelins,
 		ItemID.DRAGON_JAVELIN,
@@ -58,7 +58,7 @@ public enum RangedAmmoRequirement
 		ItemID.DRAGON_JAVELIN_23648
 	),
 	DRAGON_ARROWS(
-		"dragon arrows",
+		"arrows",
 		"dragon arrows",
 		AmmoThresholds::arrows,
 		dragonArrowBowAmmo(),
@@ -78,52 +78,72 @@ public enum RangedAmmoRequirement
 			ItemID.DRAGON_ARROW_20389)
 	);
 
-	private final String requiredText;
-	private final String lowText;
+	private final String ammoFamilyText;
+	private final String specificText;
 	private final ToIntFunction<AmmoThresholds> threshold;
 	private final Set<Integer> acceptedAmmoIds;
 	private final Set<Integer> optimalAmmoIds;
 	private final Set<Integer> exactOptimalAmmoIds;
 
-	RangedAmmoRequirement(String requiredText, String lowText, ToIntFunction<AmmoThresholds> threshold, Integer... acceptedAmmoIds)
+	RangedAmmoRequirement(String ammoFamilyText, String specificText, ToIntFunction<AmmoThresholds> threshold, Integer... acceptedAmmoIds)
 	{
-		this(requiredText, lowText, threshold, ammoSet(acceptedAmmoIds), optimalAmmoSet(acceptedAmmoIds), exactOptimalAmmoSet(acceptedAmmoIds));
+		this(ammoFamilyText, specificText, threshold, ammoSet(acceptedAmmoIds), optimalAmmoSet(acceptedAmmoIds), exactOptimalAmmoSet(acceptedAmmoIds));
 	}
 
 	RangedAmmoRequirement(
-		String requiredText,
-		String lowText,
+		String ammoFamilyText,
+		String specificText,
 		ToIntFunction<AmmoThresholds> threshold,
 		Set<Integer> acceptedAmmoIds,
 		Integer... optimalAmmoIds)
 	{
-		this(requiredText, lowText, threshold, acceptedAmmoIds, optimalAmmoSet(optimalAmmoIds), exactOptimalAmmoSet(optimalAmmoIds));
+		this(ammoFamilyText, specificText, threshold, acceptedAmmoIds, optimalAmmoSet(optimalAmmoIds), exactOptimalAmmoSet(optimalAmmoIds));
 	}
 
 	RangedAmmoRequirement(
-		String requiredText,
-		String lowText,
+		String ammoFamilyText,
+		String specificText,
 		ToIntFunction<AmmoThresholds> threshold,
 		Set<Integer> acceptedAmmoIds,
 		Set<Integer> optimalAmmoIds,
 		Set<Integer> exactOptimalAmmoIds)
 	{
-		this.requiredText = requiredText;
-		this.lowText = lowText;
+		this.ammoFamilyText = ammoFamilyText;
+		this.specificText = specificText;
 		this.threshold = threshold;
 		this.acceptedAmmoIds = acceptedAmmoIds;
 		this.optimalAmmoIds = optimalAmmoIds;
 		this.exactOptimalAmmoIds = exactOptimalAmmoIds;
 	}
 
-	String getRequiredText()
+	String getAmmoFamilyText()
 	{
-		return requiredText;
+		return ammoFamilyText;
 	}
 
-	String getLowText()
+	String getSpecificText()
 	{
-		return lowText;
+		return specificText;
+	}
+
+	String getWrongText()
+	{
+		switch (this)
+		{
+			case ATLATL_DARTS:
+				return "atlatl ammo";
+			case RUNE_BOLTS:
+			case DRAGON_BOLTS:
+				return "crossbow ammo";
+			case ANTLER_BOLTS:
+				return "antler crossbow ammo";
+			case DRAGON_JAVELINS:
+				return "ballista ammo";
+			case DRAGON_ARROWS:
+				return "bow ammo";
+			default:
+				throw new IllegalStateException("Unsupported ammo requirement: " + this);
+		}
 	}
 
 	int getThreshold(AmmoThresholds thresholds)

@@ -126,9 +126,15 @@ public class RangedAmmoEvaluator
 			if (compatibleCount == 0)
 			{
 				boolean wrongAmmo = requirements.size() == 1 && !ammoCounts.isEmpty();
+				String missingText = hasMultipleRequirementsForAmmoFamily(requirement, requirements)
+					? requirement.getSpecificText()
+					: requirement.getAmmoFamilyText();
+				String text = wrongAmmo
+					? "Wrong " + requirement.getWrongText()
+					: "No " + missingText;
 				warnings.add(new RangedAmmoWarning(
 					wrongAmmo ? RangedAmmoWarning.WarningPriority.WRONG : RangedAmmoWarning.WarningPriority.MISSING,
-					(wrongAmmo ? "Wrong " : "Missing ") + requirement.getRequiredText()));
+					text));
 			}
 		}
 
@@ -143,13 +149,31 @@ public class RangedAmmoEvaluator
 			int compatibleCount = countCompatibleAmmo(requirement, ammoCounts);
 			if (compatibleCount > 0 && compatibleCount < threshold)
 			{
+				String lowText = hasMultipleRequirementsForAmmoFamily(requirement, requirements)
+					? requirement.getSpecificText()
+					: requirement.getAmmoFamilyText();
 				warnings.add(new RangedAmmoWarning(
 					RangedAmmoWarning.WarningPriority.LOW,
-					"Low " + requirement.getLowText() + ": " + compatibleCount + "/" + threshold));
+					"Low " + lowText + ": " + compatibleCount + "/" + threshold));
 			}
 		}
 
 		return ImmutableList.copyOf(warnings);
+	}
+
+	private boolean hasMultipleRequirementsForAmmoFamily(
+		RangedAmmoRequirement requirement,
+		Set<RangedAmmoRequirement> requirements)
+	{
+		int matchingRequirements = 0;
+		for (RangedAmmoRequirement other : requirements)
+		{
+			if (other.getAmmoFamilyText().equals(requirement.getAmmoFamilyText()) && ++matchingRequirements > 1)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private int countCompatibleAmmo(RangedAmmoRequirement requirement, Map<Integer, Integer> ammoCounts)

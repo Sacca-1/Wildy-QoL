@@ -243,7 +243,7 @@ public class MagicSpellbookEvaluator
 	{
 		return ImmutableList.of(new MagicSpellbookWarning(
 			MagicSpellbookWarning.WarningPriority.MISMATCH,
-			"Spellbook/rune mismatch"));
+			"Spellbook and runes don't match"));
 	}
 
 	private MagicSpellbookWarning missing(String text)

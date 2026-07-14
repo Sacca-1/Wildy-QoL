@@ -135,7 +135,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
 			ImmutableMap.of(ItemID.DRAGON_BOLTS, 100));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong rune crossbow ammo");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong crossbow ammo");
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
 			ImmutableMap.of());
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing dragon arrows");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "No arrows");
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
 			ImmutableMap.of(ItemID.DRAGON_ARROW, 100));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong dragon crossbow ammo");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong crossbow ammo");
 	}
 
 	@Test
@@ -211,7 +211,29 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low rune crossbow ammo: 42/100");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low bolts: 42/100");
+	}
+
+	@Test
+	public void usesSimpleAmmoFamilyNamesForLowWarnings()
+	{
+		assertWarning(evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
+			ImmutableMap.of(ItemID.DRAGON_ARROW, 9)),
+			RangedAmmoWarning.WarningPriority.LOW,
+			"Low arrows: 9/100");
+
+		assertWarning(evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.ATLATL_DARTS),
+			ImmutableMap.of(ItemID.ATLATL_DART, 40)),
+			RangedAmmoWarning.WarningPriority.LOW,
+			"Low darts: 40/250");
+
+		assertWarning(evaluate(
+			ImmutableSet.of(RangedAmmoRequirement.DRAGON_JAVELINS),
+			ImmutableMap.of(ItemID.DRAGON_JAVELIN, 20)),
+			RangedAmmoWarning.WarningPriority.LOW,
+			"Low javelins: 20/100");
 	}
 
 	@Test
@@ -221,7 +243,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS, RangedAmmoRequirement.DRAGON_ARROWS),
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 100));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing dragon arrows");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "No arrows");
 	}
 
 	@Test
@@ -232,8 +254,31 @@ public class RangedAmmoEvaluatorTest
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
 		assertEquals(2, warnings.size());
-		assertEquals("Missing dragon arrows", warnings.get(0).getText());
+		assertEquals("No arrows", warnings.get(0).getText());
+		assertEquals("Low bolts: 42/100", warnings.get(1).getText());
+	}
+
+	@Test
+	public void keepsLowBoltWarningsSpecificWhenMultipleBoltTypesAreRequired()
+	{
+		List<RangedAmmoWarning> warnings = evaluateAll(
+			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS, RangedAmmoRequirement.ANTLER_BOLTS),
+			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42, ItemID.SUNLIGHT_ANTLER_BOLTS, 10));
+
+		assertEquals(2, warnings.size());
+		assertEquals("Low antler bolts: 10/100", warnings.get(0).getText());
 		assertEquals("Low rune crossbow ammo: 42/100", warnings.get(1).getText());
+	}
+
+	@Test
+	public void keepsMissingBoltWarningsSpecificWhenMultipleBoltTypesAreRequired()
+	{
+		List<RangedAmmoWarning> warnings = evaluateAll(
+			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS, RangedAmmoRequirement.ANTLER_BOLTS),
+			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 100));
+
+		assertEquals(1, warnings.size());
+		assertEquals("No antler bolts", warnings.get(0).getText());
 	}
 
 	@Test

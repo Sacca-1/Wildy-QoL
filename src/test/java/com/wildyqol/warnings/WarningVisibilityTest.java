@@ -15,7 +15,7 @@ public class WarningVisibilityTest
 {
 	private final RangedAmmoWarning warning = new RangedAmmoWarning(
 		RangedAmmoWarning.WarningPriority.MISSING,
-		"Missing dragon arrows");
+		"No arrows");
 
 	@Test
 	public void alwaysShowsWhenBankGateDisabled()
@@ -107,7 +107,7 @@ public class WarningVisibilityTest
 		WarningVisibility<RangedAmmoWarning> visibility = new WarningVisibility<>(RangedAmmoWarning::getText);
 		List<RangedAmmoWarning> warnings = ImmutableList.of(
 			warning,
-			new RangedAmmoWarning(RangedAmmoWarning.WarningPriority.LOW, "Low rune crossbow ammo: 42/100"));
+			new RangedAmmoWarning(RangedAmmoWarning.WarningPriority.LOW, "Low bolts: 42/100"));
 
 		List<RangedAmmoWarning> visibleWarnings = visibility.update(
 			warnings,
@@ -118,7 +118,7 @@ public class WarningVisibilityTest
 			false);
 
 		assertEquals(2, visibleWarnings.size());
-		assertEquals("Missing dragon arrows", visibleWarnings.get(0).getText());
-		assertEquals("Low rune crossbow ammo: 42/100", visibleWarnings.get(1).getText());
+		assertEquals("No arrows", visibleWarnings.get(0).getText());
+		assertEquals("Low bolts: 42/100", visibleWarnings.get(1).getText());
 	}
 }

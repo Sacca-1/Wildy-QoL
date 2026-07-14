@@ -27,7 +27,7 @@ public class TeleportOutEvaluatorTest
 		List<TeleportOutWarning> warnings = evaluate(TeleportOutWarningMode.LEVEL_20, 0);
 
 		assertEquals(1, warnings.size());
-		assertEquals("Missing teleport out", warnings.get(0).getText());
+		assertEquals("No teleport out", warnings.get(0).getText());
 	}
 
 	@Test

@@ -25,7 +25,7 @@ public class ItemChargeEvaluator
 		{
 			if (state.getUnchargedItems().contains(kind) && !state.getChargedItems().contains(kind))
 			{
-				warnings.add(missing("No charges: " + kind.getMissingText()));
+				warnings.add(missing(kind.getNoChargesText()));
 				continue;
 			}
 
@@ -40,7 +40,7 @@ public class ItemChargeEvaluator
 			{
 				if (threshold > 0 && kind.requiresManualTracking())
 				{
-					unknownTrackedChargeItems.add(kind.getLowText());
+					unknownTrackedChargeItems.add(kind.getTrackingText());
 				}
 				continue;
 			}
@@ -54,9 +54,10 @@ public class ItemChargeEvaluator
 
 		if (!unknownTrackedChargeItems.isEmpty())
 		{
-			warnings.add(unknown("Unknown charges: "
-				+ String.join(", ", unknownTrackedChargeItems)
-				+ " — use Check"));
+			String text = unknownTrackedChargeItems.size() == 1
+				? "Check " + unknownTrackedChargeItems.get(0) + " charges"
+				: "Check charges: " + String.join(", ", unknownTrackedChargeItems);
+			warnings.add(unknown(text));
 		}
 
 		warnings.sort((left, right) ->

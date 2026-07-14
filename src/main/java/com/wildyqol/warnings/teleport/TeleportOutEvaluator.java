@@ -13,7 +13,7 @@ import net.runelite.api.ItemID;
 
 class TeleportOutEvaluator
 {
-	private static final TeleportOutWarning WARNING = new TeleportOutWarning("Missing teleport out");
+	private static final TeleportOutWarning WARNING = new TeleportOutWarning("No teleport out");
 	private static final List<TeleportSpell> SPELLS = ImmutableList.of(
 		spell(MagicSpellbook.STANDARD, 25, runes(MagicRune.AIR, 3, MagicRune.FIRE, 1, MagicRune.LAW, 1)),
 		spell(MagicSpellbook.STANDARD, 31, runes(MagicRune.AIR, 3, MagicRune.EARTH, 1, MagicRune.LAW, 1)),
