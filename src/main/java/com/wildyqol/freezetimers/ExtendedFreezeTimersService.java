@@ -37,6 +37,7 @@ import net.runelite.api.gameval.SpotanimID;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemVariationMapping;
 import net.runelite.client.game.SpriteManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
@@ -74,7 +75,6 @@ public class ExtendedFreezeTimersService
 	private int freezeAppliedTick = -1;
 	private int lastFrozenMessageTick = -1;
 	private WorldPoint lastPoint;
-	private boolean warnedDuplicate;
 	private int lastSeedCount = -1;
 	private boolean pendingForcedMovement;
 	private int forcedMovementTick = -1;
@@ -100,7 +100,6 @@ public class ExtendedFreezeTimersService
 	public void startUp(WildyQoLPlugin plugin)
 	{
 		this.plugin = plugin;
-		warnedDuplicate = false;
 		lastSeedCount = -1;
 		pendingForcedMovement = false;
 		forcedMovementTick = -1;
@@ -110,7 +109,7 @@ public class ExtendedFreezeTimersService
 			return;
 		}
 
-		warnDuplicateTimersIfNeeded();
+		disableDuplicateTimersIfNeeded();
 	}
 
 	public void shutDown()
@@ -120,18 +119,38 @@ public class ExtendedFreezeTimersService
 		clearOpponent();
 		resetStandardSpotAnimTracking();
 		plugin = null;
-		warnedDuplicate = false;
 		pendingForcedMovement = false;
 		forcedMovementTick = -1;
 		lastSeedCount = -1;
 	}
 
-	public void onConfigChanged()
+	public void onConfigChanged(ConfigChanged event)
 	{
+		if (CORE_TIMERS_GROUP.equals(event.getGroup()) && CORE_SHOW_FREEZES_KEY.equals(event.getKey()))
+		{
+			disableDuplicateTimersIfNeeded();
+			return;
+		}
+
+		if (!"wildyqol".equals(event.getGroup()))
+		{
+			return;
+		}
+
+		if ("warnDuplicateFreezeTimers".equals(event.getKey()))
+		{
+			disableDuplicateTimersIfNeeded();
+			return;
+		}
+
+		if (!"enableExtendedFreezeTimersV2".equals(event.getKey()))
+		{
+			return;
+		}
+
 		if (config.enableExtendedFreezeTimers())
 		{
-			warnedDuplicate = false;
-			warnDuplicateTimersIfNeeded();
+			disableDuplicateTimersIfNeeded();
 			lastSeedCount = -1;
 			pendingForcedMovement = false;
 			forcedMovementTick = -1;
@@ -424,8 +443,8 @@ public class ExtendedFreezeTimersService
 		activeTimer.setTooltip(type.getDisplayName());
 		freezeAppliedTick = client.getTickCount();
 
-		// If the core timer is still on, warn once.
-		warnDuplicateTimersIfNeeded();
+		// Recheck in case the core timer was enabled without a config event reaching this plugin.
+		disableDuplicateTimersIfNeeded();
 	}
 
 	private Duration calculateDuration(FreezeType type)
@@ -678,9 +697,9 @@ public class ExtendedFreezeTimersService
 		return plugin != null && config.enableExtendedFreezeTimers();
 	}
 
-	private void warnDuplicateTimersIfNeeded()
+	private void disableDuplicateTimersIfNeeded()
 	{
-		if (warnedDuplicate || !config.warnDuplicateFreezeTimers())
+		if (!isEnabled() || !config.disableDuplicateFreezeTimers())
 		{
 			return;
 		}
@@ -691,11 +710,12 @@ public class ExtendedFreezeTimersService
 			return;
 		}
 
+		configManager.setConfiguration(CORE_TIMERS_GROUP, CORE_SHOW_FREEZES_KEY, false);
+
 		chatMessageManager.queue(QueuedMessage.builder()
 			.type(ChatMessageType.GAMEMESSAGE)
-			.runeLiteFormattedMessage("<col=ff9040>Wildy QoL:</col> Both freeze timers are enabled. Turn off \"Freeze timer\" in Timers & Buffs to avoid duplicate timers.")
+			.runeLiteFormattedMessage("<col=ff9040>Wildy QoL:</col> Turned off \"Freeze timer\" in Timers & Buffs because extended freeze timers are enabled.")
 			.build());
-		warnedDuplicate = true;
 	}
 
 	private static Set<Integer> buildAncientSceptres()

@@ -182,15 +182,11 @@ public class WildyQoLPlugin extends Plugin
 	public void onConfigChanged(ConfigChanged event)
 	{
 		prayerLayoutService.onConfigChanged(event);
+		extendedFreezeTimersService.onConfigChanged(event);
 
 		if (!"wildyqol".equals(event.getGroup()))
 		{
 			return;
-		}
-
-		if ("enableExtendedFreezeTimersV2".equals(event.getKey()))
-		{
-			extendedFreezeTimersService.onConfigChanged();
 		}
 
 		procTimerFeatureService.onConfigChanged(event);

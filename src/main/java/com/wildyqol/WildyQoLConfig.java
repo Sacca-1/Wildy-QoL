@@ -762,12 +762,12 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "warnDuplicateFreezeTimers",
-		name = "Warn about duplicate timers",
-		description = "Show a chat warning when RuneLite's freeze timer is also enabled.",
+		name = "Disable RuneLite's freeze timer",
+		description = "Turn off the freeze timer in Timers & Buffs when extended freeze timers are enabled.",
 		position = 1,
 		section = FREEZE_TIMERS_SECTION
 	)
-	default boolean warnDuplicateFreezeTimers()
+	default boolean disableDuplicateFreezeTimers()
 	{
 		return true;
 	}

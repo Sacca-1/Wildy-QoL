@@ -27,7 +27,7 @@ Charge tracking for tomes, the toxic staff of the dead, and the serpentine helm 
 
 - Account for freeze-length bonuses from Ancient sceptres, Zuriel's staves, and Swampbark.
 - Keep freeze timers running after forced movement from seeds or dragon spear and hasta special attacks.
-- Warn when RuneLite's own freeze timer is also enabled.
+- Optionally turn off RuneLite's own freeze timer when both timers are enabled.
 
 ### Prayer layouts
 
