@@ -292,6 +292,18 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "warningThresholdDefaultsMigratedV1",
+		name = "Warning Threshold Defaults Migrated V1",
+		description = "Internal flag for the first warning threshold default migration",
+		hidden = true,
+		position = 6
+	)
+	default boolean warningThresholdDefaultsMigratedV1()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "menaphiteProcTimerDisplayTicks",
 		name = "Show in ticks",
 		description = "Display the menaphite proc countdown using game ticks instead of seconds",
@@ -550,7 +562,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int atlatlDartMinimum()
 	{
-		return 250;
+		return 100;
 	}
 
 	@Range(min = 0)
@@ -563,7 +575,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int boltMinimum()
 	{
-		return 100;
+		return 50;
 	}
 
 	@Range(min = 0)
@@ -576,7 +588,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int javelinMinimum()
 	{
-		return 100;
+		return 50;
 	}
 
 	@Range(min = 0)
@@ -589,7 +601,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int arrowMinimum()
 	{
-		return 100;
+		return 20;
 	}
 
 	@Range(min = 0)
@@ -602,7 +614,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int bowfaChargeMinimum()
 	{
-		return 250;
+		return 300;
 	}
 
 	@Range(min = 0)
@@ -628,7 +640,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int toxicStaffChargeMinimum()
 	{
-		return 500;
+		return 300;
 	}
 
 	@Range(min = 0)
@@ -641,7 +653,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int serpentineHelmChargeMinimum()
 	{
-		return 500;
+		return 300;
 	}
 
 	@Range(min = 0)
@@ -680,7 +692,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int surgeMinimum()
 	{
-		return 100;
+		return 50;
 	}
 
 	@Range(min = 0)
@@ -693,7 +705,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default int iceSpellMinimum()
 	{
-		return 100;
+		return 50;
 	}
 
 	@Range(min = 0)

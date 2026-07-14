@@ -11,6 +11,7 @@ import com.wildyqol.pvparena.PvpArenaSpellbookWarningOverlay;
 import com.wildyqol.scenery.EmirsArenaSceneryService;
 import com.wildyqol.updates.UpdateMessageService;
 import com.wildyqol.warnings.ProtectItemInfoBoxService;
+import com.wildyqol.warnings.WarningDefaultsMigrationService;
 import com.wildyqol.warnings.WarningOverlay;
 import com.wildyqol.warnings.WarningServiceManager;
 import javax.inject.Inject;
@@ -81,6 +82,9 @@ public class WildyQoLPlugin extends Plugin
 	private WarningServiceManager warningServiceManager;
 
 	@Inject
+	private WarningDefaultsMigrationService warningDefaultsMigrationService;
+
+	@Inject
 	private WarningOverlay warningOverlay;
 
 	@Inject
@@ -99,6 +103,7 @@ public class WildyQoLPlugin extends Plugin
 		overlayManager.add(fishInventoryIconOverlay);
 		overlayManager.add(warningOverlay);
 		overlayManager.add(pvpArenaSpellbookWarningOverlay);
+		warningDefaultsMigrationService.migrate();
 		ikodParchmentRiskService.startUp();
 		clientThread.invokeLater(() -> ikodParchmentRiskService.refresh());
 		protectItemInfoBoxService.startUp(this);
@@ -256,6 +261,7 @@ public class WildyQoLPlugin extends Plugin
 	@Subscribe
 	public void onProfileChanged(ProfileChanged event)
 	{
+		warningDefaultsMigrationService.migrate();
 		prayerLayoutService.onProfileChanged();
 	}
 
