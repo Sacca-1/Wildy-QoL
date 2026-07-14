@@ -9,6 +9,7 @@ import com.wildyqol.proctimers.ProcTimerFeatureService;
 import com.wildyqol.prayer.PrayerLayoutService;
 import com.wildyqol.pvparena.PvpArenaSpellbookWarningOverlay;
 import com.wildyqol.scenery.EmirsArenaSceneryService;
+import com.wildyqol.updates.UpdateMessageService;
 import com.wildyqol.warnings.ProtectItemInfoBoxService;
 import com.wildyqol.warnings.WarningDefaultsMigrationService;
 import com.wildyqol.warnings.WarningOverlay;
@@ -81,6 +82,9 @@ public class WildyQoLPlugin extends Plugin
 	private WarningDefaultsMigrationService warningDefaultsMigrationService;
 
 	@Inject
+	private UpdateMessageService updateMessageService;
+
+	@Inject
 	private WarningOverlay warningOverlay;
 
 	@Inject
@@ -100,6 +104,7 @@ public class WildyQoLPlugin extends Plugin
 		overlayManager.add(warningOverlay);
 		overlayManager.add(pvpArenaSpellbookWarningOverlay);
 		warningDefaultsMigrationService.migrate();
+		updateMessageService.startUp();
 		ikodParchmentRiskService.startUp();
 		clientThread.invokeLater(() -> ikodParchmentRiskService.refresh());
 		protectItemInfoBoxService.startUp(this);
@@ -132,6 +137,7 @@ public class WildyQoLPlugin extends Plugin
 		extendedFreezeTimersService.onGameStateChanged(event);
 		procTimerFeatureService.onGameStateChanged(event);
 		prayerLayoutService.onGameStateChanged(event);
+		updateMessageService.onGameStateChanged(event);
 	}
 
 	@Subscribe
