@@ -90,10 +90,10 @@ public class MagicSpellbookEvaluator
 	private List<MagicSpellbookWarning> evaluateStandard(MagicSpellbookState state, MagicThresholds thresholds)
 	{
 		List<MagicSpellbookWarning> warnings = new ArrayList<>();
-		addCategoryWarning(warnings, "Tele Block", "Tele Block", max(
+		addCategoryWarning(warnings, "Tele Block casts", max(
 			countItem(state, ItemID.BLIGHTED_TELEPORT_SPELL_SACK),
 			casts(TELE_BLOCK, state)), thresholds.teleBlock());
-		addCategoryWarning(warnings, "freeze", "freeze", max(
+		addCategoryWarning(warnings, "freeze casts", max(
 			countItem(state, ItemID.BLIGHTED_ENTANGLE_SACK),
 			casts(SNARE, state),
 			casts(ENTANGLE, state)), thresholds.entangle());
@@ -118,25 +118,25 @@ public class MagicSpellbookEvaluator
 
 		if (bestRuneDamage > 0)
 		{
-			warnings.add(low("Low casts: damage " + bestRuneDamage + "/" + threshold));
+			warnings.add(low("Low damage casts: " + bestRuneDamage + "/" + threshold));
 			return ImmutableList.copyOf(warnings);
 		}
 
-		warnings.add(missing("Missing runes: damage"));
+		warnings.add(missing("No damage casts"));
 		return ImmutableList.copyOf(warnings);
 	}
 
 	private List<MagicSpellbookWarning> evaluateAncient(MagicSpellbookState state, MagicThresholds thresholds)
 	{
 		List<MagicSpellbookWarning> warnings = new ArrayList<>();
-		addCategoryWarning(warnings, "ice spells", "ice", max(
+		addCategoryWarning(warnings, "ice casts", max(
 			countItem(state, ItemID.BLIGHTED_ANCIENT_ICE_SACK),
 			maxCasts(ICE_SPELLS, state)), thresholds.ice());
 
 		int bloodCasts = casts(BLOOD_BARRAGE, state);
 		if (bloodCasts > 0 && !meets(bloodCasts, thresholds.blood()))
 		{
-			warnings.add(low("Low casts: blood barrage " + bloodCasts + "/" + thresholds.blood()));
+			warnings.add(low("Low Blood Barrage casts: " + bloodCasts + "/" + thresholds.blood()));
 		}
 		return sort(warnings);
 	}
@@ -144,7 +144,7 @@ public class MagicSpellbookEvaluator
 	private List<MagicSpellbookWarning> evaluateLunar(MagicSpellbookState state, MagicThresholds thresholds)
 	{
 		List<MagicSpellbookWarning> warnings = new ArrayList<>();
-		addCategoryWarning(warnings, "Vengeance", "Vengeance", max(
+		addCategoryWarning(warnings, "Vengeance casts", max(
 			countItem(state, ItemID.BLIGHTED_VENGEANCE_SACK),
 			casts(VENGEANCE, state)), thresholds.vengeance());
 		return sort(warnings);
@@ -180,8 +180,7 @@ public class MagicSpellbookEvaluator
 
 	private void addCategoryWarning(
 		List<MagicSpellbookWarning> warnings,
-		String missingText,
-		String lowText,
+		String castText,
 		int casts,
 		int threshold)
 	{
@@ -192,11 +191,11 @@ public class MagicSpellbookEvaluator
 
 		if (casts > 0)
 		{
-			warnings.add(low("Low casts: " + lowText + " " + casts + "/" + threshold));
+			warnings.add(low("Low " + castText + ": " + casts + "/" + threshold));
 			return;
 		}
 
-		warnings.add(missing("Missing runes: " + missingText));
+		warnings.add(missing("No " + castText));
 	}
 
 	private boolean meets(int casts, int threshold)
@@ -244,7 +243,7 @@ public class MagicSpellbookEvaluator
 	{
 		return ImmutableList.of(new MagicSpellbookWarning(
 			MagicSpellbookWarning.WarningPriority.MISMATCH,
-			"Spellbook and runes do not match"));
+			"Spellbook/rune mismatch"));
 	}
 
 	private MagicSpellbookWarning missing(String text)

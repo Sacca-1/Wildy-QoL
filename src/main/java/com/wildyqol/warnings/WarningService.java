@@ -22,6 +22,7 @@ public abstract class WarningService<T>
 	private final ClientThread clientThread;
 	private final WarningEligibilityService warningEligibilityService;
 	private final Function<T, String> textProvider;
+	private final Function<T, WarningSeverity> severityProvider;
 	private final WarningVisibility<T> visibility;
 
 	private List<T> visibleWarnings = Collections.emptyList();
@@ -30,12 +31,14 @@ public abstract class WarningService<T>
 		Client client,
 		ClientThread clientThread,
 		WarningEligibilityService warningEligibilityService,
-		Function<T, String> textProvider)
+		Function<T, String> textProvider,
+		Function<T, WarningSeverity> severityProvider)
 	{
 		this.client = client;
 		this.clientThread = clientThread;
 		this.warningEligibilityService = warningEligibilityService;
 		this.textProvider = textProvider;
+		this.severityProvider = severityProvider;
 		this.visibility = new WarningVisibility<>(textProvider);
 	}
 
@@ -79,7 +82,7 @@ public abstract class WarningService<T>
 	{
 	}
 
-	public List<String> getOverlayTexts()
+	public List<WarningLine> getOverlayWarnings()
 	{
 		if (!isEnabled() || visibleWarnings.isEmpty())
 		{
@@ -87,7 +90,7 @@ public abstract class WarningService<T>
 		}
 
 		return visibleWarnings.stream()
-			.map(textProvider)
+			.map(warning -> new WarningLine(severityProvider.apply(warning), textProvider.apply(warning)))
 			.collect(Collectors.toList());
 	}
 

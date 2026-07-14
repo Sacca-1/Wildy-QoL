@@ -112,19 +112,21 @@ public class WarningServiceManager
 		itemChargeWarningService.onRuneScapeProfileChanged();
 	}
 
-	public List<String> getOverlayTexts()
+	public List<WarningLine> getOverlayWarnings()
 	{
-		List<String> texts = new ArrayList<>();
+		List<WarningLine> warnings = new ArrayList<>();
 		for (WarningService<?> service : services)
 		{
-			for (String text : service.getOverlayTexts())
+			for (WarningLine warning : service.getOverlayWarnings())
 			{
-				if (!texts.contains(text))
+				boolean alreadyIncluded = warnings.stream()
+					.anyMatch(included -> included.getText().equals(warning.getText()));
+				if (!alreadyIncluded)
 				{
-					texts.add(text);
+					warnings.add(warning);
 				}
 			}
 		}
-		return texts;
+		return warnings;
 	}
 }

@@ -11,9 +11,9 @@ public interface WildyQoLConfig extends Config
 {
 	enum TeleportOutWarningMode
 	{
-		NEVER("Never", 0),
-		LEVEL_20("20", 20),
-		LEVEL_30("30", 30);
+		NEVER("Off", 0),
+		LEVEL_20("Level 20", 20),
+		LEVEL_30("Level 30", 30);
 
 		private final String label;
 		private final int wildernessLevel;
@@ -38,10 +38,10 @@ public interface WildyQoLConfig extends Config
 
 	enum WarningDisplayMode
 	{
-		BANK("Bank"),
+		BANK("Banks"),
 		PVP_BANKS("PvP banks"),
-		PVP_AREA("PvP area"),
-		ALWAYS("Always");
+		PVP_AREA("PvP areas"),
+		ALWAYS("Everywhere");
 
 		private final String label;
 
@@ -59,9 +59,9 @@ public interface WildyQoLConfig extends Config
 
 	enum SpecialAttackOrbBlockMode
 	{
-		NEVER("Never"),
-		PVP("PvP"),
-		ALWAYS("Always");
+		NEVER("Off"),
+		PVP("PvP areas"),
+		ALWAYS("Everywhere");
 
 		private final String label;
 
@@ -79,11 +79,11 @@ public interface WildyQoLConfig extends Config
 
 	enum PvpArenaSpellbookWarningMode
 	{
-		ANCIENT("Ancient"),
-		STANDARD("Standard"),
-		LUNAR("Lunar"),
+		ANCIENT("Require Ancient"),
+		STANDARD("Require Standard"),
+		LUNAR("Require Lunar"),
 		PLAYERS_MATCH("Players match"),
-		NEVER("Never");
+		NEVER("Off");
 
 		private final String label;
 
@@ -101,80 +101,88 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigSection(
 		name = "Misclick prevention",
-		description = "Settings to help avoid dangerous misclicks",
+		description = "Block common misclicks that can be costly in PvP.",
 		position = 0,
 		closedByDefault = false
 	)
 	String MISCLICK_PREVENTION_SECTION = "misclickPreventionSection";
 
 	@ConfigSection(
-		name = "Items Kept on Death",
-		description = "Settings for the Items Kept on Death widget",
+		name = "PvP setup warnings",
+		description = "Check your PvP setup for missing or low supplies.",
 		position = 1,
-		closedByDefault = false
-	)
-	String ITEMS_KEPT_ON_DEATH_SECTION = "itemsKeptOnDeathSection";
-
-	@ConfigSection(
-		name = "Menaphite proc timer",
-		description = "Settings for tracking the next menaphite remedy proc",
-		position = 2,
-		closedByDefault = false
-	)
-	String MENAPHITE_PROC_TIMER_SECTION = "menaphiteProcTimerSection";
-
-	@ConfigSection(
-		name = "DMM overload proc timer",
-		description = "Settings for tracking the next DMM overload proc",
-		position = 3,
-		closedByDefault = false
-	)
-	String DMM_OVERLOAD_PROC_TIMER_SECTION = "dmmOverloadProcTimerSection";
-
-	@ConfigSection(
-		name = "Freeze timers",
-		description = "Extended freeze timer settings",
-		position = 4,
-		closedByDefault = false
-	)
-	String FREEZE_TIMERS_SECTION = "freezeTimersSection";
-
-	@ConfigSection(
-		name = "Warnings",
-		description = "Warnings for risky PvP states",
-		position = 5,
 		closedByDefault = false
 	)
 	String WARNINGS_SECTION = "warningsSection";
 
 	@ConfigSection(
-		name = "Warnings (advanced)",
-		description = "Advanced warning thresholds",
+		name = "Where warnings appear",
+		description = "Choose when PvP setup warnings are visible.",
+		position = 2,
+		closedByDefault = true
+	)
+	String WARNINGS_DISPLAY_SECTION = "warningsDisplaySection";
+
+	@ConfigSection(
+		name = "Warning amounts",
+		description = "Choose when low-supply warnings start.",
+		position = 3,
+		closedByDefault = true
+	)
+	String WARNING_AMOUNTS_SECTION = "warningAmountsSection";
+
+	@ConfigSection(
+		name = "Extended freeze timers",
+		description = "Improve freeze timers for PvP gear and forced movement.",
+		position = 4,
+		closedByDefault = true
+	)
+	String FREEZE_TIMERS_SECTION = "freezeTimersSection";
+
+	@ConfigSection(
+		name = "Prayer layouts",
+		description = "Save reordered and hidden prayers for each character and PvP build.",
+		position = 5,
+		closedByDefault = true
+	)
+	String PRAYER_SECTION = "prayerSection";
+
+	@ConfigSection(
+		name = "Menaphite proc timer",
+		description = "Track when your next menaphite remedy proc can trigger.",
 		position = 6,
 		closedByDefault = true
 	)
-	String WARNINGS_ADVANCED_SECTION = "warningsAdvancedSection";
+	String MENAPHITE_PROC_TIMER_SECTION = "menaphiteProcTimerSection";
 
 	@ConfigSection(
-		name = "PvP arena",
-		description = "Settings for PvP arena scenery",
+		name = "DMM overload proc timer",
+		description = "Track when your next DMM overload proc can trigger.",
 		position = 7,
+		closedByDefault = true
+	)
+	String DMM_OVERLOAD_PROC_TIMER_SECTION = "dmmOverloadProcTimerSection";
+
+	@ConfigSection(
+		name = "PvP Arena",
+		description = "Improve PvP Arena spellbook checks and fight visibility.",
+		position = 8,
 		closedByDefault = true
 	)
 	String PVP_ARENA_SECTION = "pvpArenaSection";
 
 	@ConfigSection(
-		name = "Prayer",
-		description = "Settings for persisting reordered and hidden prayers",
-		position = 8,
+		name = "Items Kept on Death",
+		description = "Show a more complete risk total in Items Kept on Death.",
+		position = 9,
 		closedByDefault = true
 	)
-	String PRAYER_SECTION = "prayerSection";
+	String ITEMS_KEPT_ON_DEATH_SECTION = "itemsKeptOnDeathSection";
 
 	@ConfigItem(
 		keyName = "runePouchBlocker",
-		name = "Rune Pouch Blocker",
-		description = "Block left-click on rune pouches (PvP areas only)",
+		name = "Block rune pouch left-clicks",
+		description = "Block left-clicks on rune pouches in PvP areas.<br>Right-click options still work.",
 		position = 0,
 		section = MISCLICK_PREVENTION_SECTION
 	)
@@ -185,8 +193,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "petSpellBlocker",
-		name = "Pet Spell Blocker",
-		description = "Removes spell-cast menu entries on pets and suppresses pet examine while a spell is selected",
+		name = "Block casting on pets",
+		description = "Remove Cast and Examine options from pets while a spell is selected.",
 		position = 1,
 		section = MISCLICK_PREVENTION_SECTION
 	)
@@ -197,20 +205,20 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "emptyVialBlocker",
-		name = "Empty Vial Blocker",
-		description = "Prevents left-clicking 'Use' on empty vials",
+		name = "Block empty vial left-clicks",
+		description = "Block left-clicks on empty vials in PvP areas.<br>Right-click options still work.",
 		position = 2,
 		section = MISCLICK_PREVENTION_SECTION
 	)
 	default boolean emptyVialBlocker()
 	{
-		return false;
+		return true;
 	}
 
 	@ConfigItem(
 		keyName = "specialAttackOrbBlocker",
-		name = "Special Attack Orb Blocker",
-		description = "Block special attack orb clicks",
+		name = "Block special attack orb",
+		description = "Choose where clicks on the special attack orb are blocked.",
 		position = 3,
 		section = MISCLICK_PREVENTION_SECTION
 	)
@@ -221,8 +229,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "marlinEqualsAnglerfish",
-		name = "Marlin = Anglerfish",
-		description = "Replace marlin inventory icon with anglerfish (PvP areas only)",
+		name = "Show marlin as anglerfish",
+		description = "Show the anglerfish icon on marlin in PvP areas.<br>This makes similar food easier to tell apart.",
 		position = 4,
 		section = MISCLICK_PREVENTION_SECTION
 	)
@@ -233,8 +241,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "halibutEqualsKarambwan",
-		name = "Halibut = Karambwan",
-		description = "Replace halibut inventory icon with karambwan (PvP areas only)",
+		name = "Show halibut as karambwan",
+		description = "Show the karambwan icon on halibut in PvP areas.<br>This makes similar food easier to tell apart.",
 		position = 5,
 		section = MISCLICK_PREVENTION_SECTION
 	)
@@ -245,8 +253,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "showIkodTrouverOverlay",
-		name = "Repair Costs Overlay",
-		description = "Show repair costs for broken and mangled untradeables in the Items Kept on Death interface",
+		name = "Show repair costs",
+		description = "Add repair costs for broken and mangled untradeables to the risk total.",
 		position = 0,
 		section = ITEMS_KEPT_ON_DEATH_SECTION
 	)
@@ -256,47 +264,11 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "updateMessageShown140",
-		name = "Update Message Shown v1.4.0",
-		description = "Internal flag to track if the v1.4.0 update message has been shown",
-		hidden = true,
-		position = 3
-	)
-	default boolean updateMessageShown140()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "updateMessageShown141",
-		name = "Update Message Shown v1.4.1",
-		description = "Internal flag to track if the v1.4.1 update message has been shown",
-		hidden = true,
-		position = 4
-	)
-	default boolean updateMessageShown141()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "updateMessageShown143",
-		name = "Update Message Shown v1.4.3",
-		description = "Internal flag to track if the v1.4.3 update message has been shown",
-		hidden = true,
-		position = 5
-	)
-	default boolean updateMessageShown143()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		keyName = "warningThresholdDefaultsMigratedV1",
 		name = "Warning Threshold Defaults Migrated V1",
 		description = "Internal flag for the first warning threshold default migration",
 		hidden = true,
-		position = 6
+		position = 0
 	)
 	default boolean warningThresholdDefaultsMigratedV1()
 	{
@@ -306,7 +278,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "menaphiteProcTimerDisplayTicks",
 		name = "Show in ticks",
-		description = "Display the menaphite proc countdown using game ticks instead of seconds",
+		description = "Show the countdown in game ticks instead of seconds.",
 		position = 1,
 		section = MENAPHITE_PROC_TIMER_SECTION
 	)
@@ -317,15 +289,28 @@ public interface WildyQoLConfig extends Config
 
 	enum MenaphiteProcStatusBarMode
 	{
-		OFF,
-		LEFT,
-		RIGHT
+		OFF("Off"),
+		LEFT("Left"),
+		RIGHT("Right");
+
+		private final String label;
+
+		MenaphiteProcStatusBarMode(String label)
+		{
+			this.label = label;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
 	}
 
 	@ConfigItem(
 		keyName = "menaphiteProcTimerShowInfoBox",
-		name = "Show infobox",
-		description = "Display the menaphite proc timer as an info box",
+		name = "Show info box",
+		description = "Show the proc countdown in an info box.",
 		position = 0,
 		section = MENAPHITE_PROC_TIMER_SECTION
 	)
@@ -337,7 +322,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "menaphiteProcTimerStatusBarMode",
 		name = "Status bar position",
-		description = "Display the menaphite proc timer as a status bar next to the inventory",
+		description = "Show the proc countdown beside the inventory.<br>Choose which side it appears on, or turn it off.",
 		position = 2,
 		section = MENAPHITE_PROC_TIMER_SECTION
 	)
@@ -348,8 +333,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "dmmOverloadProcTimerShowInfoBox",
-		name = "Show infobox",
-		description = "Display the DMM overload proc timer as an info box",
+		name = "Show info box",
+		description = "Show the proc countdown in an info box.",
 		position = 0,
 		section = DMM_OVERLOAD_PROC_TIMER_SECTION
 	)
@@ -361,7 +346,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "dmmOverloadProcTimerDisplayTicks",
 		name = "Show in ticks",
-		description = "Display the DMM overload proc countdown using game ticks instead of seconds",
+		description = "Show the countdown in game ticks instead of seconds.",
 		position = 1,
 		section = DMM_OVERLOAD_PROC_TIMER_SECTION
 	)
@@ -372,15 +357,28 @@ public interface WildyQoLConfig extends Config
 
 	enum DmmOverloadProcStatusBarMode
 	{
-		OFF,
-		LEFT,
-		RIGHT
+		OFF("Off"),
+		LEFT("Left"),
+		RIGHT("Right");
+
+		private final String label;
+
+		DmmOverloadProcStatusBarMode(String label)
+		{
+			this.label = label;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
 	}
 
 	@ConfigItem(
 		keyName = "dmmOverloadProcTimerStatusBarMode",
 		name = "Status bar position",
-		description = "Display the DMM overload proc timer as a status bar next to the inventory",
+		description = "Show the proc countdown beside the inventory.<br>Choose which side it appears on, or turn it off.",
 		position = 2,
 		section = DMM_OVERLOAD_PROC_TIMER_SECTION
 	)
@@ -391,8 +389,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "protectItemInfoBox",
-		name = "Protect Item Infobox",
-		description = "Show an infobox when in PvP area and Protect Item is not active",
+		name = "Protect Item reminder",
+		description = "Show an info box in PvP areas when Protect Item is not active.",
 		position = 0,
 		section = WARNINGS_SECTION
 	)
@@ -403,8 +401,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "rangedAmmoWarnings",
-		name = "Ranged ammo warnings",
-		description = "Show a text overlay when recognized ranged weapons are missing compatible ammo",
+		name = "Check ranged ammo",
+		description = "Warn when supported ranged weapons have missing, low, or incompatible ammo.",
 		position = 1,
 		section = WARNINGS_SECTION
 	)
@@ -415,8 +413,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "itemChargeWarnings",
-		name = "Item charges warnings",
-		description = "Show a text overlay when recognized charged items are empty or low",
+		name = "Check item charges",
+		description = "Warn when supported charged items are empty, low, or need to be checked.",
 		position = 2,
 		section = WARNINGS_SECTION
 	)
@@ -427,8 +425,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "spellbookRuneWarnings",
-		name = "Spellbook/rune warnings",
-		description = "Show a text overlay when recognized runes and spellbook do not match or are insufficient",
+		name = "Check spellbook and runes",
+		description = "Warn when your spellbook and runes do not match.<br>Also warn when you have no supported casts or only a few left.",
 		position = 3,
 		section = WARNINGS_SECTION
 	)
@@ -440,8 +438,8 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "removeObstructingPvpArenaScenery",
 		name = "Remove obstructing scenery",
-		description = "Remove high Emir's Arena scenery that can block the fight view.<br>"
-			+ "This removes the obstructing wall/scenery tiles and objects, so it will leave a visible black gap around the arena.",
+		description = "Remove tall Emir's Arena scenery that can block your view during fights.<br>"
+			+ "This leaves a visible black gap around the arena.",
 		position = 0,
 		section = PVP_ARENA_SECTION
 	)
@@ -452,11 +450,10 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "pvpArenaSpellbookWarningMode",
-		name = "Spellbook warning",
-		description = "Highlight PvP Arena spellbooks when they do not match the selected rule.<br>"
-			+ "Ancient/Standard/Lunar: active kit and opponent must both use that spellbook.<br>"
-			+ "Players match: active kit and opponent must use the same spellbook.<br>"
-			+ "Never: disable this warning.",
+		name = "Check spellbooks",
+		description = "Highlight PvP Arena spellbooks that do not match your chosen rule.<br>"
+			+ "Require Ancient, Standard, or Lunar checks both players.<br>"
+			+ "Players match checks that both players use the same spellbook.",
 		position = 1,
 		section = PVP_ARENA_SECTION
 	)
@@ -467,8 +464,9 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "persistPrayerLayout",
-		name = "Persist prayer layout",
-		description = "Save and restore reordered and hidden prayers for each character and supported PvP minigame build",
+		name = "Save prayer layouts",
+		description = "Save reordered and hidden prayers for each character and supported PvP minigame build.<br>"
+			+ "Requires prayer reordering in RuneLite's Prayer plugin.",
 		position = 0,
 		section = PRAYER_SECTION
 	)
@@ -479,8 +477,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "gameMessageOnPrayerReordering",
-		name = "Game message confirmation",
-		description = "Show a game message when a saved prayer layout is restored",
+		name = "Show restore message",
+		description = "Show a game message when a saved prayer layout is restored.",
 		position = 1,
 		section = PRAYER_SECTION
 	)
@@ -492,7 +490,7 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "hideRsnInPrayerLayoutMessage",
 		name = "Hide RSN",
-		description = "Hide the character name in prayer layout restore messages",
+		description = "Hide your character name in prayer layout restore messages.",
 		position = 2,
 		section = PRAYER_SECTION
 	)
@@ -503,8 +501,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "teleportOutWarningMode",
-		name = "Teleport out warning",
-		description = "Show a text overlay when no recognized teleport out of the wilderness is carried or worn.<br>"
+		name = "Check teleport out",
+		description = "Warn when you are not carrying or wearing a supported teleport out.<br>"
 			+ "Uses the selected Wilderness level.",
 		position = 4,
 		section = WARNINGS_SECTION
@@ -515,13 +513,25 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "suboptimalRangedAmmoWarnings",
+		name = "Warn about suboptimal ammo",
+		description = "Warn when a supported ranged weapon only has lower-tier compatible ammo.",
+		position = 5,
+		section = WARNINGS_SECTION
+	)
+	default boolean suboptimalRangedAmmoWarnings()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "warningDisplayMode",
-		name = "Warn at",
-		description = "Choose where ranged ammo, item charge, spellbook/rune, and teleport-out text warnings appear.<br>"
-			+ "Bank also shows for 100 ticks after leaving a PvP area, and existing warnings stay briefly after entering PvP.<br>"
-			+ "PvP banks limits bank warnings to configured PvP-relevant banks.",
+		name = "Show warnings at",
+		description = "Choose where text overlay warnings appear.<br>"
+			+ "Banks also keeps them visible for about one minute after leaving a PvP area.<br>"
+			+ "PvP banks only shows them at supported PvP-related banks.",
 		position = 0,
-		section = WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_DISPLAY_SECTION
 	)
 	default WarningDisplayMode warningDisplayMode()
 	{
@@ -531,9 +541,9 @@ public interface WildyQoLConfig extends Config
 	@ConfigItem(
 		keyName = "onlyShowEquipmentWarningsWhenSkulled",
 		name = "Only when skulled",
-		description = "Only show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings while skulled",
+		description = "Only show text overlay warnings while you are skulled.",
 		position = 1,
-		section = WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_DISPLAY_SECTION
 	)
 	default boolean onlyShowEquipmentWarningsWhenSkulled()
 	{
@@ -542,10 +552,10 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "showEquipmentWarningsOnRestrictedAccounts",
-		name = "Show on ironman/leagues",
-		description = "Show ranged ammo, item charge, spellbook/rune, and teleport-out text warnings on ironman and leagues accounts",
+		name = "Include Ironman and Leagues",
+		description = "Show text overlay warnings on Ironman and Leagues characters.",
 		position = 2,
-		section = WARNINGS_ADVANCED_SECTION
+		section = WARNINGS_DISPLAY_SECTION
 	)
 	default boolean showEquipmentWarningsOnRestrictedAccounts()
 	{
@@ -555,10 +565,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "atlatlDartMinimum",
-		name = "Atlatl dart minimum",
-		description = "Minimum atlatl darts required before warning",
-		position = 3,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Atlatl darts",
+		description = "Warn when you have fewer than this many atlatl darts.<br>Set to 0 to disable this low-amount warning.",
+		position = 0,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int atlatlDartMinimum()
 	{
@@ -568,10 +578,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "boltMinimum",
-		name = "Bolt minimum",
-		description = "Minimum bolts required before warning",
-		position = 4,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Crossbow bolts",
+		description = "Warn when you have fewer than this many compatible crossbow bolts.<br>Set to 0 to disable this low-amount warning.",
+		position = 1,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int boltMinimum()
 	{
@@ -581,10 +591,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "javelinMinimum",
-		name = "Javelin minimum",
-		description = "Minimum javelins required before warning",
-		position = 5,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Dragon javelins",
+		description = "Warn when you have fewer than this many dragon javelins.<br>Set to 0 to disable this low-amount warning.",
+		position = 2,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int javelinMinimum()
 	{
@@ -594,10 +604,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "arrowMinimum",
-		name = "Arrow minimum",
-		description = "Minimum arrows required before warning",
-		position = 6,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Dragon arrows",
+		description = "Warn when you have fewer than this many dragon arrows.<br>Set to 0 to disable this low-amount warning.",
+		position = 3,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int arrowMinimum()
 	{
@@ -607,10 +617,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "bowfaChargeMinimum",
-		name = "Bowfa charges minimum",
-		description = "Minimum Bow of faerdhinen charges required before warning",
-		position = 7,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Bowfa charges",
+		description = "Warn when your Bowfa has fewer than this many charges.<br>Set to 0 to disable this low-amount warning.",
+		position = 4,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int bowfaChargeMinimum()
 	{
@@ -620,10 +630,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "tomeChargeMinimum",
-		name = "Tome charges minimum",
-		description = "Minimum tracked tome charges required before warning",
-		position = 8,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Tome charges",
+		description = "Warn when a supported tome has fewer than this many charges.<br>Set to 0 to disable this low-amount warning.",
+		position = 5,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int tomeChargeMinimum()
 	{
@@ -633,10 +643,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "toxicStaffChargeMinimum",
-		name = "Toxic SOTD minimum",
-		description = "Minimum tracked toxic staff of the dead charges required before warning",
-		position = 9,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Toxic staff charges",
+		description = "Warn when your toxic staff of the dead has fewer than this many charges.<br>Set to 0 to disable this low-amount warning.",
+		position = 6,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int toxicStaffChargeMinimum()
 	{
@@ -646,10 +656,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "serpentineHelmChargeMinimum",
-		name = "Serp helm minimum",
-		description = "Minimum tracked serpentine helm charges required before warning",
-		position = 10,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Serpentine helm charges",
+		description = "Warn when your serpentine helm has fewer than this many charges.<br>Set to 0 to disable this low-amount warning.",
+		position = 7,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int serpentineHelmChargeMinimum()
 	{
@@ -659,10 +669,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "teleBlockMinimum",
-		name = "TB minimum",
-		description = "Minimum Tele Block casts or sacks required before warning",
-		position = 11,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Tele Block casts",
+		description = "Warn when you can cast Tele Block fewer than this many times.<br>Set to 0 to disable this low-amount warning.",
+		position = 8,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int teleBlockMinimum()
 	{
@@ -672,10 +682,10 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "entangleMinimum",
-		name = "Entangle minimum",
-		description = "Minimum freeze casts or sacks required before warning",
-		position = 12,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Freeze casts",
+		description = "Warn when you can cast your supported freeze spell fewer than this many times.<br>Set to 0 to disable this low-amount warning.",
+		position = 9,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int entangleMinimum()
 	{
@@ -685,10 +695,11 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "surgeMinimum",
-		name = "Surge minimum",
-		description = "Minimum standard damage casts or sacks required before warning",
-		position = 15,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Damage casts",
+		description = "Warn when you can cast your supported Standard spellbook damage spell fewer than this many times.<br>"
+			+ "Set to 0 to disable this low-amount warning.",
+		position = 10,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int surgeMinimum()
 	{
@@ -698,10 +709,11 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "iceSpellMinimum",
-		name = "Ice spell minimum",
-		description = "Minimum ancient ice casts or sacks required before warning",
-		position = 16,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Ice casts",
+		description = "Warn when you can cast your supported Ancient ice spell fewer than this many times.<br>"
+			+ "Set to 0 to disable this low-amount warning.",
+		position = 11,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int iceSpellMinimum()
 	{
@@ -711,10 +723,11 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "bloodSpellMinimum",
-		name = "Blood spell minimum",
-		description = "Minimum ancient blood casts required before warning when blood spell runes are present",
-		position = 17,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Blood Barrage casts",
+		description = "Warn when you carry Blood Barrage runes but can cast it fewer than this many times.<br>"
+			+ "Set to 0 to disable this low-amount warning.",
+		position = 12,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int bloodSpellMinimum()
 	{
@@ -724,26 +737,14 @@ public interface WildyQoLConfig extends Config
 	@Range(min = 0)
 	@ConfigItem(
 		keyName = "vengeanceMinimum",
-		name = "Vengeance minimum",
-		description = "Minimum vengeance casts or sacks required before warning",
-		position = 18,
-		section = WARNINGS_ADVANCED_SECTION
+		name = "Vengeance casts",
+		description = "Warn when you can cast Vengeance fewer than this many times.<br>Set to 0 to disable this low-amount warning.",
+		position = 13,
+		section = WARNING_AMOUNTS_SECTION
 	)
 	default int vengeanceMinimum()
 	{
 		return 10;
-	}
-
-	@ConfigItem(
-		keyName = "suboptimalRangedAmmoWarnings",
-		name = "Suboptimal ammo warning",
-		description = "Warn when recognized ranged weapons have only lower-tier compatible ammo",
-		position = 19,
-		section = WARNINGS_ADVANCED_SECTION
-	)
-	default boolean suboptimalRangedAmmoWarnings()
-	{
-		return true;
 	}
 
 	@ConfigItem(
@@ -761,8 +762,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "warnDuplicateFreezeTimers",
-		name = "Warn about duplicates",
-		description = "Warn in chat if the core Timers & Buffs freeze timer stays enabled",
+		name = "Warn about duplicate timers",
+		description = "Show a chat warning when RuneLite's freeze timer is also enabled.",
 		position = 1,
 		section = FREEZE_TIMERS_SECTION
 	)
@@ -773,8 +774,8 @@ public interface WildyQoLConfig extends Config
 
 	@ConfigItem(
 		keyName = "preserveFreezeTimerOnForcedMovement",
-		name = "Ignore forced movement",
-		description = "Keep the freeze timer running when mithril/adamant seeds move you.<br>"
+		name = "Keep timer after forced movement",
+		description = "Keep the freeze timer running when mithril or adamant seeds move you.<br>"
 			+ "Also applies to dragon spear/hasta special attacks.",
 		position = 2,
 		section = FREEZE_TIMERS_SECTION

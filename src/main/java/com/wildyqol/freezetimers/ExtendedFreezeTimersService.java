@@ -693,7 +693,7 @@ public class ExtendedFreezeTimersService
 
 		chatMessageManager.queue(QueuedMessage.builder()
 			.type(ChatMessageType.GAMEMESSAGE)
-			.runeLiteFormattedMessage("<col=ff9040>Wildy QoL:</col> Extended freeze timers are active, but Timers & Buffs freeze timers are still enabled. Disable \"Freeze timer\" in Timers & Buffs to avoid duplicates.")
+			.runeLiteFormattedMessage("<col=ff9040>Wildy QoL:</col> Both freeze timers are enabled. Turn off \"Freeze timer\" in Timers & Buffs to avoid duplicate timers.")
 			.build());
 		warnedDuplicate = true;
 	}

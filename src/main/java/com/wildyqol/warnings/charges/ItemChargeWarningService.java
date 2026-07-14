@@ -43,7 +43,8 @@ public class ItemChargeWarningService extends WarningService<ItemChargeWarning>
 		WildyQoLConfig config,
 		ItemChargeTracker itemChargeTracker)
 	{
-		super(client, clientThread, warningEligibilityService, ItemChargeWarning::getText);
+		super(client, clientThread, warningEligibilityService,
+			ItemChargeWarning::getText, ItemChargeWarning::getSeverity);
 		this.client = client;
 		this.configManager = configManager;
 		this.config = config;

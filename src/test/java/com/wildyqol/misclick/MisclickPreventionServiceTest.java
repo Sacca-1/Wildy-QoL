@@ -3,12 +3,23 @@ package com.wildyqol.misclick;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.wildyqol.WildyQoLConfig;
 import com.wildyqol.WildyQoLConfig.SpecialAttackOrbBlockMode;
 import net.runelite.api.gameval.InterfaceID;
 import org.junit.Test;
 
 public class MisclickPreventionServiceTest
 {
+	@Test
+	public void emptyVialBlockerDefaultsToEnabled()
+	{
+		WildyQoLConfig config = new WildyQoLConfig()
+		{
+		};
+
+		assertTrue(config.emptyVialBlocker());
+	}
+
 	@Test
 	public void specialAttackOrbBlockerNeverDoesNotBlock()
 	{

@@ -87,7 +87,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 	}
 
 	@Test
@@ -130,9 +130,9 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, standardWarnings.size());
-		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 		assertEquals(1, ancientWarnings.size());
-		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 	}
 
 	@Test
@@ -162,9 +162,9 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, standardWarnings.size());
-		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(standardWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 		assertEquals(1, ancientWarnings.size());
-		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(ancientWarnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 	}
 
 	@Test
@@ -181,8 +181,8 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(2, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: damage");
-		assertWarning(warnings.get(1), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: freeze");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "No damage casts");
+		assertWarning(warnings.get(1), MagicSpellbookWarning.WarningPriority.MISSING, "No freeze casts");
 	}
 
 	@Test
@@ -199,9 +199,9 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(3, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: Tele Block");
-		assertWarning(warnings.get(1), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: damage");
-		assertWarning(warnings.get(2), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: freeze");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "No Tele Block casts");
+		assertWarning(warnings.get(1), MagicSpellbookWarning.WarningPriority.MISSING, "No damage casts");
+		assertWarning(warnings.get(2), MagicSpellbookWarning.WarningPriority.MISSING, "No freeze casts");
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: ice 50/100");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low ice casts: 50/100");
 	}
 
 	@Test
@@ -238,7 +238,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: blood barrage 25/50");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low Blood Barrage casts: 25/50");
 	}
 
 	@Test
@@ -259,7 +259,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: blood barrage 25/50");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low Blood Barrage casts: 25/50");
 	}
 
 	@Test
@@ -279,7 +279,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook and runes do not match");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISMATCH, "Spellbook/rune mismatch");
 	}
 
 	@Test
@@ -371,7 +371,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low casts: Vengeance 5/10");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.LOW, "Low Vengeance casts: 5/10");
 	}
 
 	@Test
@@ -388,7 +388,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: Vengeance");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "No Vengeance casts");
 	}
 
 	@Test
@@ -405,7 +405,7 @@ public class MagicSpellbookEvaluatorTest
 			false);
 
 		assertEquals(3, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: Tele Block");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "No Tele Block casts");
 	}
 
 	@Test
@@ -443,7 +443,7 @@ public class MagicSpellbookEvaluatorTest
 			true);
 
 		assertEquals(1, warnings.size());
-		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "Missing runes: damage");
+		assertWarning(warnings.get(0), MagicSpellbookWarning.WarningPriority.MISSING, "No damage casts");
 	}
 
 	@Test

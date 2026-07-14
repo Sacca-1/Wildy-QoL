@@ -10,34 +10,35 @@ import org.junit.Test;
 public class WarningOverlayTest
 {
 	@Test
-	public void lowAndSuboptimalWarningsUseCautionColor()
+	public void cautionSeverityUsesCautionColor()
 	{
-		assertEquals(Color.ORANGE, WarningOverlay.colorForWarning("Low ammo: bolts 42/100"));
-		assertEquals(Color.ORANGE, WarningOverlay.colorForWarning("Suboptimal ammo: Ruby dragon bolts"));
+		assertEquals(Color.ORANGE, WarningOverlay.colorForWarning(WarningSeverity.CAUTION));
 	}
 
 	@Test
-	public void missingAndWrongWarningsUseCriticalColor()
+	public void criticalSeverityUsesCriticalColor()
 	{
-		assertEquals(Color.RED, WarningOverlay.colorForWarning("Missing runes: Tele Block"));
-		assertEquals(Color.RED, WarningOverlay.colorForWarning("No charges: toxic SOTD"));
-		assertEquals(Color.RED, WarningOverlay.colorForWarning("Wrong ammo: dragon crossbow bolts required"));
-		assertEquals(Color.RED, WarningOverlay.colorForWarning("Spellbook and runes do not match"));
+		assertEquals(Color.RED, WarningOverlay.colorForWarning(WarningSeverity.CRITICAL));
 	}
 
 	@Test
 	public void ordersCriticalWarningsBeforeCautionWarnings()
 	{
-		List<String> warnings = WarningOverlay.orderWarnings(Arrays.asList(
-			"Low charges: tome of fire 200/500",
-			"Missing runes: Tele Block",
-			"Suboptimal ammo: Ruby dragon bolts",
-			"Missing teleport out"));
+		WarningLine lowCharges = new WarningLine(WarningSeverity.CAUTION, "Low tome of fire charges: 200/500");
+		WarningLine missingTeleBlock = new WarningLine(WarningSeverity.CRITICAL, "No Tele Block casts");
+		WarningLine suboptimalAmmo = new WarningLine(WarningSeverity.CAUTION, "Suboptimal ammo: Ruby dragon bolts");
+		WarningLine missingTeleport = new WarningLine(WarningSeverity.CRITICAL, "Missing teleport out");
+
+		List<WarningLine> warnings = WarningOverlay.orderWarnings(Arrays.asList(
+			lowCharges,
+			missingTeleBlock,
+			suboptimalAmmo,
+			missingTeleport));
 
 		assertEquals(Arrays.asList(
-			"Missing runes: Tele Block",
-			"Missing teleport out",
-			"Low charges: tome of fire 200/500",
-			"Suboptimal ammo: Ruby dragon bolts"), warnings);
+			missingTeleBlock,
+			missingTeleport,
+			lowCharges,
+			suboptimalAmmo), warnings);
 	}
 }

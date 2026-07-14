@@ -33,46 +33,43 @@ public class WarningOverlay extends OverlayPanel
 	{
 		setPreferredSize(new Dimension(WARNING_PANEL_WIDTH, 0));
 
-		List<String> texts = orderWarnings(warningServiceManager.getOverlayTexts());
-		if (texts.isEmpty())
+		List<WarningLine> warnings = orderWarnings(warningServiceManager.getOverlayWarnings());
+		if (warnings.isEmpty())
 		{
 			return null;
 		}
 
 		panelComponent.getChildren().add(LineComponent.builder()
-			.left(texts.size() == 1 ? "Wildy QoL warning" : "Wildy QoL warnings")
+			.left(warnings.size() == 1 ? "PvP setup warning" : "PvP setup warnings")
 			.leftColor(Color.WHITE)
 			.build());
 
-		for (String text : texts)
+		for (WarningLine warning : warnings)
 		{
 			panelComponent.getChildren().add(LineComponent.builder()
-				.left("- " + text)
-				.leftColor(colorForWarning(text))
+				.left("- " + warning.getText())
+				.leftColor(colorForWarning(warning.getSeverity()))
 				.build());
 		}
 		return super.render(graphics);
 	}
 
-	static List<String> orderWarnings(List<String> texts)
+	static List<WarningLine> orderWarnings(List<WarningLine> warnings)
 	{
-		List<String> orderedTexts = new ArrayList<>(texts);
-		orderedTexts.sort((left, right) -> Integer.compare(severityRank(left), severityRank(right)));
-		return orderedTexts;
+		List<WarningLine> orderedWarnings = new ArrayList<>(warnings);
+		orderedWarnings.sort((left, right) -> Integer.compare(
+			severityRank(left.getSeverity()),
+			severityRank(right.getSeverity())));
+		return orderedWarnings;
 	}
 
-	static Color colorForWarning(String text)
+	static Color colorForWarning(WarningSeverity severity)
 	{
-		if (text.startsWith("Low ") || text.startsWith("Suboptimal "))
-		{
-			return CAUTION_WARNING_COLOR;
-		}
-
-		return CRITICAL_WARNING_COLOR;
+		return severity == WarningSeverity.CAUTION ? CAUTION_WARNING_COLOR : CRITICAL_WARNING_COLOR;
 	}
 
-	private static int severityRank(String text)
+	private static int severityRank(WarningSeverity severity)
 	{
-		return colorForWarning(text).equals(CAUTION_WARNING_COLOR) ? 1 : 0;
+		return severity == WarningSeverity.CAUTION ? 1 : 0;
 	}
 }

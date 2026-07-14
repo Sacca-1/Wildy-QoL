@@ -29,7 +29,8 @@ public class TeleportOutWarningService extends WarningService<TeleportOutWarning
 		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, warningEligibilityService, TeleportOutWarning::getText);
+		super(client, clientThread, warningEligibilityService,
+			TeleportOutWarning::getText, TeleportOutWarning::getSeverity);
 		this.config = config;
 		this.inventoryStateBuilder = new MagicInventoryStateBuilder(client);
 	}

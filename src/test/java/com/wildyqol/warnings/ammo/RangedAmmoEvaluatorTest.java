@@ -135,7 +135,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
 			ImmutableMap.of(ItemID.DRAGON_BOLTS, 100));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong ammo: rune crossbow bolts required");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong rune crossbow ammo");
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_ARROWS),
 			ImmutableMap.of());
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing ammo: dragon arrows");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing dragon arrows");
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.DRAGON_BOLTS),
 			ImmutableMap.of(ItemID.DRAGON_ARROW, 100));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong ammo: dragon crossbow bolts required");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.WRONG, "Wrong dragon crossbow ammo");
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS),
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low ammo: bolts 42/100");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.LOW, "Low rune crossbow ammo: 42/100");
 	}
 
 	@Test
@@ -221,7 +221,7 @@ public class RangedAmmoEvaluatorTest
 			ImmutableSet.of(RangedAmmoRequirement.RUNE_BOLTS, RangedAmmoRequirement.DRAGON_ARROWS),
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 100));
 
-		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing ammo: dragon arrows");
+		assertWarning(warning, RangedAmmoWarning.WarningPriority.MISSING, "Missing dragon arrows");
 	}
 
 	@Test
@@ -232,8 +232,8 @@ public class RangedAmmoEvaluatorTest
 			ImmutableMap.of(ItemID.DIAMOND_BOLTS_E, 42));
 
 		assertEquals(2, warnings.size());
-		assertEquals("Missing ammo: dragon arrows", warnings.get(0).getText());
-		assertEquals("Low ammo: bolts 42/100", warnings.get(1).getText());
+		assertEquals("Missing dragon arrows", warnings.get(0).getText());
+		assertEquals("Low rune crossbow ammo: 42/100", warnings.get(1).getText());
 	}
 
 	@Test

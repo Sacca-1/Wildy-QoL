@@ -36,7 +36,8 @@ public class RangedAmmoWarningService extends WarningService<RangedAmmoWarning>
 		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, warningEligibilityService, RangedAmmoWarning::getText);
+		super(client, clientThread, warningEligibilityService,
+			RangedAmmoWarning::getText, RangedAmmoWarning::getSeverity);
 		this.client = client;
 		this.config = config;
 	}

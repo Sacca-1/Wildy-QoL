@@ -16,8 +16,8 @@ public enum RangedAmmoRequirement
 		ItemID.ATLATL_DART_29852
 	),
 	RUNE_BOLTS(
-		"rune crossbow bolts",
-		"bolts",
+		"rune crossbow ammo",
+		"rune crossbow ammo",
 		AmmoThresholds::bolts,
 		runeCrossbowAmmo(),
 		ItemID.RUNITE_BOLTS,
@@ -26,8 +26,8 @@ public enum RangedAmmoRequirement
 		ItemID.ONYX_BOLTS_E
 	),
 	DRAGON_BOLTS(
-		"dragon crossbow bolts",
-		"bolts",
+		"dragon crossbow ammo",
+		"dragon crossbow ammo",
 		AmmoThresholds::bolts,
 		dragonCrossbowAmmo(),
 		ItemID.RUNITE_BOLTS,
@@ -42,14 +42,14 @@ public enum RangedAmmoRequirement
 	),
 	ANTLER_BOLTS(
 		"antler bolts",
-		"bolts",
+		"antler bolts",
 		AmmoThresholds::bolts,
 		ItemID.SUNLIGHT_ANTLER_BOLTS,
 		ItemID.MOONLIGHT_ANTLER_BOLTS
 	),
 	DRAGON_JAVELINS(
 		"dragon javelins",
-		"javelins",
+		"dragon javelins",
 		AmmoThresholds::javelins,
 		ItemID.DRAGON_JAVELIN,
 		ItemID.DRAGON_JAVELINP,
@@ -59,7 +59,7 @@ public enum RangedAmmoRequirement
 	),
 	DRAGON_ARROWS(
 		"dragon arrows",
-		"arrows",
+		"dragon arrows",
 		AmmoThresholds::arrows,
 		dragonArrowBowAmmo(),
 		combine(

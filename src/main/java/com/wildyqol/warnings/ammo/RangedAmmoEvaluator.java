@@ -128,8 +128,7 @@ public class RangedAmmoEvaluator
 				boolean wrongAmmo = requirements.size() == 1 && !ammoCounts.isEmpty();
 				warnings.add(new RangedAmmoWarning(
 					wrongAmmo ? RangedAmmoWarning.WarningPriority.WRONG : RangedAmmoWarning.WarningPriority.MISSING,
-					(wrongAmmo ? "Wrong ammo: " : "Missing ammo: ") + requirement.getRequiredText()
-						+ (wrongAmmo ? " required" : "")));
+					(wrongAmmo ? "Wrong " : "Missing ") + requirement.getRequiredText()));
 			}
 		}
 
@@ -146,7 +145,7 @@ public class RangedAmmoEvaluator
 			{
 				warnings.add(new RangedAmmoWarning(
 					RangedAmmoWarning.WarningPriority.LOW,
-					"Low ammo: " + requirement.getLowText() + " " + compatibleCount + "/" + threshold));
+					"Low " + requirement.getLowText() + ": " + compatibleCount + "/" + threshold));
 			}
 		}
 

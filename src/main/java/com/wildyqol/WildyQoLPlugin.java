@@ -9,7 +9,6 @@ import com.wildyqol.proctimers.ProcTimerFeatureService;
 import com.wildyqol.prayer.PrayerLayoutService;
 import com.wildyqol.pvparena.PvpArenaSpellbookWarningOverlay;
 import com.wildyqol.scenery.EmirsArenaSceneryService;
-import com.wildyqol.updates.UpdateMessageService;
 import com.wildyqol.warnings.ProtectItemInfoBoxService;
 import com.wildyqol.warnings.WarningDefaultsMigrationService;
 import com.wildyqol.warnings.WarningOverlay;
@@ -44,7 +43,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 @Slf4j
 @PluginDescriptor(
 	name = "Wildy QoL",
-	description = "Quality of life improvements for wilderness activities"
+	description = "PvP and Wilderness tools for preventing misclicks, checking your setup, improving timers, saving prayer layouts, and more."
 )
 public class WildyQoLPlugin extends Plugin
 {
@@ -68,9 +67,6 @@ public class WildyQoLPlugin extends Plugin
 
 	@Inject
 	private ProtectItemInfoBoxService protectItemInfoBoxService;
-
-	@Inject
-	private UpdateMessageService updateMessageService;
 
 	@Inject
 	private ProcTimerFeatureService procTimerFeatureService;
@@ -112,7 +108,6 @@ public class WildyQoLPlugin extends Plugin
 		extendedFreezeTimersService.startUp(this);
 		emirsArenaSceneryService.startUp();
 		prayerLayoutService.startUp();
-		updateMessageService.startUp();
 	}
 
 	@Override
@@ -136,7 +131,6 @@ public class WildyQoLPlugin extends Plugin
 	{
 		extendedFreezeTimersService.onGameStateChanged(event);
 		procTimerFeatureService.onGameStateChanged(event);
-		updateMessageService.onGameStateChanged(event);
 		prayerLayoutService.onGameStateChanged(event);
 	}
 

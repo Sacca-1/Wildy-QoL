@@ -48,15 +48,15 @@ public class ItemChargeEvaluator
 			if (threshold > 0 && charges < threshold)
 			{
 				String chargeText = kind.hasEstimatedCharges() ? "~" + charges : Integer.toString(charges);
-				warnings.add(low("Low charges: " + kind.getLowText() + " " + chargeText + "/" + threshold));
+				warnings.add(low("Low " + kind.getLowText() + " charges: " + chargeText + "/" + threshold));
 			}
 		}
 
 		if (!unknownTrackedChargeItems.isEmpty())
 		{
-			warnings.add(unknown("Unknown charges: check "
+			warnings.add(unknown("Unknown charges: "
 				+ String.join(", ", unknownTrackedChargeItems)
-				+ " to start tracking"));
+				+ " — use Check"));
 		}
 
 		warnings.sort((left, right) ->

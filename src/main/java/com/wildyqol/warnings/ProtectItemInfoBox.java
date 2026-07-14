@@ -41,7 +41,7 @@ public class ProtectItemInfoBox extends InfoBox
 	@Override
 	public String getTooltip()
 	{
-		return "Enable Protect Item!";
+		return "Protect Item is off";
 	}
 
 	@Override

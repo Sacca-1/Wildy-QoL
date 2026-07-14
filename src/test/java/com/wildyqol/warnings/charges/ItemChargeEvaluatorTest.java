@@ -37,7 +37,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.BOWFA, 80),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: Bowfa 80/250");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low Bowfa charges: 80/250");
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warning,
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: check Bowfa to start tracking");
+			"Unknown charges: Bowfa — use Check");
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class ItemChargeEvaluatorTest
 			charges(),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.MISSING, "No charges: toxic SOTD");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.MISSING, "No charges: toxic staff of the dead");
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.TOXIC_STAFF, 300),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: toxic SOTD ~300/500");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low toxic staff of the dead charges: ~300/500");
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.TOME_OF_FIRE, 0),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire ~0/50");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low tome of fire charges: ~0/50");
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.TOME_OF_FIRE, 25),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: tome of fire ~25/50");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low tome of fire charges: ~25/50");
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warning,
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: check tome of fire to start tracking");
+			"Unknown charges: tome of fire — use Check");
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class ItemChargeEvaluatorTest
 		assertWarning(
 			warnings.get(0),
 			ItemChargeWarning.WarningPriority.UNKNOWN,
-			"Unknown charges: check Bowfa, serpentine helm, toxic SOTD, tome of fire to start tracking");
+			"Unknown charges: Bowfa, serpentine helm, toxic staff of the dead, tome of fire — use Check");
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.TOXIC_STAFF, 300),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: toxic SOTD ~300/500");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low toxic staff of the dead charges: ~300/500");
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class ItemChargeEvaluatorTest
 			charges(ItemChargeKind.SERPENTINE_HELM, 300),
 			new TestThresholds());
 
-		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low charges: serpentine helm ~300/500");
+		assertWarning(warning, ItemChargeWarning.WarningPriority.LOW, "Low serpentine helm charges: ~300/500");
 	}
 
 	@Test
@@ -215,7 +215,7 @@ public class ItemChargeEvaluatorTest
 
 		assertEquals(2, warnings.size());
 		assertWarning(warnings.get(0), ItemChargeWarning.WarningPriority.MISSING, "No charges: tome of fire");
-		assertWarning(warnings.get(1), ItemChargeWarning.WarningPriority.LOW, "Low charges: Bowfa 80/250");
+		assertWarning(warnings.get(1), ItemChargeWarning.WarningPriority.LOW, "Low Bowfa charges: 80/250");
 	}
 
 	@Test

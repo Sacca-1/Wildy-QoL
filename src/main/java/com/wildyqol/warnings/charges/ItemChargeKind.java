@@ -18,7 +18,7 @@ enum ItemChargeKind
 			return thresholds.serpentineHelmCharges();
 		}
 	},
-	TOXIC_STAFF("toxic SOTD", "toxic SOTD")
+	TOXIC_STAFF("toxic staff of the dead", "toxic staff of the dead")
 	{
 		@Override
 		int threshold(ItemChargeThresholds thresholds)
@@ -26,9 +26,9 @@ enum ItemChargeKind
 			return thresholds.toxicStaffCharges();
 		}
 	},
-	ACCURSED_THAMMARONS("Accursed/Thammaron's sceptre", null),
-	CRAWS_WEBWEAVER("Craw's/Webweaver bow", null),
-	URSINE_VIGGORAS("Ursine/Viggora's mace", null),
+	ACCURSED_THAMMARONS("Accursed or Thammaron's sceptre", null),
+	CRAWS_WEBWEAVER("Craw's or Webweaver bow", null),
+	URSINE_VIGGORAS("Ursine or Viggora's mace", null),
 	RING_OF_SUFFERING("ring of suffering recoil", null),
 	TOME_OF_FIRE("tome of fire", "tome of fire")
 	{

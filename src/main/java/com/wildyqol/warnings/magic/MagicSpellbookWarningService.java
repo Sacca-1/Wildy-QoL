@@ -27,7 +27,8 @@ public class MagicSpellbookWarningService extends WarningService<MagicSpellbookW
 		WarningEligibilityService warningEligibilityService,
 		WildyQoLConfig config)
 	{
-		super(client, clientThread, warningEligibilityService, MagicSpellbookWarning::getText);
+		super(client, clientThread, warningEligibilityService,
+			MagicSpellbookWarning::getText, MagicSpellbookWarning::getSeverity);
 		this.config = config;
 		this.inventoryStateBuilder = new MagicInventoryStateBuilder(client);
 	}
