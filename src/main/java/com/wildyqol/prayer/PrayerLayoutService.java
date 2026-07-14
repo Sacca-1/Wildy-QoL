@@ -34,7 +34,7 @@ public class PrayerLayoutService implements PrayerLayoutCoordinator.Backend
 	private static final String PRAYER_CONFIG_GROUP = "prayer";
 	private static final String ORDER_KEY_PREFIX = "prayer_order_book";
 	private static final String HIDDEN_KEY_PREFIX = "prayer_hidden_book";
-	private static final String PERSIST_CONFIG_KEY = "persistPrayerReordering";
+	private static final String PERSIST_CONFIG_KEY = "persistPrayerLayout";
 
 	private final Client client;
 	private final ClientThread clientThread;

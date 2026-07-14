@@ -164,7 +164,7 @@ public interface WildyQoLConfig extends Config
 	String PVP_ARENA_SECTION = "pvpArenaSection";
 
 	@ConfigSection(
-		name = "Prayer (preview)",
+		name = "Prayer",
 		description = "Settings for persisting reordered and hidden prayers",
 		position = 8,
 		closedByDefault = true
@@ -454,7 +454,7 @@ public interface WildyQoLConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "persistPrayerReordering",
+		keyName = "persistPrayerLayout",
 		name = "Persist prayer layout",
 		description = "Save and restore reordered and hidden prayers for each character and supported PvP minigame build",
 		position = 0,
@@ -462,7 +462,7 @@ public interface WildyQoLConfig extends Config
 	)
 	default boolean persistPrayerReordering()
 	{
-		return false;
+		return true;
 	}
 
 	@ConfigItem(

@@ -13,9 +13,9 @@ public class PrayerLayoutConfigTest
 	};
 
 	@Test
-	public void persistenceIsOffByDefault()
+	public void persistenceIsOnByDefault()
 	{
-		assertFalse(config.persistPrayerReordering());
+		assertTrue(config.persistPrayerReordering());
 	}
 
 	@Test

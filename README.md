@@ -31,6 +31,10 @@ A RuneLite plugin that provides quality of life improvements for wilderness acti
 - Tracks the DMM overload proc cooldown with an infobox option.
 - Supports status bar overlays next to the inventory (left or right) for at-a-glance timing.
 
+### Prayer layouts
+
+- Saves and restores reordered and hidden prayers per character, with shared layouts for Pure, Zerker, and Max/Med LMS and PvP Arena builds.
+
 ### Warnings
 
 - Protect Item Infobox in PvP areas.
