@@ -321,7 +321,8 @@ public class ExtendedFreezeTimersService
 		}
 
 		Actor actor = event.getActor();
-		if (actor != client.getLocalPlayer())
+		Player local = client.getLocalPlayer();
+		if (actor != local || local == null)
 		{
 			return;
 		}
@@ -333,6 +334,9 @@ public class ExtendedFreezeTimersService
 			registerForcedMovement();
 		}
 
+		// Detect standard freezes immediately, while retaining the game-tick scan as a fallback.
+		checkStandardFreezeSpotAnims(local);
+
 		FreezeType type = GRAPHIC_TO_TYPE.get(graphicId);
 		if (type == null)
 		{
@@ -343,6 +347,13 @@ public class ExtendedFreezeTimersService
 
 		if (!type.isAncient())
 		{
+			// The spot animation list may not have updated yet when GraphicChanged is posted.
+			if (!lastStandardSpotAnims.contains(graphicId))
+			{
+				refreshActivity();
+				startTimer(type);
+				lastStandardSpotAnims.add(graphicId);
+			}
 			return;
 		}
 
