@@ -6,7 +6,6 @@ import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.IdentityHashMap;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,6 +28,10 @@ import net.runelite.client.util.Text;
 public class IkodParchmentRiskService
 {
 	private static final Pattern WILDERNESS_LEVEL_PATTERN = Pattern.compile("level\\s*:?\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+	static final int DEATHKEEP_CHECKBOX_EMPTY_SPRITE_ID = 1211;
+	static final int DEATHKEEP_CHECKBOX_CROSSED_SPRITE_ID = 1212;
+	static final int DEATHKEEP_CHECKBOX_CHECKED_SPRITE_ID = 1213;
+	static final int DEATHKEEP_CHECKBOX_CHECKED_RED_SPRITE_ID = 1214;
 
 	private final Client client;
 	private final ItemManager itemManager;
@@ -245,22 +248,10 @@ public class IkodParchmentRiskService
 
 	private boolean isAboveLevel20Selected()
 	{
-		Boolean selectedDepth = parseSelectedDepth(getVisibleWidgetText(client.getWidget(InterfaceID.Deathkeep.RIGHT_TEXT0)));
-		if (selectedDepth != null)
+		Boolean checkboxState = getCheckboxState(client.getWidget(InterfaceID.Deathkeep.BUTTON3));
+		if (checkboxState != null)
 		{
-			return selectedDepth;
-		}
-
-		selectedDepth = parseSelectedDepth(getVisibleWidgetText(client.getWidget(InterfaceID.Deathkeep.TOPAREA)));
-		if (selectedDepth != null)
-		{
-			return selectedDepth;
-		}
-
-		selectedDepth = parseSelectedDepth(getVisibleWidgetText(client.getWidget(InterfaceID.Deathkeep.CONTENTS)));
-		if (selectedDepth != null)
-		{
-			return selectedDepth;
+			return checkboxState;
 		}
 
 		Widget wildernessLevelWidget = client.getWidget(InterfaceID.PvpIcons.WILDERNESSLEVEL);
@@ -272,37 +263,16 @@ public class IkodParchmentRiskService
 		return isAboveLevel20(Text.removeTags(wildernessLevelWidget.getText()));
 	}
 
-	static Boolean parseSelectedDepth(String deathkeepText)
+	private Boolean getCheckboxState(Widget root)
 	{
-		String text = Text.removeTags(deathkeepText == null ? "" : deathkeepText).toLowerCase(Locale.ROOT);
-		boolean above = text.contains("above level 20")
-			|| text.contains("over level 20")
-			|| text.contains("beyond level 20")
-			|| text.contains("deeper than level 20");
-		boolean below = text.contains("below level 20")
-			|| text.contains("under level 20")
-			|| text.contains("up to level 20")
-			|| text.contains("killed by a player")
-			|| text.contains("killed by another player");
-
-		if (above == below)
+		if (root == null || root.isHidden())
 		{
 			return null;
 		}
 
-		return above;
-	}
-
-	private String getVisibleWidgetText(Widget root)
-	{
-		if (root == null || root.isHidden())
-		{
-			return "";
-		}
-
 		Set<Widget> visited = Collections.newSetFromMap(new IdentityHashMap<>());
 		Deque<Widget> stack = new ArrayDeque<>();
-		StringBuilder text = new StringBuilder();
+		boolean foundUncheckedSprite = false;
 		stack.push(root);
 
 		while (!stack.isEmpty())
@@ -313,14 +283,14 @@ public class IkodParchmentRiskService
 				continue;
 			}
 
-			String widgetText = widget.getText();
-			if (widgetText != null && !widgetText.isEmpty())
+			Boolean state = parseCheckboxSprite(widget.getSpriteId());
+			if (Boolean.TRUE.equals(state))
 			{
-				if (text.length() > 0)
-				{
-					text.append('\n');
-				}
-				text.append(widgetText);
+				return true;
+			}
+			if (Boolean.FALSE.equals(state))
+			{
+				foundUncheckedSprite = true;
 			}
 
 			pushChildren(stack, widget.getDynamicChildren());
@@ -329,7 +299,22 @@ public class IkodParchmentRiskService
 			pushChildren(stack, widget.getChildren());
 		}
 
-		return text.toString();
+		return foundUncheckedSprite ? Boolean.FALSE : null;
+	}
+
+	static Boolean parseCheckboxSprite(int spriteId)
+	{
+		switch (spriteId)
+		{
+			case DEATHKEEP_CHECKBOX_CHECKED_SPRITE_ID:
+			case DEATHKEEP_CHECKBOX_CHECKED_RED_SPRITE_ID:
+				return true;
+			case DEATHKEEP_CHECKBOX_EMPTY_SPRITE_ID:
+			case DEATHKEEP_CHECKBOX_CROSSED_SPRITE_ID:
+				return false;
+			default:
+				return null;
+		}
 	}
 
 	static boolean isAboveLevel20(String wildernessText)

@@ -66,15 +66,17 @@ public class IkodUntradeableRepairCostsTest
 	}
 
 	@Test
-	public void recognizesSelectedDeathkeepScenario()
+	public void recognizesDeathkeepCheckboxSprites()
 	{
-		assertEquals(Boolean.TRUE, IkodParchmentRiskService.parseSelectedDepth(
-			"<col=ff981f>Wilderness beyond level 20</col>"));
-		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseSelectedDepth("Killed by a player"));
-		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseSelectedDepth("Below level 20 Wilderness"));
-		assertNull(IkodParchmentRiskService.parseSelectedDepth(
-			"Killed by a player | Wilderness beyond level 20"));
-		assertNull(IkodParchmentRiskService.parseSelectedDepth(""));
+		assertEquals(Boolean.TRUE, IkodParchmentRiskService.parseCheckboxSprite(
+			IkodParchmentRiskService.DEATHKEEP_CHECKBOX_CHECKED_SPRITE_ID));
+		assertEquals(Boolean.TRUE, IkodParchmentRiskService.parseCheckboxSprite(
+			IkodParchmentRiskService.DEATHKEEP_CHECKBOX_CHECKED_RED_SPRITE_ID));
+		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseCheckboxSprite(
+			IkodParchmentRiskService.DEATHKEEP_CHECKBOX_CROSSED_SPRITE_ID));
+		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseCheckboxSprite(
+			IkodParchmentRiskService.DEATHKEEP_CHECKBOX_EMPTY_SPRITE_ID));
+		assertNull(IkodParchmentRiskService.parseCheckboxSprite(-1));
 	}
 
 	@Test
