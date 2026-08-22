@@ -66,15 +66,14 @@ public class IkodUntradeableRepairCostsTest
 	}
 
 	@Test
-	public void recognizesSelectedDeathkeepScenario()
+	public void recognizesDeathkeepToggleSprites()
 	{
-		assertEquals(Boolean.TRUE, IkodParchmentRiskService.parseSelectedDepth(
-			"<col=ff981f>Wilderness beyond level 20</col>"));
-		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseSelectedDepth("Killed by a player"));
-		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseSelectedDepth("Below level 20 Wilderness"));
-		assertNull(IkodParchmentRiskService.parseSelectedDepth(
-			"Killed by a player | Wilderness beyond level 20"));
-		assertNull(IkodParchmentRiskService.parseSelectedDepth(""));
+		assertEquals(Boolean.TRUE, IkodParchmentRiskService.parseDeathkeepToggleSprite(
+			IkodParchmentRiskService.DEATHKEEP_TOGGLE_CHECKED_SPRITE_ID));
+		assertEquals(Boolean.FALSE, IkodParchmentRiskService.parseDeathkeepToggleSprite(
+			IkodParchmentRiskService.DEATHKEEP_TOGGLE_UNCHECKED_SPRITE_ID));
+		assertNull(IkodParchmentRiskService.parseDeathkeepToggleSprite(-1));
+		assertNull(IkodParchmentRiskService.parseDeathkeepToggleSprite(1213));
 	}
 
 	@Test
